@@ -71,6 +71,7 @@ assets/images/         -> ham görseller (elleme)
 assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
                           (`bg_hero.png` = `bg_london`un ana sayfada görünen üst kısmı, 704x760 opak; script üretir)
+tools/patch_android.py -> flutter create'ten sonra çalışır: uygulama simgesi, açılış rengi, uygulama adı (build.yml çağırır)
 ```
 
 - Silinen ve geri EKLENMEYECEK dosya: `floating.dart` (maskotu sürekli hareket ettiriyordu).
@@ -89,6 +90,7 @@ assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir
 
 - APK, GitHub Actions ile alınır (`.github/workflows/build.yml`, elle çalıştırılır).
 - Görseller `tools/prepare_images.py` ile `assets/ready/` klasörüne hazırlanır.
+- `flutter create` sonrası `tools/patch_android.py` çalışır (build.yml adımı): `assets/ready/app_icon.png` -> telefon simgesi, açılış ekranı düz mavi (#389BED), uygulama adı "Hop English". Ek paket yok.
 
 ## 6. Ekran sırası ve durum
 
@@ -170,8 +172,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   Artık açılış ekranı `precacheImage` ile bunları yükler. Boyutlar `home_screen.dart`'taki `cacheHeight` /
   `ResizeImage` değerleriyle AYNI kalmalı (alev/elmas 114, hafta kartı alevi 54, maskot 600, kids 200, hedef 150, hediye 120, `bg_hero` width 1080, avatar width 144). Home'da bir
   görselin boyutu değişirse welcome_screen.dart'taki listeyi de güncelle.
-- Açılışta ~2 sn siyah ekran var: Android'in kendi başlatma ekranı, Flutter kodundan değil. Düzeltmek için
-  `.github/workflows/build.yml`'e launch arka plan rengi yaması gerekir (henüz yapılmadı).
+- Açılıştaki ~2 sn siyah ekran (karanlık mod teması siyahtı) `tools/patch_android.py` ile düzeltildi (6.1 günlüğüne bak).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
 - **Ders kartında kelimeye özel görsel**: `lesson_screen.dart` içindeki `MascotBubble` artık `image` alır; ders ekranı `word.imagePath` (`assets/words/<kelime>.png`) gösterir. Quizdeki Türkçe soru kartı ejderha maskotu kullanmaya devam eder. `assets/words/` görselleri çocuk karakteridir (kullanıcı onayıyla, ejderha kuralının istisnası), yeni kelime için aynı stilde saydam PNG eklenir.
@@ -242,6 +243,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 - **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
+
+- **Uygulama simgesi, açılış ekranı ve uygulama adı** (`tools/patch_android.py`, `.github/workflows/build.yml`): `app_icon.png` hazırlanıyordu ama kullanılmıyordu, telefonda Flutter'ın varsayılan simgesi çıkıyordu. Script `flutter create` sonrası simgeyi tüm mipmap boyutlarına yazar. Açılıştaki siyah ekran, karanlık mod temasının siyah olmasındandı: açılış arka planı artık her modda düz mavi (#389BED), Android 12+ için `windowSplashScreenBackground` da eklendi. Uygulama adı "hop_english" yerine "Hop English". Derlenip denenmedi (script sahte klasör yapısıyla test edildi), APK ile test edilmeli. Not: simge eski tip (uyarlanabilir değil), bazı telefonlarda maskelenmeden görünebilir.
 
 - **Performans ölçeri eklendi** (`debug_tools.dart`, `main.dart`, `profile_screen.dart`): Profil sekmesinde "Yeni Başlangıç" ismine UZUN BASINCA Flutter'ın kendi Raster/UI grafiği açılır, tekrar uzun basınca kapanır (`MaterialApp.showPerformanceOverlay`). Her açılışta kapalı başlar, kaydedilmez, ek paket yok. Üstteki grafik Raster (GPU), alttaki UI (Dart). Yeşil çizginin üstüne çıkan çubuklar takılan karelerdir. Kasma şüphesi olan ekranda açıp bakılır. Kapalıyken performansa etkisi yok, KALDIRMA.
 
