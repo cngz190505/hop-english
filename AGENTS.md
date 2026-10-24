@@ -101,7 +101,9 @@ Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedi
 Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
 Profilde Ayarlar / Yardım satırları henüz yok.
-Günlük hedef süresi (0/5 dakika) henüz ölçülmüyor.
+Günlük hedef (5 dk): ders ve quiz ekranlarında geçen süre `StudyTimer` ile ölçülür (iki dokunuş arası
+en fazla 60 sn sayılır). 5 dk dolunca hediye kutusu +10 elmas verir, her gün sıfırlanır.
+Yeni bir çalışma ekranı eklenirse içine `StudyTimer` konmalı: `tap()` dokunuşlarda, `finish()` dispose'da.
 
 ## 7. Durum yönetimi kuralı
 
