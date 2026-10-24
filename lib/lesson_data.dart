@@ -200,6 +200,7 @@ class QuizQuestion {
   final List<Word> pictures; // picture: 4 görsel
   final List<Word> pairs; // match: eşleştirilecek kelimeler
   final List<String> letters; // scramble: karışık harfler
+  final bool retry; // yanlış yapılan sorunun tekrarı (puana sayılmaz)
   const QuizQuestion({
     required this.type,
     required this.word,
@@ -208,11 +209,42 @@ class QuizQuestion {
     this.pictures = const [],
     this.pairs = const [],
     this.letters = const [],
+    this.retry = false,
   });
   bool get isPicture => type == QType.picture;
 
   /// Cevap kutusunda "Doğrusu: ..." olarak gösterilen metin.
   String get answerText => type == QType.listen ? '${word.en} (${word.tr})' : word.en;
+}
+
+/// Yanlış yapılan kelimenin tekrar sorusu: farklı tipte (yazılı yanlıştıysa dinle ve seç,
+/// diğerlerinde yazılı) tek soru. Puana sayılmaz ([QuizQuestion.retry]).
+QuizQuestion retryQuestion(List<Word> words, Word w, QType failed) {
+  final n = words.length;
+  final i = words.indexOf(w).clamp(0, n - 1);
+  final pos = (i + 1) % 3;
+  if (failed == QType.text) {
+    final others = [for (var k = 1; k < n; k++) words[(i + k) % n]];
+    final options = [others[0].tr, others[others.length > 2 ? 2 : 1].tr]
+      ..insert(pos, w.tr);
+    return QuizQuestion(
+        type: QType.listen, word: w, options: options, correct: pos, retry: true);
+  }
+  final options = [words[(i + 1) % n].en, words[(i + 3) % n].en]..insert(pos, w.en);
+  return QuizQuestion(
+      type: QType.text, word: w, options: options, correct: pos, retry: true);
+}
+
+/// Tekrar dersi için en çok 10 kelime seçer: önce "zor" kelimeler, sonra diğerleri
+/// (diğerleri günün tarihine göre kaydırılır, her gün farklı kelimeler öne gelir).
+List<Word> pickReviewWords(List<Word> learned, Set<String> hard) {
+  final h = [for (final w in learned) if (hard.contains(w.en)) w];
+  final rest = [for (final w in learned) if (!hard.contains(w.en)) w];
+  if (rest.isNotEmpty) {
+    final r = DateTime.now().day % rest.length;
+    rest.setAll(0, [...rest.sublist(r), ...rest.sublist(0, r)]);
+  }
+  return [...h, ...rest].take(10).toList();
 }
 
 /// Harf dizme sorusu için uygun mu? Tek kelime, sadece harf, 3-9 harf.

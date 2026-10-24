@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
+import 'quiz_screen.dart';
 import 'speech.dart';
 import 'theme.dart';
 
@@ -93,6 +94,25 @@ class _WordListTabState extends State<WordListTab> {
                 ),
               ),
             ),
+            if (s.learnedWords.length >= 5)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: ChunkyButton(
+                  text: 'Tekrar Dersi',
+                  color: kBlue,
+                  shadowColor: kBlueDark,
+                  height: 46,
+                  fontSize: 16,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => QuizScreen(
+                        words: pickReviewWords(s.learnedWords, s.hardWords),
+                        review: true,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: 12),
             Expanded(
               child: list.isEmpty

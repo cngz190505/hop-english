@@ -16,7 +16,13 @@ const _badText = Color(0xFFD33030);
 class QuizScreen extends StatefulWidget {
   final List<Word> words;
   final int lessonIndex;
-  const QuizScreen({super.key, required this.words, this.lessonIndex = 0});
+  final bool review; // tekrar dersi: ders sayılmaz, küçük ödül verir
+  const QuizScreen({
+    super.key,
+    required this.words,
+    this.lessonIndex = 0,
+    this.review = false,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -24,6 +30,9 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   late final List<QuizQuestion> _qs = buildQuiz(widget.words);
+  late final int _baseTotal = _qs.length; // tekrar soruları hariç
+  final Set<String> _retried = {}; // tekrar sorusu eklenen kelimeler (her kelime 1 kez)
+  int _streak = 0; // üst üste doğru
   int _i = 0;
   int? _sel; // seçmeli sorularda seçilen şık
   String? _answer; // harf dizmede oluşturulan kelime (tamamlanmadıysa null)
@@ -61,7 +70,14 @@ class _QuizScreenState extends State<QuizScreen> {
   void _record(Iterable<String> right, Iterable<String> missed, bool ok) {
     _rightWords.addAll(right);
     _missedWords.addAll(missed);
-    if (ok) _correct++;
+    if (ok && !_q.retry) _correct++;
+    _streak = ok ? _streak + 1 : 0;
+  }
+
+  /// Yanlış yapılan kelime sorunun sonuna bir kez daha eklenir.
+  void _queueRetry(Word w, QType failed) {
+    if (_q.retry || !_retried.add(w.en)) return;
+    _qs.add(retryQuestion(widget.words, w, failed));
   }
 
   void _check() {
@@ -71,6 +87,7 @@ class _QuizScreenState extends State<QuizScreen> {
     setState(() {
       _checked = true;
       _record(ok ? [_q.word.en] : [], ok ? [] : [_q.word.en], ok);
+      if (!ok) _queueRetry(_q.word, _q.type);
     });
     ok ? Fx.right() : Fx.wrong();
     Speech.speak(_q.word.en);
@@ -85,6 +102,9 @@ class _QuizScreenState extends State<QuizScreen> {
       _checked = true;
       _matchRight = ok;
       _record(all.where((w) => !missed.contains(w)), missed, ok);
+      for (final w in _q.pairs) {
+        if (missed.contains(w.en)) _queueRetry(w, QType.match);
+      }
     });
     if (ok) Fx.right();
   }
@@ -102,20 +122,25 @@ class _QuizScreenState extends State<QuizScreen> {
       });
     } else {
       // Bir kelime bir soruda yanlış, başka soruda doğruysa "zor" kalır.
-      final reward = AppState.instance.completeLesson(
-        widget.lessonIndex,
-        missed: _missedWords.toList(),
-        correct: _rightWords.difference(_missedWords).toList(),
-      );
+      final missed = _missedWords.toList();
+      final right = _rightWords.difference(_missedWords).toList();
+      final reward = widget.review
+          ? AppState.instance.completeReview(missed: missed, correct: right)
+          : AppState.instance.completeLesson(
+              widget.lessonIndex,
+              missed: missed,
+              correct: right,
+            );
       Fx.celebrate();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultScreen(
             reward: reward,
             correct: _correct,
-            total: _qs.length,
+            total: _baseTotal,
             words: widget.words,
             lessonIndex: widget.lessonIndex,
+            review: widget.review,
           ),
         ),
       );
@@ -291,7 +316,7 @@ class _QuizScreenState extends State<QuizScreen> {
                         Expanded(
                           child: Text(
                             _isRight
-                                ? 'Harika!'
+                                ? (_streak >= 3 ? '$_streak üst üste doğru!' : 'Harika!')
                                 : (_q.type == QType.match
                                     ? 'Bazı eşleşmeler yanlıştı'
                                     : 'Doğrusu: ${_q.answerText}'),
@@ -316,7 +341,9 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  String get _title {
+  String get _title => _q.retry ? 'Tekrar: $_typeTitle' : _typeTitle;
+
+  String get _typeTitle {
     switch (_q.type) {
       case QType.picture:
         return 'Doğru görseli seç';

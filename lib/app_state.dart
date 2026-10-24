@@ -29,6 +29,8 @@ class AppState extends ChangeNotifier {
   static const xpPerLevel = 200;
   static const xpReward = 20;
   static const gemReward = 5;
+  static const reviewXp = 10; // tekrar dersi ödülü
+  static const reviewGems = 2;
   static const goalSeconds = 300; // günlük hedef: 5 dakika
   static const giftGems = 10; // hedef tamamlanınca hediye
 
@@ -127,6 +129,26 @@ class AppState extends ChangeNotifier {
     gems += giftGems;
     notifyListeners();
     _save();
+  }
+
+  /// Tekrar dersi bittiğinde çağrılır (sadece olay/tıklama içinden). Ders sayısını ve seriyi
+  /// değiştirmez, sadece küçük XP/elmas verir ve "zor" listesini günceller.
+  Reward completeReview({
+    List<String> missed = const [],
+    List<String> correct = const [],
+  }) {
+    hardWords.addAll(missed);
+    hardWords.removeAll(correct);
+    xp += reviewXp;
+    gems += reviewGems;
+    notifyListeners();
+    _save();
+    return Reward(
+      xp: reviewXp,
+      gems: reviewGems,
+      streakGained: false,
+      streak: streak,
+    );
   }
 
   /// Ders bittiğinde çağrılır (sadece olay/tıklama içinden, build içinden değil).

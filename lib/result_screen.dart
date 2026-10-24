@@ -10,6 +10,7 @@ class ResultScreen extends StatelessWidget {
   final int total;
   final List<Word> words;
   final int lessonIndex;
+  final bool review; // tekrar dersi mi
   const ResultScreen({
     super.key,
     required this.reward,
@@ -17,6 +18,7 @@ class ResultScreen extends StatelessWidget {
     required this.total,
     required this.words,
     this.lessonIndex = 0,
+    this.review = false,
   });
 
   void _home(BuildContext context) =>
@@ -68,9 +70,9 @@ class ResultScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Dersi tamamladın!',
-                        style: TextStyle(
+                      Text(
+                        review ? 'Tekrar dersini tamamladın!' : 'Dersi tamamladın!',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: kBlueDark,
@@ -117,7 +119,8 @@ class ResultScreen extends StatelessWidget {
                       text: 'Ana Sayfaya Dön',
                       onPressed: () => _home(context),
                     ),
-                    const SizedBox(height: 6),
+                    if (!review) const SizedBox(height: 6),
+                    if (!review)
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
