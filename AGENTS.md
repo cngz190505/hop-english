@@ -239,6 +239,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   `Fx.press()` (sert darbe: `ChunkyButton` her basışta). Cihaz desteklemezse eski `HapticFeedback` yöntemi yedek.
 - `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
+- **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
 
 ## 7. Durum yönetimi kuralı
 
@@ -353,3 +354,14 @@ Yeni kategori = yeni ders (Bölüm 9 sırasıyla). Bir önceki ders kullanıcı 
 13. Bölüm 9'daki durum satırını güncelle (kelimeler [x] görseller [x] kod [x] test [ ]) ve Bölüm 6.1'e günlük yaz.
 14. Değişen dosyalar ve güncel `AGENTS.md` kullanıcıya ZIP olarak DEĞİL, tek tek dosya olarak verilir.
 15. Kullanıcı test edip onaylayınca `test [x]` yapılır, sonra sıradaki kategoriye geçilir.
+
+## 12. Kelime Listem: dersler kapanır-açılır (KESİN KURAL)
+
+Proje sahibinin kesin isteği. İzin almadan değiştirme.
+
+- Kelime Listem'de (`word_list_screen.dart`) her dersin kelimeleri **KAPALI** gelir. Sadece ders başlığı görünür
+  (numara, ders adı, kelime sayısı, ok simgesi).
+- Kullanıcı başlığa dokunarak dersi **kendisi açar**, tekrar dokununca kapatır. Açık dersler `_open` kümesinde tutulur.
+- Arama yazılırken bulunan kelimelerin görünmesi için dersler açık gösterilir (arama kutusu kapanınca eski hali).
+- Açma/kapama anında olur, ANİMASYON YOK (Bölüm 1). Ok simgesi iki ayrı ikondur (`keyboard_arrow_down/up`), döndürme yok.
+- Yeni ders eklenince de aynı kural geçerli: kelimeler kapalı gelir. Başlık `lessonTitles`'tan okunur.
