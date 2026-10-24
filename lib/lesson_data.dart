@@ -14,6 +14,10 @@ class Word {
     required this.exampleTr,
     required this.emoji,
   });
+
+  /// Kelimenin resmi: assets/words/<kelime>.png (boşluksuz, küçük harf), örn. thankyou.png.
+  /// Resim dosyası yoksa quizde emoji gösterilir.
+  String get imagePath => 'assets/words/${en.replaceAll(' ', '').toLowerCase()}.png';
 }
 
 /// 1. ders: Selamlaşma (6 kelime)

@@ -335,7 +335,18 @@ class _PicOption extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(word.emoji, style: const TextStyle(fontSize: 60)),
+            SizedBox(
+              height: 120,
+              child: Image.asset(
+                word.imagePath,
+                height: 120,
+                cacheHeight: 360,
+                fit: BoxFit.contain,
+                // Resim dosyası yoksa emoji gösterilir.
+                errorBuilder: (_, __, ___) =>
+                    Center(child: Text(word.emoji, style: const TextStyle(fontSize: 60))),
+              ),
+            ),
             const SizedBox(height: 10),
             Text(
               word.tr,
