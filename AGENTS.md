@@ -98,7 +98,7 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 9. [x] Tekrar sekmesi (= Kelime Listem)
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
-Sadece 1. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
+1. ve 2. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
 Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedilir (`AppState.load/_save`).
 Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
@@ -151,6 +151,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Ders kartında kelimeye özel görsel**: `lesson_screen.dart` içindeki `MascotBubble` artık `image` alır; ders ekranı `word.imagePath` (`assets/words/<kelime>.png`) gösterir. Quizdeki Türkçe soru kartı ejderha maskotu kullanmaya devam eder. `assets/words/` görselleri çocuk karakteridir (kullanıcı onayıyla, ejderha kuralının istisnası), yeni kelime için aynı stilde saydam PNG eklenir.
 
 - **Titreşim Duolingo gibi güçlendirildi** (`fx.dart`): doğru 3 darbe, yanlış 5 darbe, kutlama 10 darbe; her darbede `vibrate` + `heavyImpact`. Ek paket yok.
+- **Ders 2 (Kendini Tanıtma) eklendi**: `lesson_data.dart` içinde `lesson2Words` (10 kelime), `lessonsContent` listesinde. `openLesson1` yerine `openLesson(context, index)` var; `LessonScreen`, `QuizScreen`, `ResultScreen` `lessonIndex` taşır ve `completeLesson(index)` doğru dersi işaretler. Ders haritasında içerik hazır ders sayısı `lessonsContent.length`'ten gelir. Ana sayfa butonu sıradaki dersi açar, ilerleme çubuğu öğrenilen kelime/toplam kelime gösterir. Derlenip denenmedi.
 
 ## 7. Durum yönetimi kuralı
 
@@ -175,3 +176,33 @@ Proje sahibinin kesin isteği. İzin almadan esnetme, atlama, değiştirme.
 - Görselin pozu kelimenin anlamını anlatmalı (örn. hello = el sallıyor, yes = başparmak yukarı, please = eller birleşik).
 - Quizdeki görselli sorular da aynı dosyaları kullanır, ayrı görsel üretme.
 - Bu kural ders ekranı ve quiz için geçerlidir; yeni bir ekran kelime gösteriyorsa aynı görseli kullanır.
+
+## 9. Müfredat ve çalışma sırası (SIRAYLA GİDİLİR, atlama)
+
+Kurallar:
+- 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
+- Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
+- Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
+- Ders haritası şu an 5 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Günlük İfadeler, Sosyal Hayat, Alışveriş).
+  Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
+
+Her ders için 4 adım:
+1. Claude 10 kelimeyi (İngilizce, okunuş, Türkçe, örnek cümle) ve Gemini görsel prompt'larını verir.
+2. Kullanıcı görselleri üretip gönderir.
+3. Claude arka planı siler, `assets/words/<kelime>.png` adlandırır, `lesson_data.dart`'a dersi ekler, kilidi açar.
+4. Kullanıcı test eder, onaylar. Sonra sıradaki ders.
+
+Durum (tamamlanınca [x] yap):
+
+1. [x] Selamlaşma (6 kelime: hello, goodbye, thank you, please, yes, no; görseller hazır). 10'a tamamlamak isteğe bağlı.
+2. [~] Kendini Tanıtma (10 kelime: name, I, you, my, age, from, nice to meet you, friend, student, fine). Görseller ve kod eklendi, kullanıcı testi bekleniyor.
+3. [ ] Meyveler
+4. [ ] Hayvanlar
+5. [ ] Renkler
+6. [ ] Araçlar
+7. [ ] Aile
+8. [ ] Vücut
+9. [ ] Günlük İfadeler
+10. [ ] Alışveriş
+
+Ders 2: kelimeler [x] görseller [x] kod [x] test [ ]
