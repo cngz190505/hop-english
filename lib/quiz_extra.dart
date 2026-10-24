@@ -212,12 +212,14 @@ class _MatchTile extends StatelessWidget {
 /// eksikse null ile çağrılır. [locked] true ise (kontrol sonrası) dokunuş kapanır.
 class ScrambleQuestion extends StatefulWidget {
   final List<String> letters;
+  final String separator; // harfler için '', ifadede kelimeler için ' '
   final bool locked;
   final bool? right; // kontrol sonrası renk için
   final void Function(String? answer) onChanged;
   const ScrambleQuestion({
     super.key,
     required this.letters,
+    required this.separator,
     required this.locked,
     required this.right,
     required this.onChanged,
@@ -232,7 +234,7 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
 
   void _report() {
     final full = _placed.length == widget.letters.length;
-    widget.onChanged(full ? _placed.map((i) => widget.letters[i]).join() : null);
+    widget.onChanged(full ? _placed.map((i) => widget.letters[i]).join(widget.separator) : null);
   }
 
   void _add(int i) {
@@ -265,8 +267,8 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
                 onTap: () => _removeAt(s),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  width: 44,
-                  height: 52,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 52),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: s < _placed.length ? Colors.white : kTrack,
@@ -302,8 +304,8 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
                 onTap: () => _add(i),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  width: 44,
-                  height: 52,
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 52),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: _placed.contains(i) ? kTrack : Colors.white,

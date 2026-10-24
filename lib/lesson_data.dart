@@ -267,24 +267,28 @@ Word wordOfDay(List<Word> pool) {
   return pool[day % pool.length];
 }
 
-/// Harf dizme sorusu için uygun mu? Tek kelime, sadece harf, 3-9 harf.
-bool canScramble(Word w) =>
-    !w.en.contains(RegExp(r'[^a-zA-Z]')) && w.en.length >= 3 && w.en.length <= 9;
+/// Harf dizme parçaları: tek kelimede harfler, ifadede (boşluk varsa) kelimeler.
+List<String> scrambleTiles(Word w) =>
+    w.en.contains(' ') ? w.en.split(' ') : w.en.split('');
 
-List<String> _scrambleLetters(String s, int seed) {
-  final chars = s.split('');
+/// Harf dizme TÜM kelimelerde çıkar. Tek istisna: tek parçalı kelime (örn. "I").
+bool canScramble(Word w) => scrambleTiles(w).length >= 2;
+
+List<String> _shuffleTiles(Word w, int seed) {
+  final tiles = scrambleTiles(w);
+  final sep = w.en.contains(' ') ? ' ' : '';
   final r = Random(seed);
   for (var t = 0; t < 8; t++) {
-    chars.shuffle(r);
-    if (chars.join() != s) return chars;
+    tiles.shuffle(r);
+    if (tiles.join(sep) != w.en) return tiles;
   }
-  return chars.reversed.toList();
+  return tiles.reversed.toList();
 }
 
 /// Dersin sorularını üretir. Rastgelelik sabit tohumlu: her seferinde aynı sonuç.
-/// Her kelime için 1 soru: sırayla Dinle ve seç, Görseli seç, Cümle tamamlama,
-/// Harf dizme, Doğru cevabı seç (uygun olmayan kelimede Doğru cevabı seç). Sonra her 5 kelime için
-/// 1 Eşleştirme sorusu eklenir (ikisi varsa biri ortaya, biri sona).
+/// Sıra: 1) Her kelime için 1 tanıma sorusu (Dinle ve seç, Görseli seç, Cümle tamamlama,
+/// Doğru cevabı seç döngüsü), 2) Eşleştirme, 3) HER kelime için Harf dizme, 4) 2. Eşleştirme.
+/// Eşleştirme: 5+ kelimede 1, 6+ kelimede 2 tane (ilk 5 ve son 5 kelime).
 List<QuizQuestion> buildQuiz(List<Word> words) {
   final n = words.length;
   final single = <QuizQuestion>[];
@@ -294,12 +298,10 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
       QType.listen,
       QType.picture,
       QType.sentence,
-      QType.scramble,
       QType.text,
-    ][i % 5];
+    ][i % 4];
     if (kind == QType.picture && n < 4) kind = QType.text;
     if (kind == QType.sentence && blankSentence(w) == null) kind = QType.text;
-    if (kind == QType.scramble && !canScramble(w)) kind = QType.text;
     switch (kind) {
       case QType.listen:
         final others = [for (var k = 1; k < n; k++) words[(i + k) % n]];
@@ -333,12 +335,6 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
           correct: spos,
           sentence: blankSentence(w)!,
         ));
-      case QType.scramble:
-        single.add(QuizQuestion(
-          type: QType.scramble,
-          word: w,
-          letters: _scrambleLetters(w.en, 7 + i),
-        ));
       default:
         final dpos = i % 3;
         final dopts = [words[(i + 1) % n].en, words[(i + 3) % n].en]
@@ -349,13 +345,25 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
   }
   final matches = <QuizQuestion>[];
   if (n >= 5) {
-    for (var c = 0; c + 5 <= n; c += 5) {
+    // 1. eşleştirme ilk 5 kelime, 2. eşleştirme son 5 kelime (6-9 kelimede kelimeler tekrar eder).
+    final starts = n >= 6 ? [0, n - 5] : [0];
+    for (final c in starts) {
       final pairs = words.sublist(c, c + 5);
       matches.add(QuizQuestion(type: QType.match, word: pairs.first, pairs: pairs));
     }
   }
+  final scrambles = [
+    for (var i = 0; i < n; i++)
+      if (canScramble(words[i]))
+        QuizQuestion(
+          type: QType.scramble,
+          word: words[i],
+          letters: _shuffleTiles(words[i], 7 + i),
+        ),
+  ];
   final out = [...single];
-  if (matches.length > 1) out.insert(single.length ~/ 2, matches.removeAt(0));
-  out.addAll(matches);
+  if (matches.isNotEmpty) out.add(matches.first);
+  out.addAll(scrambles);
+  if (matches.length > 1) out.add(matches.last);
   return out;
 }

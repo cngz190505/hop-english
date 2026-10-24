@@ -231,6 +231,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       ScrambleQuestion(
                         key: ValueKey(_i),
                         letters: _q.letters,
+                        separator: _q.word.en.contains(' ') ? ' ' : '',
                         locked: _checked,
                         right: _checked ? _isRight : null,
                         onChanged: (a) => setState(() => _answer = a),
@@ -401,7 +402,7 @@ class _QuizScreenState extends State<QuizScreen> {
       case QType.match:
         return 'Eşleştir';
       case QType.scramble:
-        return 'Kelimeyi oluştur';
+        return _q.word.en.contains(' ') ? 'İfadeyi oluştur' : 'Kelimeyi oluştur';
       case QType.sentence:
         return 'Boşluğu doldur';
       case QType.text:
