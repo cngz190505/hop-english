@@ -64,6 +64,7 @@ lib/
   profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
+  debug_tools.dart     -> performans ölçeri düğmesi (showPerfOverlay), Profilde isme uzun basınca açılır
   fx.dart              -> titreşim + ses efektleri (vibration, HapticFeedback yedek, audioplayers)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
@@ -241,6 +242,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 - **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
+
+- **Performans ölçeri eklendi** (`debug_tools.dart`, `main.dart`, `profile_screen.dart`): Profil sekmesinde "Yeni Başlangıç" ismine UZUN BASINCA Flutter'ın kendi Raster/UI grafiği açılır, tekrar uzun basınca kapanır (`MaterialApp.showPerformanceOverlay`). Her açılışta kapalı başlar, kaydedilmez, ek paket yok. Üstteki grafik Raster (GPU), alttaki UI (Dart). Yeşil çizginin üstüne çıkan çubuklar takılan karelerdir. Kasma şüphesi olan ekranda açıp bakılır. Kapalıyken performansa etkisi yok, KALDIRMA.
 
 - **Kelime Listem satırlarında emoji yerine kelime görseli** (`word_list_screen.dart`): Sayfa yeni tasarımdan sonra kaydırırken yavaşlıyor/bulanık görünüyordu. Şüphe: her satırdaki renkli emoji yazısı. Satırın dairesinde artık `word.imagePath` (kelimenin çocuk görseli, üst kısmı, `BoxFit.cover` + `topCenter`, `cacheWidth: 162`) gösterilir; dosya yoksa emoji yedek olarak kalır. Bölüm 8 ile uyumlu. Derlenip denenmedi, APK ile test edilmeli. Düzelmezse sıradaki şüpheliler: özet kartındaki `ClipRRect`+`LinearProgressIndicator`, `ListenableBuilder`'ın tüm listeyi yeniden kurması.
 
