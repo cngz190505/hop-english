@@ -6,6 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Resimleri hazirla
+        run: |
+          pip install pillow
+          python tools/prepare_images.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -15,13 +22,6 @@ jobs:
           channel: stable
       - name: Android klasorunu olustur
         run: flutter create --platforms=android --org com.hopenglish --project-name hop_english .
-      - name: Uygulama ikonu
-        run: |
-          IM=$(command -v magick || command -v convert)
-          for s in "mdpi 48" "hdpi 72" "xhdpi 96" "xxhdpi 144" "xxxhdpi 192"; do
-            set -- $s
-            $IM tools/app_icon.png -resize ${2}x${2} android/app/src/main/res/mipmap-$1/ic_launcher.png
-          done
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
