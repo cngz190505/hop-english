@@ -114,6 +114,13 @@ Yeni bir çalışma ekranı eklenirse içine `StudyTimer` konmalı: `tap()` doku
 
 ## 6.1 Yapılanlar (değişiklik günlüğü)
 
+- **Harf dizme düzeni düzeltildi** (`quiz_extra.dart`): Kutularda `Container(alignment: ...)` Wrap içinde tam genişliğe uzuyor, harfler alt alta diziliyordu. Artık `Center(widthFactor: 1, heightFactor: 1)` ile içerik kadar geniş, yan yana dizilir. (Kural: Wrap içindeki kutuda `alignment` kullanma.)
+- **İpucu eklendi** (`quiz_screen.dart`, `quiz_extra.dart`): Eşleştirme hariç her soruda alt panelde "İpucu (n)" butonu. Seçmeli sorularda her ipucu 1 yanlış şıkkı soluklaştırıp kapatır (en az 2 şık kalır). Harf dizmede sıradaki doğru parçayı yerleştirir, yanlış yerleşenleri geri alır (`hintTick`, `target`). Yazmada ilk harfleri açar ("h _ _ _ _"). İpucuyla doğru bilinen soru puana, hakimiyete ve üst üste doğru serisine sayılmaz ("İpucuyla doğru!"), ders yine ilerler. Amaç: zorlanan çocuk dersten çıkmak yerine ipucu alsın.
+
+- **Yazma sorusu eklendi** (`QType.typing`; `lesson_data.dart`, `quiz_extra.dart` → `TypeQuestion`, `quiz_screen.dart`): Türkçesi + görsel gösterilir, kullanıcı İngilizcesini klavyeyle yazar. `buildQuiz` her 2 kelimeden birinde (tek sıralı kelimeler) Harf dizme'den sonra ekler (6 kelime = +3 soru). Karşılaştırma `normalizeTyped` ile: büyük/küçük harf, baştaki/sondaki/fazla boşluk, kıvrık tırnak yok sayılır. Otomatik düzeltme ve öneri kapalı. Klavyedeki "bitti" tuşu da Kontrol Et'i çalıştırır. Yanlışsa tekrar sorusu olarak seçmeli `text` sorusu eklenir (`retryQuestion`). Animasyon yok, ek paket yok.
+
+- **Ders haritasında serbest çalışma** (`lesson_map_screen.dart`): İçeriği hazır olan (`lessonsContent`) her ders, tamamlanmış olsa bile haritadan dokunarak açılır. İçeriği olmayan dersler kilitli kalır. İlerleme geriye gitmez (`completeLesson` sadece ileri taşır).
+
 Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya dosya olarak verilir.
 
 - **Günlük hedef sayacı bağlandı** (`lesson_screen.dart`, `quiz_screen.dart`, `home_screen.dart`):
