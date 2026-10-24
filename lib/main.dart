@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_state.dart';
+import 'debug_tools.dart';
 import 'theme.dart';
 import 'welcome_screen.dart';
 
@@ -14,12 +15,17 @@ class HopEnglishApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Hop English',
-      theme: buildTheme(),
-      scrollBehavior: const BouncyScrollBehavior(),
-      home: const WelcomeScreen(),
+    // Performans ölçeri açılıp kapanınca sadece MaterialApp yenilenir (debug_tools.dart).
+    return ValueListenableBuilder<bool>(
+      valueListenable: showPerfOverlay,
+      builder: (context, perf, _) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        showPerformanceOverlay: perf,
+        title: 'Hop English',
+        theme: buildTheme(),
+        scrollBehavior: const BouncyScrollBehavior(),
+        home: const WelcomeScreen(),
+      ),
     );
   }
 }

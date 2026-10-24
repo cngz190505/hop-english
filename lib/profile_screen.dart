@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_state.dart';
+import 'debug_tools.dart';
+import 'fx.dart';
 import 'theme.dart';
 
 /// Profil sekmesi: lacivert üst bölüm (avatar, ad, seviye), istatistik kartları, rozetler.
@@ -66,20 +68,28 @@ class ProfileTab extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Yeni Başlangıç',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                              // Uzun basınca performans ölçeri açılır/kapanır (debug_tools.dart).
+                              GestureDetector(
+                                onLongPress: () {
+                                  Fx.press();
+                                  showPerfOverlay.value = !showPerfOverlay.value;
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: const Text(
+                                  'Yeni Başlangıç',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 2),
-                              Text(
+                              const SizedBox(height: 2),
+                              const Text(
                                 'English Learner',
                                 style: TextStyle(
                                   fontSize: 15,
