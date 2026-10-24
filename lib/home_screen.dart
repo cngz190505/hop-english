@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'fx.dart';
 import 'app_state.dart';
-import 'cube_game_screen.dart';
 import 'lesson_data.dart';
 import 'lesson_map_screen.dart';
 import 'lesson_screen.dart';
@@ -93,7 +92,6 @@ class _HomeTab extends StatelessWidget {
       children: [
         const _HeroWithCard(),
         _TodayLessons(onAll: onLessons),
-        const Padding(padding: side, child: _GameCard()),
         const Padding(padding: side, child: _WeekCard()),
         const Padding(padding: side, child: _GoalCard()),
         const Padding(padding: side, child: _WordOfDayCard()),
@@ -870,65 +868,6 @@ class _GoalCard extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-/// Kelime Küpleri oyununa giriş kartı.
-class _GameCard extends StatelessWidget {
-  const _GameCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Fx.press();
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const CubeGameScreen()),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: cardDecoration(),
-        child: Row(
-          children: [
-            const CubeStrip(),
-            const SizedBox(width: 14),
-            Expanded(
-              child: ListenableBuilder(
-                listenable: AppState.instance,
-                builder: (context, _) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Kelime Küpleri',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: kInk),
-                    ),
-                    Text(
-                      'Seviye ${AppState.instance.gameLevel} • +${AppState.gameXp} XP',
-                      style: const TextStyle(fontSize: 12, color: kMuted),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: kGreen,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: const [BoxShadow(color: kGreenDark, offset: Offset(0, 3))],
-              ),
-              child: const Text(
-                'Oyna',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

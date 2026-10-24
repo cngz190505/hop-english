@@ -34,13 +34,11 @@ class AppState extends ChangeNotifier {
   static const reviewGems = 2;
   static const goalSeconds = 300; // günlük hedef: 5 dakika
   static const giftGems = 10; // hedef tamamlanınca hediye
-  static const gameXp = 20; // Kelime Küpleri: seviye başına XP
 
   int xp = 45;
   int gems = 120;
   int streak = 3;
   int completedLessons = 0;
-  int gameLevel = 1; // Kelime Küpleri: şu anki seviye
   int lessonsToday = 0;
   /// Quizde yanlış yapılan kelimeler (İngilizce yazılışı). "Zor" listesi.
   final Set<String> hardWords = {};
@@ -129,7 +127,6 @@ class AppState extends ChangeNotifier {
       gems = p.getInt('gems') ?? gems;
       streak = p.getInt('streak') ?? streak;
       completedLessons = p.getInt('completedLessons') ?? completedLessons;
-      gameLevel = p.getInt('gameLevel') ?? gameLevel;
       _day = p.getString('day');
       // Bugün ders yapılmadıysa "bugünkü ders" sayacı sıfır.
       lessonsToday = _day == _today() ? (p.getInt('lessonsToday') ?? 0) : 0;
@@ -162,7 +159,6 @@ class AppState extends ChangeNotifier {
       await p.setInt('gems', gems);
       await p.setInt('streak', streak);
       await p.setInt('completedLessons', completedLessons);
-      await p.setInt('gameLevel', gameLevel);
       await p.setInt('lessonsToday', lessonsToday);
       if (_day != null) await p.setString('day', _day!);
       await p.setStringList('hardWords', hardWords.toList());
@@ -201,15 +197,6 @@ class AppState extends ChangeNotifier {
     _giftClaimed = true;
     Fx.reward();
     gems += giftGems;
-    notifyListeners();
-    _save();
-  }
-
-  /// Kelime Küpleri seviyesi bitince çağrılır (sadece tıklama olayından). XP verir, seviyeyi artırır.
-  /// Ders sayısını ve seriyi değiştirmez.
-  void finishGameLevel() {
-    xp += gameXp;
-    gameLevel++;
     notifyListeners();
     _save();
   }
