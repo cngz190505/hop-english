@@ -176,7 +176,11 @@ class _WordCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          MascotBubble(text: _bubbleText(word.en)),
+          MascotBubble(
+            text: _bubbleText(word.en),
+            image: word.imagePath,
+            imageCacheHeight: 420,
+          ),
           const SizedBox(height: 14),
           _Sentence(word: word),
         ],
@@ -192,7 +196,16 @@ class _WordCard extends StatelessWidget {
 class MascotBubble extends StatelessWidget {
   final String text;
   final double height;
-  const MascotBubble({super.key, required this.text, this.height = 190});
+  /// Soldaki resim. Verilmezse ejderha maskotu görünür.
+  final String image;
+  final int imageCacheHeight;
+  const MascotBubble({
+    super.key,
+    required this.text,
+    this.height = 190,
+    this.image = 'assets/ready/mascot_main.png',
+    this.imageCacheHeight = 510,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,9 +227,9 @@ class MascotBubble extends StatelessWidget {
               left: 16,
               bottom: 8,
               child: Image.asset(
-                'assets/ready/mascot_main.png',
+                image,
                 height: height - 20,
-                cacheHeight: 510,
+                cacheHeight: imageCacheHeight,
                 gaplessPlayback: true,
               ),
             ),
