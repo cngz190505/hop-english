@@ -29,7 +29,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 - **Sürekli yeniden çizdiren şeyler yasak:** `Timer.periodic` ile sürekli `setState`,
   `StreamBuilder`/`FutureBuilder` ile gereksiz yenileme, `Opacity` ile sürekli
   değişen katmanlar, ağır `BackdropFilter`/blur, çok büyük `blurRadius` gölgeler.
-- **Paket kuralı:** Şu an tek ek paket `flutter_tts`. Başka paket ekleme, gerekirse önce kullanıcıya sor.
+- **Paket kuralı:** Şu an ek paketler: `flutter_tts` (ses), `shared_preferences` (kayıt). Başka paket ekleme, gerekirse önce kullanıcıya sor.
 - **Uzun listelerde `ListView.builder` kullan.** Çok elemanlı listeyi `Column` içine koyma.
 
 ## 2. Tasarım
@@ -97,7 +97,8 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
 Sadece 1. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
-Puan/elmas/seri şimdilik sadece bellekte tutulur, uygulama kapanınca sıfırlanır (kalıcı kayıt yok).
+Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedilir (`AppState.load/_save`).
+Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
 Profilde Ayarlar / Yardım satırları henüz yok.
 Günlük hedef süresi (0/5 dakika) henüz ölçülmüyor.
@@ -106,5 +107,6 @@ Günlük hedef süresi (0/5 dakika) henüz ölçülmüyor.
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
 - Ekranlar bunu `ListenableBuilder` ile dinler ve sadece değişen küçük parçayı yeniler.
+- Yeni bir kalıcı veri eklenirse `AppState` içinde hem `load()` hem `_save()` güncellenmeli.
 - `AppState.completeLesson()` sadece tıklama/olay içinden çağrılır, `build` veya `initState` içinden asla
   (yoksa "setState called during build" hatası verir).
