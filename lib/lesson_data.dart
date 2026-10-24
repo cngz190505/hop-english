@@ -76,7 +76,11 @@ class QuizQuestion {
   final Word word;
   final List<String> options;
   final int correct; // doğru şıkkın sırası
-  const QuizQuestion(this.word, this.options, this.correct);
+  /// Doluysa "Doğru görseli seç" sorusudur: İngilizcesi gösterilir, 4 görselden biri seçilir.
+  final List<Word> pictures;
+  const QuizQuestion(this.word, this.options, this.correct,
+      {this.pictures = const []});
+  bool get isPicture => pictures.isNotEmpty;
 }
 
 /// Her kelime için 1 soru üretir. Yanlış şıklar diğer kelimelerden gelir.
@@ -86,6 +90,17 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
   return [
     for (var i = 0; i < n; i++)
       () {
+        // Tek numaralı sorular görselli (4 kelime olmalı), diğerleri yazılı.
+        if (i.isOdd && n >= 4) {
+          final pos = i % 4;
+          final pics = [
+            words[(i + 1) % n],
+            words[(i + 2) % n],
+            words[(i + 4) % n],
+          ]..insert(pos, words[i]);
+          return QuizQuestion(words[i], [for (final w in pics) w.en], pos,
+              pictures: pics);
+        }
         final pos = i % 3;
         final options = [words[(i + 1) % n].en, words[(i + 3) % n].en]
           ..insert(pos, words[i].en);

@@ -122,15 +122,39 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Doğru cevabı seç',
-                      style: TextStyle(
+                    Text(
+                      _q.isPicture ? 'Doğru görseli seç' : 'Doğru cevabı seç',
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                         color: kInk,
                       ),
                     ),
                     const SizedBox(height: 14),
+                    if (_q.isPicture) ...[
+                      _ListenWord(word: _q.word.en),
+                      const SizedBox(height: 16),
+                      for (var r = 0; r < 2; r++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              for (var c = 0; c < 2; c++) ...[
+                                if (c == 1) const SizedBox(width: 12),
+                                Expanded(
+                                  child: _PicOption(
+                                    word: _q.pictures[r * 2 + c],
+                                    state: _stateOf(r * 2 + c),
+                                    onTap: _checked
+                                        ? null
+                                        : () => setState(() => _sel = r * 2 + c),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                    ] else ...[
                     MascotBubble(text: _q.word.tr, height: 170),
                     const SizedBox(height: 16),
                     const Text(
@@ -151,6 +175,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           onTap: _checked ? null : () => setState(() => _sel = k),
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -230,6 +255,100 @@ class _QuizScreenState extends State<QuizScreen> {
 }
 
 enum _OptState { normal, selected, right, wrong }
+
+/// Görselli soruda İngilizce kelime + dinle butonu.
+class _ListenWord extends StatelessWidget {
+  final String word;
+  const _ListenWord({required this.word});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Speech.speak(word),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kBlue,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: const [BoxShadow(color: Color(0xFF1899D6), offset: Offset(0, 4))],
+            ),
+            child: const Icon(Icons.volume_up_rounded, color: Colors.white, size: 30),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              word,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: kInk,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Görselli soru şıkkı: büyük simge + Türkçe adı.
+class _PicOption extends StatelessWidget {
+  final Word word;
+  final _OptState state;
+  final VoidCallback? onTap;
+  const _PicOption({required this.word, required this.state, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color border;
+    final Color bg;
+    switch (state) {
+      case _OptState.normal:
+        border = const Color(0xFFD5E4F0);
+        bg = Colors.white;
+      case _OptState.selected:
+        border = kBlue;
+        bg = const Color(0xFFE6F5FF);
+      case _OptState.right:
+        border = kGreen;
+        bg = const Color(0xFFE3FFD0);
+      case _OptState.wrong:
+        border = kRed;
+        bg = const Color(0xFFFFE9E9);
+    }
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: border, width: 2),
+          boxShadow: [BoxShadow(color: border, offset: const Offset(0, 3))],
+        ),
+        child: Column(
+          children: [
+            Text(word.emoji, style: const TextStyle(fontSize: 60)),
+            const SizedBox(height: 10),
+            Text(
+              word.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: kInk,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _Option extends StatelessWidget {
   final String text;
