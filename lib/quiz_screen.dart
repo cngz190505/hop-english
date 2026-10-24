@@ -64,6 +64,7 @@ class _QuizScreenState extends State<QuizScreen> {
         missed: _missedWords,
         correct: _rightWords,
       );
+      Fx.celebrate();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultScreen(
