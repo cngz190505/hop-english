@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fx.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
 import 'quiz_screen.dart';
@@ -177,7 +178,10 @@ class _WordListTabState extends State<WordListTab> {
                     for (var i = 0; i < _tabs.length; i++)
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => setState(() => _filter = i),
+                          onTap: () {
+                            Fx.tap();
+                            setState(() => _filter = i);
+                          },
                           behavior: HitTestBehavior.opaque,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 180),
@@ -540,7 +544,10 @@ class _WordRowState extends State<_WordRow> {
       onTapDown: (_) => setState(() => _down = true),
       onTapCancel: () => setState(() => _down = false),
       onTapUp: (_) => setState(() => _down = false),
-      onTap: _play,
+      onTap: () {
+        Fx.tap();
+        _play();
+      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedScale(
         scale: _down ? 0.97 : 1,

@@ -34,7 +34,10 @@ class _ListenBigState extends State<ListenBig> {
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onTap: () => Speech.speak(widget.word),
+        onTap: () {
+          Fx.tap();
+          Speech.speak(widget.word);
+        },
         behavior: HitTestBehavior.opaque,
         child: Container(
           width: 150,
@@ -183,7 +186,12 @@ class _MatchTile extends StatelessWidget {
         bg = _badBg;
     }
     return GestureDetector(
-      onTap: state == _TileState.done ? null : onTap,
+      onTap: state == _TileState.done
+          ? null
+          : () {
+              Fx.tap();
+              onTap();
+            },
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 58,
@@ -323,7 +331,10 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
           children: [
             for (var s = 0; s < n; s++)
               GestureDetector(
-                onTap: () => _removeAt(s),
+                onTap: () {
+                  Fx.tap();
+                  _removeAt(s);
+                },
                 behavior: HitTestBehavior.opaque,
                 child: _box(
                   decoration: BoxDecoration(
@@ -353,7 +364,10 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
           children: [
             for (var i = 0; i < n; i++)
               GestureDetector(
-                onTap: () => _add(i),
+                onTap: () {
+                  Fx.tap();
+                  _add(i);
+                },
                 behavior: HitTestBehavior.opaque,
                 child: _box(
                   decoration: BoxDecoration(

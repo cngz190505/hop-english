@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fx.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
 import 'lesson_map_screen.dart';
@@ -48,7 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: NavigationBar(
           animationDuration: Duration.zero,
           selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
+          onDestinationSelected: (i) {
+            Fx.tap();
+            setState(() => _index = i);
+          },
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_rounded),
@@ -416,7 +420,12 @@ class _LessonTile extends StatelessWidget {
     }
     final Color c = done ? kGreen : (locked ? kLocked : kBlue);
     return GestureDetector(
-      onTap: locked ? null : () => openLesson(context, index),
+      onTap: locked
+          ? null
+          : () {
+              Fx.tap();
+              openLesson(context, index);
+            },
       behavior: HitTestBehavior.opaque,
       child: Opacity(
         opacity: locked ? 0.6 : 1,
@@ -623,7 +632,10 @@ class _WordOfDayCard extends StatelessWidget {
         final learned = AppState.instance.learnedWords;
         final w = wordOfDay(learned.isEmpty ? lessonsContent.first : learned);
         return GestureDetector(
-          onTap: () => Speech.speak(w.en),
+          onTap: () {
+            Fx.tap();
+            Speech.speak(w.en);
+          },
           behavior: HitTestBehavior.opaque,
           child: Container(
             padding: const EdgeInsets.all(14),
@@ -716,7 +728,10 @@ class _HardWordsCard extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: onReview,
+                onTap: () {
+                  Fx.press();
+                  onReview();
+                },
                 child: Container(
                   height: 40,
                   padding: const EdgeInsets.symmetric(horizontal: 18),

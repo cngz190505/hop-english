@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fx.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
 import 'quiz_screen.dart';
@@ -178,7 +179,10 @@ class _WordCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           GestureDetector(
-            onTap: () => Speech.speak(word.en),
+            onTap: () {
+              Fx.tap();
+              Speech.speak(word.en);
+            },
             behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -210,7 +214,10 @@ class _WordCard extends StatelessWidget {
           const SizedBox(height: 8),
           // Yavaş dinle: sesler net anlaşılsın diye daha yavaş okur.
           GestureDetector(
-            onTap: () => Speech.speak(word.en, slow: true),
+            onTap: () {
+              Fx.tap();
+              Speech.speak(word.en, slow: true);
+            },
             behavior: HitTestBehavior.opaque,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -386,7 +393,10 @@ class _Sentence extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           GestureDetector(
-            onTap: () => Speech.speak(word.example),
+            onTap: () {
+              Fx.tap();
+              Speech.speak(word.example);
+            },
             behavior: HitTestBehavior.opaque,
             child: Column(
               mainAxisSize: MainAxisSize.min,

@@ -642,7 +642,10 @@ class _ListenWord extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Speech.speak(word),
+      onTap: () {
+        Fx.tap();
+        Speech.speak(word);
+      },
       behavior: HitTestBehavior.opaque,
       child: Row(
         children: [
@@ -700,7 +703,12 @@ class _PicOption extends StatelessWidget {
         bg = const Color(0xFFFFE9E9);
     }
     final tile = GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null
+          ? null
+          : () {
+              Fx.tap();
+              onTap!();
+            },
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
@@ -772,7 +780,12 @@ class _Option extends StatelessWidget {
         icon = const Icon(Icons.cancel_rounded, color: kRed, size: 26);
     }
     final tile = GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null
+          ? null
+          : () {
+              Fx.tap();
+              onTap!();
+            },
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
@@ -814,7 +827,12 @@ class _HintButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final on = onTap != null;
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null
+          ? null
+          : () {
+              Fx.tap();
+              onTap!();
+            },
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

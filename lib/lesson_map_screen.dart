@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fx.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
 import 'lesson_screen.dart';
@@ -130,7 +131,12 @@ class LessonMapTab extends StatelessWidget {
           info: l,
           status: status,
           // İçeriği hazır olan her ders (bitmiş de olsa) istenen yerden açılır.
-          onTap: i < _playableLessons ? () => openLesson(context, i) : null,
+          onTap: i < _playableLessons
+              ? () {
+                  Fx.tap();
+                  openLesson(context, i);
+                }
+              : null,
         ),
       ),
     ];

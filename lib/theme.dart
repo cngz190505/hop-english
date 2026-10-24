@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fx.dart';
 
 // Renk paleti
 const kGreen = Color(0xFF58CC02);
@@ -112,7 +113,10 @@ class ChunkyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: () {
+        Fx.press();
+        onPressed();
+      },
       child: Container(
         width: double.infinity,
         height: height,
