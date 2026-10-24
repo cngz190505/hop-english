@@ -17,11 +17,13 @@ class QuizScreen extends StatefulWidget {
   final List<Word> words;
   final int lessonIndex;
   final bool review; // tekrar dersi: ders sayılmaz, küçük ödül verir
+  final Map<String, dynamic>? resume; // kaldığı yerden devam (AppState.resumeFor)
   const QuizScreen({
     super.key,
     required this.words,
     this.lessonIndex = 0,
     this.review = false,
+    this.resume,
   });
 
   @override
@@ -31,6 +33,7 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> {
   late final List<QuizQuestion> _qs = buildQuiz(widget.words);
   late final int _baseTotal = _qs.length; // tekrar soruları hariç
+  final List<String> _retryLog = []; // tekrar soruları: "kelime|tip" (kaldığı yeri geri kurmak için)
   final Set<String> _retried = {}; // tekrar sorusu eklenen kelimeler (her kelime 1 kez)
   int _streak = 0; // üst üste doğru
   final Map<String, int> _delta = {}; // kelime başına doğru(+1)/yanlış(-1), hakimiyet için
@@ -46,6 +49,69 @@ class _QuizScreenState extends State<QuizScreen> {
   final StudyTimer _timer = StudyTimer();
   final Set<String> _missedWords = {};
   final Set<String> _rightWords = {};
+
+  /// Sadece henüz bitmemiş derslerde kaldığı yer tutulur (tekrar dersi ve eski dersler hariç).
+  bool get _track =>
+      !widget.review && widget.lessonIndex >= AppState.instance.completedLessons;
+
+  @override
+  void initState() {
+    super.initState();
+    // _baseTotal tekrar soruları eklenmeden ÖNCE hesaplanmalı (late: ilk okunuşta hesaplanır).
+    if (_baseTotal <= 0) return;
+    final r = widget.resume;
+    if (r != null) _restore(r);
+    if (_track) _saveResume();
+  }
+
+  void _saveResume() {
+    AppState.instance.saveResume({
+      'lesson': widget.lessonIndex,
+      'stage': 'quiz',
+      'n': widget.words.length,
+      'i': _i,
+      'total': _qs.length,
+      'correct': _correct,
+      'streak': _streak,
+      'delta': Map<String, int>.of(_delta),
+      'missed': _missedWords.toList(),
+      'right': _rightWords.toList(),
+      'retries': List<String>.of(_retryLog),
+    });
+  }
+
+  /// Kaydedilen duruma döner. Herhangi bir uyuşmazlıkta sessizce baştan başlar.
+  void _restore(Map<String, dynamic> r) {
+    try {
+      final extra = <QuizQuestion>[];
+      final log = <String>[];
+      for (final e in List<String>.from(r['retries'] as List)) {
+        final k = e.lastIndexOf('|');
+        final w = widget.words.firstWhere((x) => x.en == e.substring(0, k));
+        extra.add(retryQuestion(widget.words, w, QType.values[int.parse(e.substring(k + 1))]));
+        log.add(e);
+      }
+      final i = r['i'] as int;
+      if (i < 0 || i >= _qs.length + extra.length) return;
+      final delta = (r['delta'] as Map).map((k, v) => MapEntry('$k', v as int));
+      final missed = List<String>.from(r['missed'] as List);
+      final right = List<String>.from(r['right'] as List);
+      final correct = r['correct'] as int;
+      final streak = r['streak'] as int;
+      // Hepsi geçerli: uygula.
+      _qs.addAll(extra);
+      _retryLog.addAll(log);
+      for (final e in log) {
+        _retried.add(e.substring(0, e.lastIndexOf('|')));
+      }
+      _delta.addAll(delta);
+      _missedWords.addAll(missed);
+      _rightWords.addAll(right);
+      _correct = correct;
+      _streak = streak;
+      _i = i;
+    } catch (_) {}
+  }
 
   QuizQuestion get _q => _qs[_i];
   bool get _isRight {
@@ -97,6 +163,7 @@ class _QuizScreenState extends State<QuizScreen> {
   void _queueRetry(Word w, QType failed) {
     if (_q.retry || !_retried.add(w.en)) return;
     _qs.add(retryQuestion(widget.words, w, failed));
+    _retryLog.add('${w.en}|${failed.index}');
   }
 
   /// Bu soruda en çok kaç ipucu alınabilir (eşleştirmede ipucu yok).
@@ -197,6 +264,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _checked = false;
         _matchRight = false;
       });
+      if (_track) _saveResume();
     } else {
       // Bir kelime bir soruda yanlış, başka soruda doğruysa "zor" kalır.
       final missed = _missedWords.toList();
@@ -230,6 +298,7 @@ class _QuizScreenState extends State<QuizScreen> {
   void dispose() {
     _timer.finish();
     Speech.stop();
+    AppState.instance.refreshLater();
     super.dispose();
   }
 

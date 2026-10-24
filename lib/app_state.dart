@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
@@ -46,6 +47,48 @@ class AppState extends ChangeNotifier {
   static const maxMastery = 3;
   String? _day;
 
+  /// Kaldığı yer: ders/quiz yarıda bırakılınca burada tutulur, telefona kaydedilir.
+  /// Alanlar: lesson, stage ('lesson' | 'quiz'), n (kelime sayısı), i (kelime/soru sırası),
+  /// quizde ayrıca total, correct, streak, delta, missed, right, retries.
+  Map<String, dynamic>? resume;
+
+  /// [lesson] dersi için kaydedilmiş geçerli bir kaldığı yer varsa döner.
+  Map<String, dynamic>? resumeFor(int lesson) {
+    final r = resume;
+    if (r == null || r['lesson'] != lesson) return null;
+    if (lesson < 0 || lesson >= lessonsContent.length) return null;
+    if (r['n'] != lessonsContent[lesson].length) return null; // ders içeriği değişmiş
+    return r;
+  }
+
+  /// Her adımda çağrılır (bildirim yok, sadece kaydeder).
+  void saveResume(Map<String, dynamic> r) {
+    resume = r;
+    _persistResume();
+  }
+
+  void clearResume() {
+    if (resume == null) return;
+    resume = null;
+    _persistResume();
+  }
+
+  /// Ders/quiz ekranı kapanınca ana sayfa "kaldığın yer" yazısı yenilensin.
+  void refreshLater() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+  }
+
+  Future<void> _persistResume() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      if (resume == null) {
+        await p.remove('resume');
+      } else {
+        await p.setString('resume', jsonEncode(resume));
+      }
+    } catch (_) {}
+  }
+
   // Günlük hedef (süre) ve hediye. Ders günü (_day) ile ayrı tutulur.
   String? _studyDay;
   int _studySeconds = 0;
@@ -91,6 +134,11 @@ class AppState extends ChangeNotifier {
       for (final e in p.getStringList('mastery') ?? const <String>[]) {
         final k = e.lastIndexOf('|');
         if (k > 0) mastery[e.substring(0, k)] = int.tryParse(e.substring(k + 1)) ?? 0;
+      }
+      final rs = p.getString('resume');
+      if (rs != null) {
+        final d = jsonDecode(rs);
+        if (d is Map) resume = Map<String, dynamic>.from(d);
       }
       _studyDay = p.getString('studyDay');
       _studySeconds = p.getInt('studySeconds') ?? 0;
@@ -187,6 +235,8 @@ class AppState extends ChangeNotifier {
     final gained = lessonsToday == 0;
     lessonsToday++;
     if (completedLessons <= index) completedLessons = index + 1;
+    resume = null; // ders bitti, kaldığı yer silinir
+    _persistResume();
     hardWords.addAll(missed);
     hardWords.removeAll(correct);
     xp += xpReward;

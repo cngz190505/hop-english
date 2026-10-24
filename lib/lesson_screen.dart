@@ -11,31 +11,60 @@ const _purpleLight = Color(0xFFEDE7FF);
 /// [index]. dersi açar (0 = 1. ders). Ana sayfa butonu ve ders haritası bunu kullanır.
 void openLesson(BuildContext context, int index) {
   final i = index.clamp(0, lessonsContent.length - 1);
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => LessonScreen(words: lessonsContent[i], lessonIndex: i),
-    ),
-  );
+  // Yarıda bırakılmışsa kaldığı yerden devam eder.
+  final r = AppState.instance.resumeFor(i);
+  final Widget page;
+  if (r != null && r['stage'] == 'quiz') {
+    page = QuizScreen(words: lessonsContent[i], lessonIndex: i, resume: r);
+  } else {
+    final start = (r != null && r['i'] is int) ? (r['i'] as int) : 0;
+    page = LessonScreen(
+      words: lessonsContent[i],
+      lessonIndex: i,
+      startIndex: start.clamp(0, lessonsContent[i].length - 1),
+    );
+  }
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
 }
 
 class LessonScreen extends StatefulWidget {
   final List<Word> words;
   final int lessonIndex;
-  const LessonScreen({super.key, required this.words, this.lessonIndex = 0});
+  final int startIndex; // kaldığı kelime
+  const LessonScreen({
+    super.key,
+    required this.words,
+    this.lessonIndex = 0,
+    this.startIndex = 0,
+  });
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
 }
 
 class _LessonScreenState extends State<LessonScreen> {
-  int _i = 0;
+  late int _i = widget.startIndex;
   final StudyTimer _timer = StudyTimer();
+
+  /// Sadece henüz bitmemiş derslerde kaldığı yer tutulur (tekrarlarda tutulmaz).
+  bool get _track => widget.lessonIndex >= AppState.instance.completedLessons;
+
+  void _saveResume() {
+    if (!_track) return;
+    AppState.instance.saveResume({
+      'lesson': widget.lessonIndex,
+      'stage': 'lesson',
+      'n': widget.words.length,
+      'i': _i,
+    });
+  }
 
   void _next() {
     _timer.tap();
     Speech.stop();
     if (_i < widget.words.length - 1) {
       setState(() => _i++);
+      _saveResume();
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => QuizScreen(
@@ -51,6 +80,7 @@ class _LessonScreenState extends State<LessonScreen> {
   void dispose() {
     _timer.finish();
     Speech.stop();
+    AppState.instance.refreshLater();
     super.dispose();
   }
 
@@ -176,6 +206,35 @@ class _WordCard extends StatelessWidget {
           const Text(
             'Dinlemek için dokun',
             style: TextStyle(fontSize: 12, color: kMuted),
+          ),
+          const SizedBox(height: 8),
+          // Yavaş dinle: sesler net anlaşılsın diye daha yavaş okur.
+          GestureDetector(
+            onTap: () => Speech.speak(word.en, slow: true),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6F5FF),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: kBlue, width: 2),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('🐢', style: TextStyle(fontSize: 18)),
+                  SizedBox(width: 6),
+                  Text(
+                    'Yavaş dinle',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: kBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 8),
           Container(

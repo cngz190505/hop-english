@@ -332,6 +332,18 @@ class _Bubble extends StatelessWidget {
 }
 
 /// Büyük yeşil "Devam Et" kartı: sıradaki dersi açar.
+/// Yarıda kalmış ders varsa "Kaldığın yer: ..." yazısı, yoksa null.
+String? _resumeText(int idx) {
+  final r = AppState.instance.resumeFor(idx);
+  if (r == null) return null;
+  final i = (r['i'] is int) ? (r['i'] as int) : 0;
+  if (r['stage'] == 'quiz') {
+    final total = (r['total'] is int) ? (r['total'] as int) : 0;
+    return total > 0 ? 'Kaldığın yer: Soru ${i + 1}/$total' : 'Kaldığın yerden devam';
+  }
+  return 'Kaldığın yer: Kelime ${i + 1}/${lessonsContent[idx].length}';
+}
+
 class _ContinueCard extends StatelessWidget {
   const _ContinueCard();
 
@@ -406,7 +418,7 @@ class _ContinueCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${lessonsContent[idx].length} kelime',
+                          _resumeText(idx) ?? '${lessonsContent[idx].length} kelime',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
