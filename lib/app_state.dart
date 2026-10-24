@@ -1,4 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'dart:math';
+
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_data.dart';
 
@@ -26,6 +28,8 @@ class AppState extends ChangeNotifier {
   static const xpPerLevel = 200;
   static const xpReward = 20;
   static const gemReward = 5;
+  static const goalSeconds = 300; // günlük hedef: 5 dakika
+  static const giftGems = 10; // hedef tamamlanınca hediye
 
   int xp = 45;
   int gems = 120;
@@ -35,6 +39,16 @@ class AppState extends ChangeNotifier {
   /// Quizde yanlış yapılan kelimeler (İngilizce yazılışı). "Zor" listesi.
   final Set<String> hardWords = {};
   String? _day;
+
+  // Günlük hedef (süre) ve hediye. Ders günü (_day) ile ayrı tutulur.
+  String? _studyDay;
+  int _studySeconds = 0;
+  bool _giftClaimed = false;
+
+  int get studySeconds => _studyDay == _today() ? _studySeconds : 0;
+  bool get goalReached => studySeconds >= goalSeconds;
+  bool get giftClaimed => _studyDay == _today() && _giftClaimed;
+  bool get giftReady => goalReached && !giftClaimed;
 
   /// Tamamlanan derslerdeki kelimeler.
   List<Word> get learnedWords => [
@@ -57,6 +71,9 @@ class AppState extends ChangeNotifier {
       // Bugün ders yapılmadıysa "bugünkü ders" sayacı sıfır.
       lessonsToday = _day == _today() ? (p.getInt('lessonsToday') ?? 0) : 0;
       hardWords.addAll(p.getStringList('hardWords') ?? const []);
+      _studyDay = p.getString('studyDay');
+      _studySeconds = p.getInt('studySeconds') ?? 0;
+      _giftClaimed = p.getBool('giftClaimed') ?? false;
       // Dünden önce son ders yapıldıysa seri bozulmuştur.
       final yesterday = DateTime.now()
           .subtract(const Duration(days: 1))
@@ -76,10 +93,39 @@ class AppState extends ChangeNotifier {
       await p.setInt('lessonsToday', lessonsToday);
       if (_day != null) await p.setString('day', _day!);
       await p.setStringList('hardWords', hardWords.toList());
+      if (_studyDay != null) await p.setString('studyDay', _studyDay!);
+      await p.setInt('studySeconds', _studySeconds);
+      await p.setBool('giftClaimed', _giftClaimed);
     } catch (_) {}
   }
 
   String _today() => DateTime.now().toIso8601String().substring(0, 10);
+
+  /// Çalışma süresi ekler (ders/quiz ekranı kapanırken). Güvenli: ekranlar
+  /// kapanırken çağrılabilir, bildirim bir sonraki kareye ertelenir.
+  void addStudySeconds(int seconds) {
+    if (seconds <= 0) return;
+    final t = _today();
+    if (_studyDay != t) {
+      _studyDay = t;
+      _studySeconds = 0;
+      _giftClaimed = false;
+    }
+    _studySeconds += seconds;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+      _save();
+    });
+  }
+
+  /// Hedef tamamlanınca hediye kutusuna basınca elmas verir (sadece tıklamadan çağır).
+  void claimGift() {
+    if (!giftReady) return;
+    _giftClaimed = true;
+    gems += giftGems;
+    notifyListeners();
+    _save();
+  }
 
   /// Ders bittiğinde çağrılır (sadece olay/tıklama içinden, build içinden değil).
   Reward completeLesson(
@@ -108,5 +154,25 @@ class AppState extends ChangeNotifier {
       streakGained: gained,
       streak: streak,
     );
+  }
+}
+
+/// Bir ekranda geçirilen süreyi ölçer. Her dokunuşta [tap], ekran kapanırken
+/// [finish] çağrılır. İki dokunuş arası en fazla 60 sn sayılır (boşta bekleme sayılmaz).
+class StudyTimer {
+  final Stopwatch _sw = Stopwatch()..start();
+  int _last = 0;
+  int _acc = 0;
+
+  void tap() {
+    final now = _sw.elapsed.inSeconds;
+    _acc += min(now - _last, 60);
+    _last = now;
+  }
+
+  void finish() {
+    tap();
+    AppState.instance.addStudySeconds(_acc);
+    _acc = 0;
   }
 }
