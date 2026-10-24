@@ -271,6 +271,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Test için kilitler açık** (`debug_tools.dart` `kUnlockAll = true`, `lesson_map_screen.dart`, `home_screen.dart`): Kullanıcı test ederken içeriği hazır tüm dersler haritada ve ana sayfada kilitsiz. Test bitince `kUnlockAll = false` yapılır (kullanıcı söyleyince). Maskot yine sadece sıradaki derste durur. Derlenip denenmedi, APK ile test edilmeli.
 
+- **Meyve görselleri çocuksuz yapıldı** (`assets/words/` apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach; kullanıcı istedi): Ders 3 görselleri yalnızca meyve. Aynı dosya adları, kod değişmedi. Bölüm 8'e istisna notu eklendi. Peach okunuşu `piitş` (Türkçede kaba kelimeye benzediği için `piiç` değiştirildi).
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
@@ -290,6 +292,7 @@ Proje sahibinin kesin isteği. İzin almadan esnetme, atlama, değiştirme.
 - Aynı görsel iki farklı kelimede kullanılmaz. Karışıklık yok: 1 kelime = 1 görsel = 1 dosya.
 - Yeni kelime/ders eklerken ÖNCE görseli hazırla (aynı çocuk karakteri, aynı çizim stili, saydam PNG,
   yaklaşık 420 px yükseklik), SONRA kelimeyi `lesson_data.dart`'a ekle. Görseli olmayan kelime eklenmez.
+- **İSTİSNA (kullanıcı istedi): Meyveler dersinde (Ders 3) görseller çocuksuz, sadece meyvedir** (düz çizgi film meyve, saydam PNG, aynı dosya adları). Çocuk anlaşılırlığı azalttığı için; ileride somut nesne dersleri de (kullanıcı isterse) çocuksuz yapılabilir. Diğer derslerde karakter kuralı aynen geçerli.
 - Karakter: kahverengi saçlı çocuk, yeşil tişört, mavi şort, kırmızı ayakkabı. Başka karakter/stil karıştırma.
 - Görselin pozu kelimenin anlamını anlatmalı (örn. hello = el sallıyor, yes = başparmak yukarı, please = eller birleşik).
 - Quizdeki görselli sorular da aynı dosyaları kullanır, ayrı görsel üretme.
