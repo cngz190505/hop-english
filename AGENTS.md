@@ -65,7 +65,6 @@ lib/
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
   fx.dart              -> titreşim + ses efektleri (vibration, HapticFeedback yedek, audioplayers)
-  cube_game_screen.dart -> Kelime Küpleri oyunu (Bölüm 13); ana sayfadaki oyun kartından açılır
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
 assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
@@ -366,24 +365,3 @@ Proje sahibinin kesin isteği. İzin almadan değiştirme.
 - Arama yazılırken bulunan kelimelerin görünmesi için dersler açık gösterilir (arama kutusu kapanınca eski hali).
 - Açma/kapama anında olur, ANİMASYON YOK (Bölüm 1). Ok simgesi iki ayrı ikondur (`keyboard_arrow_down/up`), döndürme yok.
 - Yeni ders eklenince de aynı kural geçerli: kelimeler kapalı gelir. Başlık `lessonTitles`'tan okunur.
-
-## 13. Kelime Küpleri oyunu (KESİN KURAL)
-
-Kullanıcının tasarımına göre (`cube_game_screen.dart`). Alt menüye sekme EKLENMEDİ; ana sayfadaki "Kelime Küpleri" kartından açılır.
-
-- Mantık: karışık harf küpleri sürüklenerek (Draggable/DragTarget, iki küp yer değiştirir) ya da önce birine sonra diğerine dokunarak
-  yer değiştirir. Üstteki kule küplerin o anki sırasını canlı gösterir (satırlar 1, 2, 2, ...). "Kontrol Et" doğruysa kelime okunur,
-  buton "Devam Et" olur; yanlışsa "Henüz doğru değil" yazar, küpler yerinde kalır.
-- Kelimeler `lessonsContent`'ten gelir: tek kelime, sadece harf, 3-8 harf. Öğrenilen dersler önce. 1 seviye = 5 kelime
-  (havuz küçükse daha az), seviye başına kelimeler `gameLevel`'a göre kayar. Yeni ders eklenince otomatik havuza girer.
-- Seviye bitince +20 XP (`AppState.gameXp`, `finishGameLevel`): ders sayısı ve seri DEĞİŞMEZ. `gameLevel` telefona kaydedilir.
-- Karıştırma sabit tohumlu (seviye ve tur numarasına göre), her seferinde aynı.
-- Üstteki ipucu kutusunda "HELLO = MERHABA" görünür (tasarıma uygun). Daha zor mod istenirse İngilizce gizlenir (henüz yapılmadı).
-- `StudyTimer` bağlı (günlük hedefe sayılır). Animasyon yok, ek paket yok. Küp stili `CubeTile` (renkler `theme.dart`: `kPurple` eklendi).
-- Not: `Draggable` bırakılan küp geçerli hedef değilse kendi kendine geri döner (Flutter'ın yerleşik davranışı).
-
-## 6.2 Yapılanlar (oyun)
-
-- **Kelime Küpleri eklendi**: `cube_game_screen.dart` (yeni), `theme.dart` (`kPurple`, `kPurpleDark`), `app_state.dart`
-  (`gameLevel`, `gameXp`, `finishGameLevel`, load/_save), `home_screen.dart` (`_GameCard`, "Bugünün Dersleri"nin altında).
-  Tasarımdaki baykuş yerine proje kuralı gereği ejderha maskotu kullanıldı. Derlenip denenmedi, APK ile test edilmeli.
