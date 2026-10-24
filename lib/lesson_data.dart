@@ -270,11 +270,105 @@ const lesson3Words = [
   ),
 ];
 
+/// 4. ders: Hayvanlar (10 kelime)
+const lesson4Words = [
+  Word(
+    en: 'cat',
+    tr: 'kedi',
+    phonetic: '/kæt/',
+    say: 'ket',
+    example: 'The cat is on the sofa.',
+    exampleTr: 'Kedi koltukta.',
+    emoji: '🐱',
+  ),
+  Word(
+    en: 'dog',
+    tr: 'köpek',
+    phonetic: '/dɔːɡ/',
+    say: 'dog',
+    example: 'I have a dog.',
+    exampleTr: 'Bir köpeğim var.',
+    emoji: '🐶',
+  ),
+  Word(
+    en: 'bird',
+    tr: 'kuş',
+    phonetic: '/bɜːrd/',
+    say: 'börd',
+    example: 'The bird can fly.',
+    exampleTr: 'Kuş uçabilir.',
+    emoji: '🐦',
+  ),
+  Word(
+    en: 'fish',
+    tr: 'balık',
+    phonetic: '/fɪʃ/',
+    say: 'fiş',
+    example: 'The fish is in the water.',
+    exampleTr: 'Balık suyun içinde.',
+    emoji: '🐟',
+  ),
+  Word(
+    en: 'rabbit',
+    tr: 'tavşan',
+    phonetic: '/ˈræbɪt/',
+    say: 'rebit',
+    example: 'The rabbit eats a carrot.',
+    exampleTr: 'Tavşan havuç yer.',
+    emoji: '🐰',
+  ),
+  Word(
+    en: 'horse',
+    tr: 'at',
+    phonetic: '/hɔːrs/',
+    say: 'hors',
+    example: 'I ride a horse.',
+    exampleTr: 'Ben ata binerim.',
+    emoji: '🐴',
+  ),
+  Word(
+    en: 'cow',
+    tr: 'inek',
+    phonetic: '/kaʊ/',
+    say: 'kau',
+    example: 'The cow gives milk.',
+    exampleTr: 'İnek süt verir.',
+    emoji: '🐮',
+  ),
+  Word(
+    en: 'duck',
+    tr: 'ördek',
+    phonetic: '/dʌk/',
+    say: 'dak',
+    example: 'The duck can swim.',
+    exampleTr: 'Ördek yüzebilir.',
+    emoji: '🦆',
+  ),
+  Word(
+    en: 'lion',
+    tr: 'aslan',
+    phonetic: '/ˈlaɪən/',
+    say: 'layın',
+    example: 'The lion is strong.',
+    exampleTr: 'Aslan güçlüdür.',
+    emoji: '🦁',
+  ),
+  Word(
+    en: 'elephant',
+    tr: 'fil',
+    phonetic: '/ˈɛlɪfənt/',
+    say: 'elifınt',
+    example: 'The elephant is very big.',
+    exampleTr: 'Fil çok büyüktür.',
+    emoji: '🐘',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar'];
 
 /// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
 enum QType {
