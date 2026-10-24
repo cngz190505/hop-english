@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'lesson_map_screen.dart';
 import 'theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,17 +16,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBg,
-      body: SafeArea(
+      body: IndexedStack(
         // Sayfalar bellekte kalır: sekme değişince silinip yeniden kurulmaz.
-        child: IndexedStack(
-          index: _index,
-          children: const [
-            _HomeTab(),
-            _Soon(title: 'Dersler'),
-            _Soon(title: 'Tekrar'),
-            _Soon(title: 'Profil'),
-          ],
-        ),
+        index: _index,
+        children: const [
+          SafeArea(child: _HomeTab()),
+          LessonMapTab(), // kendi güvenli alanını yönetir (tam ekran harita)
+          SafeArea(child: _Soon(title: 'Tekrar')),
+          SafeArea(child: _Soon(title: 'Profil')),
+        ],
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(

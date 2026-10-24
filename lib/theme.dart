@@ -10,6 +10,9 @@ const kInk = Color(0xFF1F2D3D);
 const kMuted = Color(0xFF7A8A99);
 const kBg = Color(0xFFEFF7FF);
 const kTrack = Color(0xFFDDE7EF);
+const kBlueDark = Color(0xFF1288C9);
+const kLocked = Color(0xFFB8C4CF);
+const kLockedDark = Color(0xFF93A1AE);
 
 /// Sayfa geçişlerinde animasyon olmasın.
 class NoTransitionsBuilder extends PageTransitionsBuilder {
