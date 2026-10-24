@@ -242,6 +242,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 - **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
 
+- **Kelime Listem satırlarında emoji yerine kelime görseli** (`word_list_screen.dart`): Sayfa yeni tasarımdan sonra kaydırırken yavaşlıyor/bulanık görünüyordu. Şüphe: her satırdaki renkli emoji yazısı. Satırın dairesinde artık `word.imagePath` (kelimenin çocuk görseli, üst kısmı, `BoxFit.cover` + `topCenter`, `cacheWidth: 162`) gösterilir; dosya yoksa emoji yedek olarak kalır. Bölüm 8 ile uyumlu. Derlenip denenmedi, APK ile test edilmeli. Düzelmezse sıradaki şüpheliler: özet kartındaki `ClipRRect`+`LinearProgressIndicator`, `ListenableBuilder`'ın tüm listeyi yeniden kurması.
+
 - **Ana sayfa kaydırma ağırlığı azaltıldı** (`home_screen.dart`, `welcome_screen.dart`, `tools/prepare_images.py`):
   Diğer sekmeler akıcıydı, sadece ana sayfa kasıyordu; şüphe üstteki gökyüzü (hero) bölümüydü.
   - Hero artık tam boy `bg_london` (704x1504, saydam kanallı) yerine sadece görünen üst kısmı olan `bg_hero.png` (704x760, opak, ~4 kat küçük) kullanır. `prepare_images.py` bunu `bg_london`dan keser. Açılış ekranı `bg_london`u kullanmaya devam eder.
