@@ -331,3 +331,81 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
     );
   }
 }
+
+/// Yazma sorusu: kullanıcı İngilizcesini klavyeyle yazar. Animasyon yok.
+/// [onChanged] her harfte yazılan metinle, [onSubmit] klavyedeki "bitti" tuşuyla çağrılır.
+/// [locked] true ise (kontrol sonrası) yazma kapanır, [right] ile çerçeve renklenir.
+class TypeQuestion extends StatefulWidget {
+  final bool locked;
+  final bool? right;
+  final void Function(String text) onChanged;
+  final VoidCallback onSubmit;
+  const TypeQuestion({
+    super.key,
+    required this.locked,
+    required this.right,
+    required this.onChanged,
+    required this.onSubmit,
+  });
+
+  @override
+  State<TypeQuestion> createState() => _TypeQuestionState();
+}
+
+class _TypeQuestionState extends State<TypeQuestion> {
+  final TextEditingController _c = TextEditingController();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color border = widget.locked
+        ? (widget.right == true ? kGreen : kRed)
+        : kBlue;
+    final Color bg = widget.locked
+        ? (widget.right == true ? _okBg : const Color(0xFFFFE9E9))
+        : Colors.white;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: border, width: 2),
+        boxShadow: [BoxShadow(color: border, offset: const Offset(0, 3))],
+      ),
+      child: TextField(
+        controller: _c,
+        autofocus: true,
+        readOnly: widget.locked,
+        autocorrect: false,
+        enableSuggestions: false,
+        textCapitalization: TextCapitalization.none,
+        textInputAction: TextInputAction.done,
+        textAlign: TextAlign.center,
+        onChanged: widget.onChanged,
+        onSubmitted: (_) => widget.onSubmit(),
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w900,
+          color: kInk,
+        ),
+        decoration: const InputDecoration(
+          hintText: 'İngilizcesini yaz',
+          hintStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: kMuted,
+          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          filled: false,
+        ),
+      ),
+    );
+  }
+}

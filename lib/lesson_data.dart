@@ -190,6 +190,7 @@ enum QType {
   match, // 5 İngilizce kelime 5 Türkçe karşılığıyla eşleştirilir
   scramble, // Karışık harflerden kelime oluşturulur
   sentence, // Örnek cümlede boşluğa doğru kelime seçilir
+  typing, // Türkçesi gösterilir, İngilizcesi klavyeyle yazılır
 }
 
 /// Quiz sorusu.
@@ -270,6 +271,15 @@ Word wordOfDay(List<Word> pool) {
 /// Harf dizme parçaları: tek kelimede harfler, ifadede (boşluk varsa) kelimeler.
 List<String> scrambleTiles(Word w) =>
     w.en.contains(' ') ? w.en.split(' ') : w.en.split('');
+
+/// Yazma sorusunda cevap karşılaştırması: büyük/küçük harf, baştaki/sondaki boşluk,
+/// fazla boşluk ve kıvrık tırnak farkı yok sayılır.
+String normalizeTyped(String s) => s
+    .replaceAll('\u2019', "'")
+    .replaceAll('\u2018', "'")
+    .trim()
+    .toLowerCase()
+    .replaceAll(RegExp(r'\s+'), ' ');
 
 /// Harf dizme TÜM kelimelerde çıkar. Tek istisna: tek parçalı kelime (örn. "I").
 bool canScramble(Word w) => scrambleTiles(w).length >= 2;
@@ -361,9 +371,15 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
           letters: _shuffleTiles(words[i], 7 + i),
         ),
   ];
+  // Yazma: her 2 kelimeden birinde (tek sıralı kelimeler), klavyeyle İngilizcesi yazılır.
+  final typings = [
+    for (var i = 1; i < n; i += 2)
+      QuizQuestion(type: QType.typing, word: words[i]),
+  ];
   final out = [...single];
   if (matches.isNotEmpty) out.add(matches.first);
   out.addAll(scrambles);
+  out.addAll(typings);
   if (matches.length > 1) out.add(matches.last);
   return out;
 }

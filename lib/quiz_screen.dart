@@ -37,6 +37,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int _i = 0;
   int? _sel; // seçmeli sorularda seçilen şık
   String? _answer; // harf dizmede oluşturulan kelime (tamamlanmadıysa null)
+  String _typed = ''; // yazma sorusunda yazılan metin
   bool _checked = false;
   bool _matchRight = false; // eşleştirmede hiç hata yapılmadı mı
   int _correct = 0;
@@ -51,6 +52,8 @@ class _QuizScreenState extends State<QuizScreen> {
         return _matchRight;
       case QType.scramble:
         return _answer?.toLowerCase() == _q.word.en.toLowerCase();
+      case QType.typing:
+        return normalizeTyped(_typed) == normalizeTyped(_q.word.en);
       default:
         return _sel == _q.correct;
     }
@@ -63,6 +66,8 @@ class _QuizScreenState extends State<QuizScreen> {
         return false;
       case QType.scramble:
         return _answer != null;
+      case QType.typing:
+        return _typed.trim().isNotEmpty;
       default:
         return _sel != null;
     }
@@ -92,6 +97,7 @@ class _QuizScreenState extends State<QuizScreen> {
   void _check() {
     if (!_canCheck) return;
     _timer.tap();
+    FocusManager.instance.primaryFocus?.unfocus();
     final ok = _isRight;
     setState(() {
       _checked = true;
@@ -126,6 +132,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _i++;
         _sel = null;
         _answer = null;
+        _typed = '';
         _checked = false;
         _matchRight = false;
       });
@@ -235,6 +242,21 @@ class _QuizScreenState extends State<QuizScreen> {
                         locked: _checked,
                         right: _checked ? _isRight : null,
                         onChanged: (a) => setState(() => _answer = a),
+                      ),
+                    ] else if (_q.type == QType.typing) ...[
+                      MascotBubble(
+                        text: _q.word.tr,
+                        image: _q.word.imagePath,
+                        height: 150,
+                        imageCacheHeight: 450,
+                      ),
+                      const SizedBox(height: 20),
+                      TypeQuestion(
+                        key: ValueKey(_i),
+                        locked: _checked,
+                        right: _checked ? _isRight : null,
+                        onChanged: (t) => setState(() => _typed = t),
+                        onSubmit: _check,
                       ),
                     ] else if (_q.type == QType.sentence) ...[
                       Container(
@@ -405,6 +427,8 @@ class _QuizScreenState extends State<QuizScreen> {
         return _q.word.en.contains(' ') ? 'İfadeyi oluştur' : 'Kelimeyi oluştur';
       case QType.sentence:
         return 'Boşluğu doldur';
+      case QType.typing:
+        return _q.word.en.contains(' ') ? 'İfadeyi yaz' : 'Kelimeyi yaz';
       case QType.text:
         return 'Doğru cevabı seç';
     }
