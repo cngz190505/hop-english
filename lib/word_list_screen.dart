@@ -28,6 +28,21 @@ class _Item {
   const _Item(this.word, this.index);
 }
 
+// Ders içeriği değişmez: liste ve ders eşlemesi bir kez kurulur, her build'de yeniden hesaplanmaz.
+final List<_Item> _allItems = () {
+  final out = <_Item>[];
+  for (final l in lessonsContent) {
+    for (final w in l) {
+      out.add(_Item(w, out.length));
+    }
+  }
+  return out;
+}();
+final Map<String, int> _lessonOf = {
+  for (var l = 0; l < lessonsContent.length; l++)
+    for (final w in lessonsContent[l]) w.en: l,
+};
+
 /// Kelime Listem: özet kartı, arama, filtre sekmeleri ve derse göre gruplu liste.
 class WordListTab extends StatefulWidget {
   const WordListTab({super.key});
@@ -55,14 +70,8 @@ class _WordListTabState extends State<WordListTab> {
       listenable: AppState.instance,
       builder: (context, _) {
         final s = AppState.instance;
-        final all = <_Item>[];
-        final lessonOf = <String, int>{};
-        for (var l = 0; l < lessonsContent.length; l++) {
-          for (final w in lessonsContent[l]) {
-            lessonOf[w.en] = l;
-            all.add(_Item(w, all.length));
-          }
-        }
+        final all = _allItems;
+        final lessonOf = _lessonOf;
         bool learned(Word w) => s.isMastered(w.en);
         bool hard(Word w) => s.hardWords.contains(w.en);
 
@@ -233,12 +242,14 @@ class _WordListTabState extends State<WordListTab> {
                   final r = rows[i - 1];
                   if (r is _Header) return _LessonHeader(r);
                   final e = r as _Item;
-                  return _WordRow(
+                  return RepaintBoundary(
+                    child: _WordRow(
                     word: e.word,
                     colors: _palette[e.index % _palette.length],
                     learned: learned(e.word),
                     hard: hard(e.word),
                     stars: s.masteryOf(e.word.en),
+                  ),
                   );
                 },
               ),
@@ -465,7 +476,7 @@ class _Empty extends StatelessWidget {
   }
 }
 
-class _WordRow extends StatefulWidget {
+class _WordRow extends StatelessWidget {
   final Word word;
   final (Color, Color) colors;
   final bool learned;
@@ -480,52 +491,32 @@ class _WordRow extends StatefulWidget {
   });
 
   @override
-  State<_WordRow> createState() => _WordRowState();
-}
-
-class _WordRowState extends State<_WordRow> {
-  bool _down = false;
-  bool _playing = false;
-
-  Future<void> _play() async {
-    setState(() => _playing = true);
-    Speech.speak(widget.word.en);
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (mounted) setState(() => _playing = false);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final (light, dark) = widget.colors;
-    final w = widget.word;
+    final (light, dark) = colors;
+    final w = word;
     // Durum rozeti
-    final (label, bg, fg) = widget.learned
+    final (label, bg, fg) = learned
         ? ('Öğrenildi', const Color(0xFFE3F8D2), const Color(0xFF3F8F00))
-        : widget.hard
+        : hard
             ? ('Zor', const Color(0xFFFFE1E1), kRedDark)
-            : widget.stars > 0
+            : stars > 0
                 ? ('Öğreniyor', const Color(0xFFFFF3CC), const Color(0xFFB88500))
                 : ('Yeni', const Color(0xFFE1F3FF), kBlueDark);
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _down = true),
-      onTapCancel: () => setState(() => _down = false),
-      onTapUp: (_) => setState(() => _down = false),
       onTap: () {
         Fx.tap();
-        _play();
+        Speech.speak(w.en);
       },
       behavior: HitTestBehavior.opaque,
-      child: Transform.scale(
-        scale: _down ? 0.97 : 1,
-        child: Container(
+      child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: _playing ? dark : light,
+              color: light,
               width: 2,
             ),
             boxShadow: [BoxShadow(color: light, offset: const Offset(0, 4))],
@@ -561,15 +552,10 @@ class _WordRowState extends State<_WordRow> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Transform.scale(
-                          scale: _playing ? 1.3 : 1,
-                          child: Icon(
-                            _playing
-                                ? Icons.volume_up_rounded
-                                : Icons.volume_up_outlined,
-                            size: 20,
-                            color: _playing ? dark : kLocked,
-                          ),
+                        const Icon(
+                          Icons.volume_up_outlined,
+                          size: 20,
+                          color: kLocked,
                         ),
                       ],
                     ),
@@ -590,7 +576,7 @@ class _WordRowState extends State<_WordRow> {
                           Icon(
                             Icons.star_rounded,
                             size: 18,
-                            color: k < widget.stars ? kYellow : kLocked,
+                            color: k < stars ? kYellow : kLocked,
                           ),
                       ],
                     ),
@@ -606,7 +592,7 @@ class _WordRowState extends State<_WordRow> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (widget.hard && !widget.learned)
+                    if (hard && !learned)
                       const Padding(
                         padding: EdgeInsets.only(right: 3),
                         child: Icon(Icons.flag_rounded, size: 14, color: kRedDark),
@@ -625,7 +611,6 @@ class _WordRowState extends State<_WordRow> {
             ],
           ),
         ),
-      ),
     );
   }
 }

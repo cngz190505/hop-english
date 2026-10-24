@@ -202,7 +202,7 @@ class _HeroWithCard extends StatelessWidget {
         // Kart hero'nun altına taşar; Stack'in yüksekliğini bu çocuk belirler.
         Padding(
           padding: EdgeInsets.fromLTRB(14, heroH - 44, 14, 16),
-          child: const _StartCard(),
+          child: const RepaintBoundary(child: _StartCard()),
         ),
       ],
     );
@@ -387,10 +387,12 @@ class _TodayLessons extends StatelessWidget {
                 ),
               ),
               for (var i = 0; i < lessonsContent.length; i++)
-                _LessonTile(
-                  index: i,
-                  done: i < s.completedLessons,
-                  locked: i > s.completedLessons,
+                RepaintBoundary(
+                  child: _LessonTile(
+                    index: i,
+                    done: i < s.completedLessons,
+                    locked: i > s.completedLessons,
+                  ),
                 ),
             ],
           ),
