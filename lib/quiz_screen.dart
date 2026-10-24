@@ -38,6 +38,8 @@ class _QuizScreenState extends State<QuizScreen> {
   int? _sel; // seçmeli sorularda seçilen şık
   String? _answer; // harf dizmede oluşturulan kelime (tamamlanmadıysa null)
   String _typed = ''; // yazma sorusunda yazılan metin
+  int _hints = 0; // bu soruda kullanılan ipucu sayısı
+  final Set<int> _removed = {}; // ipucuyla elenen (yanlış) şıklar
   bool _checked = false;
   bool _matchRight = false; // eşleştirmede hiç hata yapılmadı mı
   int _correct = 0;
@@ -73,7 +75,10 @@ class _QuizScreenState extends State<QuizScreen> {
     }
   }
 
-  void _record(Iterable<String> right, Iterable<String> missed, bool ok) {
+  void _record(Iterable<String> right, Iterable<String> missed, bool ok,
+      {bool hinted = false}) {
+    // İpucuyla doğru bilinen soru puana ve hakimiyete sayılmaz, seri aynı kalır.
+    if (hinted && ok) return;
     _rightWords.addAll(right);
     _missedWords.addAll(missed);
     for (final w in right) {
@@ -94,6 +99,59 @@ class _QuizScreenState extends State<QuizScreen> {
     _qs.add(retryQuestion(widget.words, w, failed));
   }
 
+  /// Bu soruda en çok kaç ipucu alınabilir (eşleştirmede ipucu yok).
+  int get _maxHints {
+    switch (_q.type) {
+      case QType.match:
+        return 0;
+      case QType.scramble:
+        return _q.letters.length - 1;
+      case QType.typing:
+        return _q.word.en.replaceAll(' ', '').length - 1;
+      default:
+        return _q.options.length - 2; // her ipucu 1 yanlış şıkkı eler
+    }
+  }
+
+  void _useHint() {
+    if (_checked || _hints >= _maxHints) return;
+    _timer.tap();
+    setState(() {
+      _hints++;
+      final choice = _q.type != QType.scramble &&
+          _q.type != QType.typing &&
+          _q.type != QType.match;
+      if (choice) {
+        for (var k = 0; k < _q.options.length; k++) {
+          if (k != _q.correct && k != _sel && !_removed.contains(k)) {
+            _removed.add(k);
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  /// Yazma ipucu: ilk [_hints] harf açık, kalanlar "_" (örn. "h _ _ _ _").
+  String get _typeHintText {
+    var shown = 0;
+    final b = StringBuffer();
+    for (final ch in _q.word.en.split('')) {
+      if (ch == ' ') {
+        b.write('   ');
+        continue;
+      }
+      if (shown < _hints) {
+        b.write(ch);
+        shown++;
+      } else {
+        b.write('_');
+      }
+      b.write(' ');
+    }
+    return b.toString().trimRight();
+  }
+
   void _check() {
     if (!_canCheck) return;
     _timer.tap();
@@ -101,7 +159,8 @@ class _QuizScreenState extends State<QuizScreen> {
     final ok = _isRight;
     setState(() {
       _checked = true;
-      _record(ok ? [_q.word.en] : [], ok ? [] : [_q.word.en], ok);
+      _record(ok ? [_q.word.en] : [], ok ? [] : [_q.word.en], ok,
+          hinted: _hints > 0);
       if (!ok) _queueRetry(_q.word, _q.type);
     });
     ok ? Fx.right() : Fx.wrong();
@@ -133,6 +192,8 @@ class _QuizScreenState extends State<QuizScreen> {
         _sel = null;
         _answer = null;
         _typed = '';
+        _hints = 0;
+        _removed.clear();
         _checked = false;
         _matchRight = false;
       });
@@ -238,6 +299,8 @@ class _QuizScreenState extends State<QuizScreen> {
                       ScrambleQuestion(
                         key: ValueKey(_i),
                         letters: _q.letters,
+                        target: scrambleTiles(_q.word),
+                        hintTick: _hints,
                         separator: _q.word.en.contains(' ') ? ' ' : '',
                         locked: _checked,
                         right: _checked ? _isRight : null,
@@ -251,6 +314,21 @@ class _QuizScreenState extends State<QuizScreen> {
                         imageCacheHeight: 450,
                       ),
                       const SizedBox(height: 20),
+                      if (_hints > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Center(
+                            child: Text(
+                              _typeHintText,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 2,
+                                color: kBlue,
+                              ),
+                            ),
+                          ),
+                        ),
                       TypeQuestion(
                         key: ValueKey(_i),
                         locked: _checked,
@@ -293,7 +371,10 @@ class _QuizScreenState extends State<QuizScreen> {
                           child: _Option(
                             text: _q.options[k],
                             state: _stateOf(k),
-                            onTap: _checked ? null : () => setState(() => _sel = k),
+                            dim: _removed.contains(k),
+                            onTap: (_checked || _removed.contains(k))
+                                ? null
+                                : () => setState(() => _sel = k),
                           ),
                         ),
                     ] else if (_q.type == QType.listen) ...[
@@ -314,7 +395,10 @@ class _QuizScreenState extends State<QuizScreen> {
                           child: _Option(
                             text: _q.options[k],
                             state: _stateOf(k),
-                            onTap: _checked ? null : () => setState(() => _sel = k),
+                            dim: _removed.contains(k),
+                            onTap: (_checked || _removed.contains(k))
+                                ? null
+                                : () => setState(() => _sel = k),
                           ),
                         ),
                     ] else if (_q.isPicture) ...[
@@ -331,7 +415,8 @@ class _QuizScreenState extends State<QuizScreen> {
                                   child: _PicOption(
                                     word: _q.pictures[r * 2 + c],
                                     state: _stateOf(r * 2 + c),
-                                    onTap: _checked
+                                    dim: _removed.contains(r * 2 + c),
+                                    onTap: (_checked || _removed.contains(r * 2 + c))
                                         ? null
                                         : () => setState(() => _sel = r * 2 + c),
                                   ),
@@ -358,7 +443,10 @@ class _QuizScreenState extends State<QuizScreen> {
                         child: _Option(
                           text: _q.options[k],
                           state: _stateOf(k),
-                          onTap: _checked ? null : () => setState(() => _sel = k),
+                            dim: _removed.contains(k),
+                          onTap: (_checked || _removed.contains(k))
+                                ? null
+                                : () => setState(() => _sel = k),
                         ),
                       ),
                     ],
@@ -388,7 +476,9 @@ class _QuizScreenState extends State<QuizScreen> {
                         Expanded(
                           child: Text(
                             _isRight
-                                ? (_streak >= 3 ? '$_streak üst üste doğru!' : 'Harika!')
+                                ? (_hints > 0
+                                    ? 'İpucuyla doğru!'
+                                    : (_streak >= 3 ? '$_streak üst üste doğru!' : 'Harika!'))
                                 : (_q.type == QType.match
                                     ? 'Bazı eşleşmeler yanlıştı'
                                     : 'Doğrusu: ${_q.answerText}'),
@@ -403,6 +493,14 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                     const SizedBox(height: 12),
                   ],
+                  if (!_checked && _maxHints > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _HintButton(
+                        left: _maxHints - _hints,
+                        onTap: _hints < _maxHints ? _useHint : null,
+                      ),
+                    ),
                   _button(),
                 ],
               ),
@@ -510,7 +608,9 @@ class _PicOption extends StatelessWidget {
   final Word word;
   final _OptState state;
   final VoidCallback? onTap;
-  const _PicOption({required this.word, required this.state, this.onTap});
+  final bool dim; // ipucuyla elenen şık
+  const _PicOption(
+      {required this.word, required this.state, this.onTap, this.dim = false});
 
   @override
   Widget build(BuildContext context) {
@@ -530,7 +630,7 @@ class _PicOption extends StatelessWidget {
         border = kRed;
         bg = const Color(0xFFFFE9E9);
     }
-    return GestureDetector(
+    final tile = GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -569,6 +669,7 @@ class _PicOption extends StatelessWidget {
         ),
       ),
     );
+    return dim ? Opacity(opacity: 0.3, child: tile) : tile;
   }
 }
 
@@ -576,7 +677,9 @@ class _Option extends StatelessWidget {
   final String text;
   final _OptState state;
   final VoidCallback? onTap;
-  const _Option({required this.text, required this.state, this.onTap});
+  final bool dim; // ipucuyla elenen şık
+  const _Option(
+      {required this.text, required this.state, this.onTap, this.dim = false});
 
   @override
   Widget build(BuildContext context) {
@@ -599,7 +702,7 @@ class _Option extends StatelessWidget {
         bg = const Color(0xFFFFE9E9);
         icon = const Icon(Icons.cancel_rounded, color: kRed, size: 26);
     }
-    return GestureDetector(
+    final tile = GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -624,6 +727,53 @@ class _Option extends StatelessWidget {
               ),
             ),
             if (icon != null) icon,
+          ],
+        ),
+      ),
+    );
+    return dim ? Opacity(opacity: 0.3, child: tile) : tile;
+  }
+}
+
+/// "İpucu" butonu: kalan ipucu sayısını gösterir, bitince pasif olur.
+class _HintButton extends StatelessWidget {
+  final int left;
+  final VoidCallback? onTap;
+  const _HintButton({required this.left, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final on = onTap != null;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: on ? const Color(0xFFFFF4D6) : kTrack,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: on ? const Color(0xFFFFC800) : kLocked,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.lightbulb_rounded,
+              size: 20,
+              color: on ? const Color(0xFFE0A100) : kLockedDark,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              on ? 'İpucu ($left)' : 'İpucu bitti',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: on ? const Color(0xFF9A6B00) : kLockedDark,
+              ),
+            ),
           ],
         ),
       ),

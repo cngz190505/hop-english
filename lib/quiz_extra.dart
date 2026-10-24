@@ -210,18 +210,24 @@ class _MatchTile extends StatelessWidget {
 /// Harf dizme: karışık harflere dokunarak kelime oluşturulur.
 /// Yerleşen harfe dokununca geri alınır. Tüm harfler dolunca [onChanged] kelimeyle,
 /// eksikse null ile çağrılır. [locked] true ise (kontrol sonrası) dokunuş kapanır.
+/// [hintTick] artınca (İpucu butonu) doğru sıradaki bir sonraki parça kendiliğinden yerleşir;
+/// yanlış yerleşmiş parçalar geri alınır. [target] doğru parça sırasıdır.
 class ScrambleQuestion extends StatefulWidget {
   final List<String> letters;
+  final List<String> target;
   final String separator; // harfler için '', ifadede kelimeler için ' '
   final bool locked;
   final bool? right; // kontrol sonrası renk için
+  final int hintTick;
   final void Function(String? answer) onChanged;
   const ScrambleQuestion({
     super.key,
     required this.letters,
+    required this.target,
     required this.separator,
     required this.locked,
     required this.right,
+    required this.hintTick,
     required this.onChanged,
   });
 
@@ -250,11 +256,64 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
   }
 
   @override
+  void didUpdateWidget(covariant ScrambleQuestion old) {
+    super.didUpdateWidget(old);
+    if (widget.hintTick > old.hintTick) _hint();
+  }
+
+  void _hint() {
+    if (widget.locked) return;
+    // Baştan doğru giden kısmı koru, ilk yanlıştan sonrasını geri al.
+    var ok = 0;
+    while (ok < _placed.length &&
+        ok < widget.target.length &&
+        widget.letters[_placed[ok]] == widget.target[ok]) {
+      ok++;
+    }
+    if (ok >= widget.target.length) return;
+    final want = widget.target[ok];
+    final keep = _placed.sublist(0, ok);
+    var pick = -1;
+    for (var i = 0; i < widget.letters.length; i++) {
+      if (widget.letters[i] == want && !keep.contains(i)) {
+        pick = i;
+        break;
+      }
+    }
+    if (pick < 0) return;
+    setState(() {
+      _placed
+        ..clear()
+        ..addAll(keep)
+        ..add(pick);
+    });
+    // setState sırasında üst widget'ı güncellememek için çerçeve sonrası bildir.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _report();
+    });
+  }
+
+  /// Kutu içeriği kadar geniş olur (alignment kullanılmaz: Wrap içinde tam genişliğe uzar).
+  Widget _box({required Widget child, required BoxDecoration decoration}) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 52),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: decoration,
+      child: Center(widthFactor: 1, heightFactor: 1, child: child),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final n = widget.letters.length;
     final Color slotBorder = widget.locked
         ? (widget.right == true ? kGreen : kRed)
         : kBlue;
+    const textStyle = TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w900,
+      color: kInk,
+    );
     return Column(
       children: [
         Wrap(
@@ -266,10 +325,7 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
               GestureDetector(
                 onTap: () => _removeAt(s),
                 behavior: HitTestBehavior.opaque,
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 52),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  alignment: Alignment.center,
+                child: _box(
                   decoration: BoxDecoration(
                     color: s < _placed.length ? Colors.white : kTrack,
                     borderRadius: BorderRadius.circular(12),
@@ -283,11 +339,7 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
                   ),
                   child: Text(
                     s < _placed.length ? widget.letters[_placed[s]] : '',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: kInk,
-                    ),
+                    style: textStyle,
                   ),
                 ),
               ),
@@ -303,10 +355,7 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
               GestureDetector(
                 onTap: () => _add(i),
                 behavior: HitTestBehavior.opaque,
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 52),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  alignment: Alignment.center,
+                child: _box(
                   decoration: BoxDecoration(
                     color: _placed.contains(i) ? kTrack : Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -317,11 +366,7 @@ class _ScrambleQuestionState extends State<ScrambleQuestion> {
                   ),
                   child: Text(
                     _placed.contains(i) ? '' : widget.letters[i],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: kInk,
-                    ),
+                    style: textStyle,
                   ),
                 ),
               ),
