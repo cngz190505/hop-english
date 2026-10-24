@@ -233,7 +233,7 @@ class _StartCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
             boxShadow: const [
-              BoxShadow(color: Color(0x261C6BA8), blurRadius: 16, offset: Offset(0, 6)),
+              BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 6)),
             ],
           ),
           child: Column(
@@ -427,9 +427,7 @@ class _LessonTile extends StatelessWidget {
               openLesson(context, index);
             },
       behavior: HitTestBehavior.opaque,
-      child: Opacity(
-        opacity: locked ? 0.6 : 1,
-        child: Container(
+      child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: cardDecoration(),
@@ -458,7 +456,11 @@ class _LessonTile extends StatelessWidget {
                   children: [
                     Text(
                       lessonTitles[index],
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: kInk),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: locked ? kMuted : kInk,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -479,7 +481,6 @@ class _LessonTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

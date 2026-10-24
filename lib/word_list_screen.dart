@@ -129,10 +129,8 @@ class _WordListTabState extends State<WordListTab> {
                 ],
               ),
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-              child: _searching
+            Builder(
+              builder: (_) => _searching
                   ? Padding(
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                       child: TextField(
@@ -183,8 +181,7 @@ class _WordListTabState extends State<WordListTab> {
                             setState(() => _filter = i);
                           },
                           behavior: HitTestBehavior.opaque,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
+                          child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 9),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
@@ -236,16 +233,12 @@ class _WordListTabState extends State<WordListTab> {
                   final r = rows[i - 1];
                   if (r is _Header) return _LessonHeader(r);
                   final e = r as _Item;
-                  return _Appear(
-                    key: ValueKey('${e.word.en}-$_filter'),
-                    delay: ((i - 1) % 8) * 40,
-                    child: _WordRow(
-                      word: e.word,
-                      colors: _palette[e.index % _palette.length],
-                      learned: learned(e.word),
-                      hard: hard(e.word),
-                      stars: s.masteryOf(e.word.en),
-                    ),
+                  return _WordRow(
+                    word: e.word,
+                    colors: _palette[e.index % _palette.length],
+                    learned: learned(e.word),
+                    hard: hard(e.word),
+                    stars: s.masteryOf(e.word.en),
                   );
                 },
               ),
@@ -285,7 +278,7 @@ class _SummaryCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
-          BoxShadow(color: Color(0x331C6BA8), blurRadius: 12, offset: Offset(0, 6)),
+          BoxShadow(color: Color(0x331C6BA8), blurRadius: 10, offset: Offset(0, 6)),
         ],
       ),
       child: Column(
@@ -308,18 +301,13 @@ class _SummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: p),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutCubic,
-            builder: (context, v, _) => ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: v,
-                minHeight: 12,
-                color: kYellow,
-                backgroundColor: const Color(0x55FFFFFF),
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: p,
+              minHeight: 12,
+              color: kYellow,
+              backgroundColor: const Color(0x55FFFFFF),
             ),
           ),
           const SizedBox(height: 12),
@@ -477,27 +465,6 @@ class _Empty extends StatelessWidget {
   }
 }
 
-/// Satır belirirken hafifçe yukarı kayıp açılır (sıralı giriş).
-class _Appear extends StatelessWidget {
-  final int delay;
-  final Widget child;
-  const _Appear({super.key, required this.delay, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 260 + delay),
-      curve: Curves.easeOutCubic,
-      builder: (context, v, c) => Opacity(
-        opacity: v,
-        child: Transform.translate(offset: Offset(0, (1 - v) * 14), child: c),
-      ),
-      child: child,
-    );
-  }
-}
-
 class _WordRow extends StatefulWidget {
   final Word word;
   final (Color, Color) colors;
@@ -549,9 +516,8 @@ class _WordRowState extends State<_WordRow> {
         _play();
       },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
+      child: Transform.scale(
         scale: _down ? 0.97 : 1,
-        duration: const Duration(milliseconds: 100),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -595,10 +561,8 @@ class _WordRowState extends State<_WordRow> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        AnimatedScale(
+                        Transform.scale(
                           scale: _playing ? 1.3 : 1,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeOutBack,
                           child: Icon(
                             _playing
                                 ? Icons.volume_up_rounded
