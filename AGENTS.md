@@ -107,7 +107,7 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 9. [x] Tekrar sekmesi (= Kelime Listem)
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
-1. ve 2. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
+1., 2., 3. ve 4. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
 Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedilir (`AppState.load/_save`).
 Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
@@ -261,6 +261,10 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   - Açılış önyüklemesindeki boyutlar ana sayfayla eşitlendi (alev/elmas 66 -> 114, maskot 360 -> 600; hafta alevi 54 ve `bg_hero` eklendi). Eskiden anahtarlar tutmadığı için önbellek işe yaramıyordu.
   - Görünüm aynı. Derlenip denenmedi, APK ile test edilmeli. Hâlâ kasarsa sıradaki şüpheliler: `ProgressBar` içindeki `ClipRRect`, `cacheExtent: 2000`.
 
+- **Ders 3 (Meyveler) eklendi**: `lesson_data.dart` içinde `lesson3Words` (10 kelime), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında (apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach; saydam PNG, 420 px yükseklik, yer gölgesi silindi). Ders haritasında 3. kart "Günlük İfadeler" yerine "Meyveler" oldu (`lesson_map_screen.dart`). Her kelime örnek cümlede tam bir kez geçer. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 2 ve 3 bitince "Tekrar dersi yapalım mı?" diye sor.
+
+- **Ders 4 (Hayvanlar) eklendi**: `lesson_data.dart` içinde `lesson4Words` (10 kelime), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında (cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Not: bu görsellerde çocuk önceki derslerden biraz farklı (daha koyu ten ve saç, daha kıvırcık); kullanıcı "nasıl çıkmışsa çıkmış" diyerek kabul etti. Büyük hayvanlı görseller (cow, horse, dog, lion, elephant) daha geniştir; ders kartı yüksekliğe göre ölçeklediği için sorun olmaz. Ders haritasında 4. kart "Sosyal Hayat" yerine "Hayvanlar" oldu. Derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
@@ -303,9 +307,9 @@ Her ders için 4 adım:
 Durum (tamamlanınca [x] yap):
 
 1. [x] Selamlaşma (6 kelime: hello, goodbye, thank you, please, yes, no; görseller hazır). 10'a tamamlamak isteğe bağlı.
-2. [~] Kendini Tanıtma (10 kelime: name, I, you, my, age, from, nice to meet you, friend, student, fine). Görseller ve kod eklendi, kullanıcı testi bekleniyor.
-3. [ ] Meyveler
-4. [ ] Hayvanlar
+2. [x] Kendini Tanıtma (10 kelime: name, I, you, my, age, from, nice to meet you, friend, student, fine). Kullanıcı test etti, onayladı.
+3. [x] Meyveler (10 kelime: apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach). Kullanıcı devam dedi, onaylı sayıldı.
+4. [~] Hayvanlar (10 kelime: cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Görseller ve kod eklendi, kullanıcı testi bekleniyor.
 5. [ ] Renkler
 6. [ ] Araçlar
 7. [ ] Aile
@@ -313,7 +317,9 @@ Durum (tamamlanınca [x] yap):
 9. [ ] Günlük İfadeler
 10. [ ] Alışveriş
 
-Ders 2: kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
+Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
+Ders 4: kelimeler [x] görseller [x] kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
