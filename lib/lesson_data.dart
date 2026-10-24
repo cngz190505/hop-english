@@ -176,11 +176,105 @@ const lesson2Words = [
   ),
 ];
 
+/// 3. ders: Meyveler (10 kelime)
+const lesson3Words = [
+  Word(
+    en: 'apple',
+    tr: 'elma',
+    phonetic: '/ˈæpəl/',
+    say: 'epıl',
+    example: 'I eat an apple every day.',
+    exampleTr: 'Her gün bir elma yerim.',
+    emoji: '🍎',
+  ),
+  Word(
+    en: 'banana',
+    tr: 'muz',
+    phonetic: '/bəˈnænə/',
+    say: 'bınena',
+    example: 'A banana is yellow.',
+    exampleTr: 'Muz sarıdır.',
+    emoji: '🍌',
+  ),
+  Word(
+    en: 'orange',
+    tr: 'portakal',
+    phonetic: '/ˈɔːrɪndʒ/',
+    say: 'orınc',
+    example: 'This orange is sweet.',
+    exampleTr: 'Bu portakal tatlı.',
+    emoji: '🍊',
+  ),
+  Word(
+    en: 'grapes',
+    tr: 'üzüm',
+    phonetic: '/ɡreɪps/',
+    say: 'greyps',
+    example: 'I like grapes.',
+    exampleTr: 'Üzüm severim.',
+    emoji: '🍇',
+  ),
+  Word(
+    en: 'strawberry',
+    tr: 'çilek',
+    phonetic: '/ˈstrɔːbɛri/',
+    say: 'strobıri',
+    example: 'The strawberry is red.',
+    exampleTr: 'Çilek kırmızıdır.',
+    emoji: '🍓',
+  ),
+  Word(
+    en: 'watermelon',
+    tr: 'karpuz',
+    phonetic: '/ˈwɔːtərˌmɛlən/',
+    say: 'wotırmelın',
+    example: 'The watermelon is big.',
+    exampleTr: 'Karpuz büyük.',
+    emoji: '🍉',
+  ),
+  Word(
+    en: 'lemon',
+    tr: 'limon',
+    phonetic: '/ˈlɛmən/',
+    say: 'lemın',
+    example: 'I like lemon in my tea.',
+    exampleTr: 'Çayımda limon severim.',
+    emoji: '🍋',
+  ),
+  Word(
+    en: 'pear',
+    tr: 'armut',
+    phonetic: '/pɛr/',
+    say: 'per',
+    example: 'The pear is green.',
+    exampleTr: 'Armut yeşildir.',
+    emoji: '🍐',
+  ),
+  Word(
+    en: 'cherry',
+    tr: 'kiraz',
+    phonetic: '/ˈtʃɛri/',
+    say: 'çeri',
+    example: 'The cherry is small.',
+    exampleTr: 'Kiraz küçüktür.',
+    emoji: '🍒',
+  ),
+  Word(
+    en: 'peach',
+    tr: 'şeftali',
+    phonetic: '/piːtʃ/',
+    say: 'piiç',
+    example: 'This peach is very sweet.',
+    exampleTr: 'Bu şeftali çok tatlı.',
+    emoji: '🍑',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler'];
 
 /// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
 enum QType {
