@@ -16,8 +16,6 @@ const kRed = Color(0xFFFF4B4B);
 const kRedDark = Color(0xFFEA2B2B);
 const kLocked = Color(0xFFB8C4CF);
 const kLockedDark = Color(0xFF93A1AE);
-const kPurple = Color(0xFF8E4EE6);
-const kPurpleDark = Color(0xFF6B30BE);
 
 /// Sayfa geçişlerinde animasyon olmasın.
 class NoTransitionsBuilder extends PageTransitionsBuilder {
