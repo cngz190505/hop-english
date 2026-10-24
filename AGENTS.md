@@ -269,6 +269,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **"Doğru cevabı seç" kartında kelime görseli** (`quiz_screen.dart`, kullanıcı istedi): Türkçe soru kartında ejderha yerine kelimenin kendi görseli (`word.imagePath`) gösterilir. Bölüm 2'deki "quizdeki Türkçe soru kartı ejderha kullanır" kararı bununla DEĞİŞTİ. Harf dizme ve Yazma kartları zaten kelime görseli kullanıyordu. Derlenip denenmedi, APK ile test edilmeli.
 
+- **Test için kilitler açık** (`debug_tools.dart` `kUnlockAll = true`, `lesson_map_screen.dart`, `home_screen.dart`): Kullanıcı test ederken içeriği hazır tüm dersler haritada ve ana sayfada kilitsiz. Test bitince `kUnlockAll = false` yapılır (kullanıcı söyleyince). Maskot yine sadece sıradaki derste durur. Derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
