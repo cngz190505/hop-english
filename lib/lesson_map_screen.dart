@@ -121,7 +121,8 @@ class LessonMapTab extends StatelessWidget {
           number: i + 1,
           title: l.title,
           status: status,
-          onTap: status == _Status.current ? () => openLesson(context, i) : null,
+          // İçeriği hazır olan her ders (bitmiş de olsa) istenen yerden açılır.
+          onTap: i < _playableLessons ? () => openLesson(context, i) : null,
         ),
       ),
     ];
