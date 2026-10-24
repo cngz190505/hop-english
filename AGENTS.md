@@ -62,7 +62,7 @@ lib/
   fx.dart              -> titreşim + ses efektleri (HapticFeedback, audioplayers)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
-assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav (küçük, elle üretildi)
+assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
 ```
 
@@ -129,9 +129,16 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Titreşim eklendi** (`fx.dart`, `quiz_screen.dart`, `app_state.dart`): Kontrol Et'te doğruysa orta,
   yanlışsa güçlü titreşim; hediye alınca güçlü titreşim. `HapticFeedback` kullanır, ek paket/izin yok.
 - **Ses efektleri eklendi** (kullanıcı onayladı): `audioplayers` paketi (`pubspec.yaml`) ve `assets/sounds/`
-  içinde 3 kısa wav: `correct.wav` (ding), `wrong.wav` (bzzt), `gift.wav` (hediye). `Fx.right/wrong/reward`
-  hem titreşir hem ses çalar. Oynatıcılar ilk kullanımda kurulur, hata olursa sessizce geçer.
+  içinde kısa wav dosyaları. Oynatıcılar ilk kullanımda kurulur, hata olursa sessizce geçer.
   Ses değiştirmek için aynı isimli wav dosyasını değiştir.
+- **Quiz titreşimi güçlendirildi**: doğruda 2, yanlışta 3 darbe (`Fx._buzz`: `vibrate` + `heavyImpact`).
+- **Quizde doğru/yanlış efekt sesi KALDIRILDI** (kullanıcı istedi): Kontrol Et'te efekt sesi, kelimenin
+  okunuşuyla (`Speech`) karışıyordu. Şimdi sadece titreşim + okunuş var. `correct.wav` ve `wrong.wav`
+  dosyaları duruyor ama kullanılmıyor. Quiz Kontrol Et'e geri ses EKLEME.
+  Efekt sesi sadece hediye (`gift.wav`) ve tebrikler (`celebrate.wav`) ekranında çalar.
+- **Tebrikler ekranında kutlama**: `Fx.celebrate()` quiz bitince (`quiz_screen.dart`, sonuç ekranına geçmeden
+  hemen önce, olay içinden) çağrılır. `assets/sounds/celebrate.wav` (güçlü fanfar, ~2 sn) çalar, ayrıca
+  arka arkaya 6 güçlü titreşim + sonda uzun `vibrate` verir. Animasyon yok, sadece ses ve titreşim.
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
