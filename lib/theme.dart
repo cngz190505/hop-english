@@ -11,6 +11,8 @@ const kMuted = Color(0xFF7A8A99);
 const kBg = Color(0xFFEFF7FF);
 const kTrack = Color(0xFFDDE7EF);
 const kBlueDark = Color(0xFF1288C9);
+const kRed = Color(0xFFFF4B4B);
+const kRedDark = Color(0xFFEA2B2B);
 const kLocked = Color(0xFFB8C4CF);
 const kLockedDark = Color(0xFF93A1AE);
 

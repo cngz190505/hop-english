@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
 import 'lesson_map_screen.dart';
 import 'lesson_screen.dart';
 import 'theme.dart';
@@ -119,66 +120,83 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final s = AppState.instance;
+        return Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: kBlue,
-                shape: BoxShape.circle,
-              ),
-              child: const CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.white,
-                backgroundImage: ResizeImage(
-                  AssetImage('assets/ready/girl_hi.png'),
-                  width: 144,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Merhaba,',
-                    style: TextStyle(fontSize: 13, color: kMuted),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: kBlue,
+                    shape: BoxShape.circle,
                   ),
-                  Text(
-                    'Yeni Başlangıç',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: kInk,
+                  child: const CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.white,
+                    backgroundImage: ResizeImage(
+                      AssetImage('assets/ready/girl_hi.png'),
+                      width: 144,
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Merhaba,',
+                        style: TextStyle(fontSize: 13, color: kMuted),
+                      ),
+                      Text(
+                        'Yeni Başlangıç',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: kInk,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _StatPill(
+                  asset: 'assets/ready/icon_flame.png',
+                  value: '${s.streak}',
+                ),
+                const SizedBox(width: 8),
+                _StatPill(
+                  asset: 'assets/ready/icon_gem.png',
+                  value: '${s.gems}',
+                ),
+              ],
             ),
-            const _StatPill(asset: 'assets/ready/icon_flame.png', value: '3'),
-            const SizedBox(width: 8),
-            const _StatPill(asset: 'assets/ready/icon_gem.png', value: '120'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const Row(
-          children: [
-            Expanded(child: ProgressBar(value: 45 / 200, height: 8)),
-            SizedBox(width: 10),
-            Text(
-              'Seviye 1  •  45 / 200 XP',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: kMuted,
-              ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ProgressBar(
+                    value: s.xpInLevel / AppState.xpPerLevel,
+                    height: 8,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Seviye ${s.level}  •  ${s.xpInLevel} / ${AppState.xpPerLevel} XP',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: kMuted,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -265,25 +283,40 @@ class _HeroCard extends StatelessWidget {
                   style: TextStyle(fontSize: 13, color: kMuted, height: 1.3),
                 ),
                 SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: ProgressBar(value: 0, height: 10)),
-                    SizedBox(width: 8),
-                    Text(
-                      '0/1',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: kMuted,
-                      ),
-                    ),
-                  ],
-                ),
+                _HeroProgress(),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _HeroProgress extends StatelessWidget {
+  const _HeroProgress();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final done = AppState.instance.lessonsToday.clamp(0, 1);
+        return Row(
+          children: [
+            Expanded(child: ProgressBar(value: done / 1, height: 10)),
+            const SizedBox(width: 8),
+            Text(
+              '$done/1',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: kMuted,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -328,22 +361,7 @@ class _LessonCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.menu_book_rounded, size: 16, color: kMuted),
-                        SizedBox(width: 6),
-                        Text(
-                          '0/6',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: kMuted,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(child: ProgressBar(value: 0, height: 8)),
-                      ],
-                    ),
+                    _LessonProgress(),
                   ],
                 ),
               ),
@@ -356,6 +374,36 @@ class _LessonCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LessonProgress extends StatelessWidget {
+  const _LessonProgress();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final done = AppState.instance.completedLessons >= 1 ? 6 : 0;
+        return Row(
+          children: [
+            const Icon(Icons.menu_book_rounded, size: 16, color: kMuted),
+            const SizedBox(width: 6),
+            Text(
+              '$done/6',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: kMuted,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: ProgressBar(value: done / 6, height: 8)),
+          ],
+        );
+      },
     );
   }
 }

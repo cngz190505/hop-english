@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'lesson_data.dart';
+import 'quiz_screen.dart';
 import 'speech.dart';
 import 'theme.dart';
 
@@ -31,8 +32,9 @@ class _LessonScreenState extends State<LessonScreen> {
     if (_i < widget.words.length - 1) {
       setState(() => _i++);
     } else {
-      // Geçici: quiz ekranı eklenince buradan quiz'e gidilecek.
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => QuizScreen(words: widget.words)),
+      );
     }
   }
 
@@ -170,7 +172,7 @@ class _WordCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _Illustration(text: _bubbleText(word.en)),
+          MascotBubble(text: _bubbleText(word.en)),
           const SizedBox(height: 14),
           _Sentence(word: word),
         ],
@@ -182,16 +184,18 @@ class _WordCard extends StatelessWidget {
       '${en[0].toUpperCase()}${en.substring(1)}!';
 }
 
-class _Illustration extends StatelessWidget {
+/// Maskot + konuşma balonu kartı (ders ve quiz ekranlarında ortak).
+class MascotBubble extends StatelessWidget {
   final String text;
-  const _Illustration({required this.text});
+  final double height;
+  const MascotBubble({super.key, required this.text, this.height = 190});
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: Container(
         width: double.infinity,
-        height: 190,
+        height: height,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
@@ -207,7 +211,7 @@ class _Illustration extends StatelessWidget {
               bottom: 8,
               child: Image.asset(
                 'assets/ready/mascot_main.png',
-                height: 170,
+                height: height - 20,
                 cacheHeight: 510,
                 gaplessPlayback: true,
               ),

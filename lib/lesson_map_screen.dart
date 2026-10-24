@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
 import 'lesson_screen.dart';
 import 'theme.dart';
 
@@ -24,15 +25,15 @@ const _lessons = [
 /// Toplam ders sayısı (_lessons listesiyle aynı olmalı).
 const _lessonsCount = 5;
 
-/// Tamamlanan ders sayısı. Şimdilik sabit, ilerleme sistemi eklenince bağlanacak.
-const _completedLessons = 0;
+/// İçeriği hazır ders sayısı (şimdilik sadece 1. ders).
+const _playableLessons = 1;
 
 // bg_map.png oranı (704 x 1504)
 const _mapAspect = 1504 / 704;
 
-_Status _statusOf(int i) {
-  if (i < _completedLessons) return _Status.done;
-  if (i == _completedLessons) return _Status.current;
+_Status _statusOf(int i, int completed) {
+  if (i < completed) return _Status.done;
+  if (i == completed && i < _playableLessons) return _Status.current;
   return _Status.locked;
 }
 
@@ -42,6 +43,13 @@ class LessonMapTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) => _content(context, top),
+    );
+  }
+
+  Widget _content(BuildContext context, double top) {
     return Stack(
       children: [
         Positioned.fill(
@@ -89,7 +97,7 @@ class LessonMapTab extends StatelessWidget {
 
   List<Widget> _buildLesson(BuildContext context, int i, double w, double h) {
     final l = _lessons[i];
-    final status = _statusOf(i);
+    final status = _statusOf(i, AppState.instance.completedLessons);
     final x = l.fx * w;
     final y = l.fy * h;
     return [
@@ -237,25 +245,31 @@ class _TotalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-      decoration: cardDecoration(),
-      child: const Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Toplam $_lessonsCount ders  •  $_completedLessons/$_lessonsCount tamamlandı',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: kInk,
-            ),
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final done = AppState.instance.completedLessons.clamp(0, _lessonsCount);
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+          decoration: cardDecoration(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Toplam $_lessonsCount ders  •  $done/$_lessonsCount tamamlandı',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: kInk,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ProgressBar(value: done / _lessonsCount, height: 10),
+            ],
           ),
-          SizedBox(height: 8),
-          ProgressBar(value: _completedLessons / _lessonsCount, height: 10),
-        ],
-      ),
+        );
+      },
     );
   }
 }

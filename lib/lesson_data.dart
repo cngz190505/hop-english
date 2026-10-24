@@ -59,3 +59,26 @@ const lesson1Words = [
     exampleTr: 'Hayır, teşekkürler.',
   ),
 ];
+
+/// Quiz sorusu: Türkçesi gösterilir, doğru İngilizce karşılığı seçilir.
+class QuizQuestion {
+  final Word word;
+  final List<String> options;
+  final int correct; // doğru şıkkın sırası
+  const QuizQuestion(this.word, this.options, this.correct);
+}
+
+/// Her kelime için 1 soru üretir. Yanlış şıklar diğer kelimelerden gelir.
+/// Doğru şıkkın yeri sırayla değişir (rastgelelik yok, hep aynı sonuç).
+List<QuizQuestion> buildQuiz(List<Word> words) {
+  final n = words.length;
+  return [
+    for (var i = 0; i < n; i++)
+      () {
+        final pos = i % 3;
+        final options = [words[(i + 1) % n].en, words[(i + 3) % n].en]
+          ..insert(pos, words[i].en);
+        return QuizQuestion(words[i], options, pos);
+      }(),
+  ];
+}
