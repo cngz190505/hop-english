@@ -267,6 +267,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ana sayfa "Bugünün Dersleri" kısaltıldı** (`home_screen.dart` `_TodayLessons`): Ders sayısı arttıkça liste uzuyordu. Artık en çok 3 kart gösterilir: sıradaki ders + sonraki ikisi (son derslerde son 3 ders). Tüm dersler "Tümünü Gör" ile Dersler sekmesinde. Animasyon yok, ek paket yok. Derlenip denenmedi, APK ile test edilmeli.
 
+- **"Doğru cevabı seç" kartında kelime görseli** (`quiz_screen.dart`, kullanıcı istedi): Türkçe soru kartında ejderha yerine kelimenin kendi görseli (`word.imagePath`) gösterilir. Bölüm 2'deki "quizdeki Türkçe soru kartı ejderha kullanır" kararı bununla DEĞİŞTİ. Harf dizme ve Yazma kartları zaten kelime görseli kullanıyordu. Derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
