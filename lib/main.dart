@@ -13,7 +13,7 @@ class HopEnglishApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Hop English',
       theme: buildTheme(),
-      scrollBehavior: const NoBounceScrollBehavior(),
+      scrollBehavior: const BouncyScrollBehavior(),
       home: const WelcomeScreen(),
     );
   }

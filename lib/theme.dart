@@ -27,13 +27,14 @@ class NoTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-/// Listelerde yaylanma / parlama olmasın.
-class NoBounceScrollBehavior extends MaterialScrollBehavior {
-  const NoBounceScrollBehavior();
+/// Listelerde iOS gibi yaylanarak kaydırma (BU ÖZELLİK KALACAK, kapatma).
+/// Başa/sona gelince geri yaylanır, mavi parlama çıkmaz.
+class BouncyScrollBehavior extends MaterialScrollBehavior {
+  const BouncyScrollBehavior();
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) =>
-      const ClampingScrollPhysics();
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
   @override
   Widget buildOverscrollIndicator(

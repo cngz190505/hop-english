@@ -10,14 +10,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
-  static const _titles = ['Ana Sayfa', 'Dersler', 'Tekrar', 'Profil'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
-        child: _index == 0 ? const _HomeTab() : _Soon(title: _titles[_index]),
+        // Sayfalar bellekte kalır: sekme değişince silinip yeniden kurulmaz.
+        child: IndexedStack(
+          index: _index,
+          children: const [
+            _HomeTab(),
+            _Soon(title: 'Dersler'),
+            _Soon(title: 'Tekrar'),
+            _Soon(title: 'Profil'),
+          ],
+        ),
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
@@ -124,7 +132,10 @@ class _Header extends StatelessWidget {
               child: const CircleAvatar(
                 radius: 24,
                 backgroundColor: Colors.white,
-                backgroundImage: AssetImage('assets/ready/girl_hi.png'),
+                backgroundImage: ResizeImage(
+                  AssetImage('assets/ready/girl_hi.png'),
+                  width: 144,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -189,7 +200,7 @@ class _StatPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(asset, height: 22),
+          Image.asset(asset, height: 22, cacheHeight: 66),
           const SizedBox(width: 4),
           Text(
             value,
@@ -230,7 +241,11 @@ class _HeroCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset('assets/ready/mascot_main.png', height: 120),
+          Image.asset(
+            'assets/ready/mascot_main.png',
+            height: 120,
+            cacheHeight: 360,
+          ),
           const SizedBox(width: 10),
           const Expanded(
             child: Column(
@@ -293,7 +308,11 @@ class _LessonCard extends StatelessWidget {
                   color: const Color(0xFFEAF6FF),
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: Image.asset('assets/ready/kids.png', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/ready/kids.png',
+                  fit: BoxFit.contain,
+                  cacheHeight: 200,
+                ),
               ),
               const SizedBox(width: 14),
               const Expanded(
@@ -355,7 +374,7 @@ class _GoalCard extends StatelessWidget {
       decoration: cardDecoration(),
       child: Row(
         children: [
-          Image.asset('assets/ready/icon_target.png', height: 48),
+          Image.asset('assets/ready/icon_target.png', height: 48, cacheHeight: 150),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -392,7 +411,7 @@ class _GoalCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Image.asset('assets/ready/icon_gift.png', height: 40),
+          Image.asset('assets/ready/icon_gift.png', height: 40, cacheHeight: 120),
         ],
       ),
     );

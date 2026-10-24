@@ -12,7 +12,16 @@ class WelcomeScreen extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/ready/bg_london.png', fit: BoxFit.cover),
+          const RepaintBoundary(
+            child: Image(
+              image: ResizeImage(
+                AssetImage('assets/ready/bg_london.png'),
+                width: 1080,
+              ),
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            ),
+          ),
           // Üstte okunabilirlik için hafif mavi geçiş
           const DecoratedBox(
             decoration: BoxDecoration(
@@ -62,9 +71,13 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: Center(
-                      child: Image.asset(
-                        'assets/ready/mascot_main.png',
-                        height: 300,
+                      child: RepaintBoundary(
+                        child: Image.asset(
+                          'assets/ready/mascot_main.png',
+                          height: 300,
+                          cacheHeight: 600,
+                          gaplessPlayback: true,
+                        ),
                       ),
                     ),
                   ),
