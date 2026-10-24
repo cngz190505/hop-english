@@ -53,7 +53,8 @@ lib/
   home_screen.dart     -> ana sayfa + alt menü (IndexedStack)
   lesson_data.dart     -> ders içerikleri (kelimeler, örnek cümleler); içerik buradan eklenir
   lesson_screen.dart   -> ders ekranı (yeni kelime kartları)
-  quiz_screen.dart     -> quiz (Doğru cevabı seç, Kontrol Et / Devam Et)
+  quiz_screen.dart     -> quiz (5 soru tipi, Kontrol Et / Devam Et)
+  quiz_extra.dart      -> yeni soru widget'ları: ListenBig (dinle ve seç), MatchQuestion (eşleştirme), ScrambleQuestion (harf dizme)
   result_screen.dart   -> Tebrikler ekranı (XP, seri, elmas)
   word_list_screen.dart -> Tekrar sekmesi: Kelime Listem (Tümü/Zor/Öğrenildi)
   profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
@@ -154,6 +155,25 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Ders 2 (Kendini Tanıtma) eklendi**: `lesson_data.dart` içinde `lesson2Words` (10 kelime), `lessonsContent` listesinde. `openLesson1` yerine `openLesson(context, index)` var; `LessonScreen`, `QuizScreen`, `ResultScreen` `lessonIndex` taşır ve `completeLesson(index)` doğru dersi işaretler. Ders haritasında içerik hazır ders sayısı `lessonsContent.length`'ten gelir. Ana sayfa butonu sıradaki dersi açar, ilerleme çubuğu öğrenilen kelime/toplam kelime gösterir. Derlenip denenmedi.
 - **Türkçe okunuş eklendi**: `Word.say` (örn. `yuu`) her kelimede zorunlu; ders kartında IPA yanında `/juː/ · yuu` gösterilir. Yeni kelimede `say` da yazılır.
 - **Yeni ana sayfa**: `home_screen.dart` baştan yazıldı: gökyüzü bölümü (`bg_london` + ejderha + balon), büyük yeşil "Devam Et" kartı, haftalık seri satırı, günlük hedef, zor kelimeler kartı. Cam/blur yok, sadece degrade. Yeni ders eklenince `lessonTitles` listesine ders adı da eklenir (`lessonsContent` ile aynı sıra).
+
+- **Yeni soru tipleri eklendi (KURAL, kullanıcı istedi)** (`lesson_data.dart`, `quiz_screen.dart`, `quiz_extra.dart`):
+  Quiz artık 5 soru tipi içerir (`QType`): `text` (Doğru cevabı seç), `picture` (Doğru görseli seç),
+  `listen` (Dinle ve seç), `match` (Eşleştirme), `scramble` (Harf dizme).
+  - **Dinle ve seç**: büyük hoparlör butonu, soru açılınca kelime otomatik okunur, 3 Türkçe şık.
+  - **Eşleştirme**: 5 İngilizce kelime ile 5 Türkçe karşılık; biri, sonra diğeri seçilir (sıra fark etmez).
+    Doğru çift yeşil olup kilitlenir, yanlış çift kırmızı olur ve sonraki dokunuşta temizlenir.
+    Hepsi bitince soru kendiliğinden kontrol edilir (Kontrol Et butonu yok), hata yapılan kelimeler "Zor" listesine düşer.
+  - **Harf dizme**: üstte kelimenin görseli + Türkçesi, altta karışık harfler. Harfe dokun, kutuya girer; kutudaki
+    harfe dokununca geri alınır. Sadece tek kelime, sadece harf, 3-9 harflik kelimelerde kullanılır (`canScramble`),
+    uymayan kelimede yerine "Doğru cevabı seç" sorulur.
+  - `buildQuiz`: her kelime için 1 soru, sırayla Dinle ve seç, Görseli seç, Doğru cevabı seç, Harf dizme (4'lü döngü).
+    Sonra her 5 kelime için 1 Eşleştirme eklenir (10 kelimede 2 tane: biri ortada, biri sonda). Karıştırma sabit
+    tohumlu, her seferinde aynı sonuç. 10 kelimelik ders = 12 soru.
+  - Bir kelime bir soruda yanlış, başka soruda doğruysa "Zor" listesinde kalır.
+  - Animasyon yok, `setState` sadece küçük widget'ta. Ek paket yok. Derlenip denenmedi, APK ile test edilmeli.
+- **Planlanan ders akışı (henüz yapılmadı, sıra bu)**: yanlış yapılan sorular dersin sonunda tekrar sorulur;
+  her 2-3 dersten sonra "Tekrar dersi" (önceki derslerin kelimeleri karışık sorulur). Konuşma (mikrofon) soru tipi
+  paket gerektirir, sonraya kaldı.
 
 ## 7. Durum yönetimi kuralı
 
