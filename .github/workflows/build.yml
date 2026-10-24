@@ -22,6 +22,8 @@ jobs:
           channel: stable
       - name: Android klasorunu olustur
         run: flutter create --platforms=android --org com.hopenglish --project-name hop_english .
+      - name: Simge, acilis ekrani ve uygulama adi
+        run: python tools/patch_android.py
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
