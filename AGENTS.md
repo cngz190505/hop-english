@@ -29,6 +29,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 - **Sürekli yeniden çizdiren şeyler yasak:** `Timer.periodic` ile sürekli `setState`,
   `StreamBuilder`/`FutureBuilder` ile gereksiz yenileme, `Opacity` ile sürekli
   değişen katmanlar, ağır `BackdropFilter`/blur, çok büyük `blurRadius` gölgeler.
+- **Paket kuralı:** Şu an tek ek paket `flutter_tts`. Başka paket ekleme, gerekirse önce kullanıcıya sor.
 - **Uzun listelerde `ListView.builder` kullan.** Çok elemanlı listeyi `Column` içine koyma.
 
 ## 2. Tasarım
@@ -50,6 +51,10 @@ lib/
   theme.dart           -> renkler, tema, ortak widget'lar (tek stil kaynağı)
   welcome_screen.dart  -> açılış ekranı
   home_screen.dart     -> ana sayfa + alt menü (IndexedStack)
+  lesson_data.dart     -> ders içerikleri (kelimeler, örnek cümleler); içerik buradan eklenir
+  lesson_screen.dart   -> ders ekranı (yeni kelime kartları)
+  speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
+  lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
 ```
@@ -70,3 +75,21 @@ assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir
 
 - APK, GitHub Actions ile alınır (`.github/workflows/build.yml`, elle çalıştırılır).
 - Görseller `tools/prepare_images.py` ile `assets/ready/` klasörüne hazırlanır.
+
+## 6. Ekran sırası ve durum
+
+Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmeden diğerine geçme.
+
+1. [x] Açılış ekranı
+2. [x] Ana sayfa
+3. [x] Ders haritası (Dersler sekmesi)
+4. [x] Ders ekranı (yeni kelime: kelime, okunuş, Türkçesi, "Dinle", "Devam Et")
+5. [ ] Quiz ekranı ("Doğru cevabı seç", 3 şık)
+6. [ ] Tebrikler ekranı (XP, seri, elmas)
+7. [ ] Kelime Listem
+8. [ ] Profil
+9. [ ] Tekrar sekmesi
+
+Not: Ders ekranında son kelimeden sonra şimdilik ana ekrana dönülüyor (geçici).
+Quiz ekranı (adım 5) eklenince son kelimeden sonra quiz'e geçilecek.
+Sadece 1. ders içeriği var, diğer dersler kilitli.
