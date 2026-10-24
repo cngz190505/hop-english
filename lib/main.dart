@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
 import 'theme.dart';
 import 'welcome_screen.dart';
 
-void main() => runApp(const HopEnglishApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppState.instance.load(); // kayıtlı ilerlemeyi yükle
+  runApp(const HopEnglishApp());
+}
 
 class HopEnglishApp extends StatelessWidget {
   const HopEnglishApp({super.key});

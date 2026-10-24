@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'lesson_data.dart';
 
 /// Ders bitince kazanılanlar.
@@ -17,7 +18,7 @@ class Reward {
 
 /// Uygulamanın tek durum kaynağı (puan, elmas, seri, tamamlanan ders).
 /// Ekranlar bunu ListenableBuilder ile dinler, sadece değişen kısım yenilenir.
-/// NOT: Şimdilik sadece bellekte tutulur, uygulama kapanınca sıfırlanır.
+/// Veriler telefona kaydedilir (shared_preferences), uygulama kapanınca kaybolmaz.
 class AppState extends ChangeNotifier {
   static final AppState instance = AppState._();
   AppState._();
@@ -44,6 +45,40 @@ class AppState extends ChangeNotifier {
   int get level => xp ~/ xpPerLevel + 1;
   int get xpInLevel => xp % xpPerLevel;
 
+  /// Uygulama açılırken bir kez çağrılır (main.dart). Hata olursa varsayılanlarla devam eder.
+  Future<void> load() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      xp = p.getInt('xp') ?? xp;
+      gems = p.getInt('gems') ?? gems;
+      streak = p.getInt('streak') ?? streak;
+      completedLessons = p.getInt('completedLessons') ?? completedLessons;
+      _day = p.getString('day');
+      // Bugün ders yapılmadıysa "bugünkü ders" sayacı sıfır.
+      lessonsToday = _day == _today() ? (p.getInt('lessonsToday') ?? 0) : 0;
+      hardWords.addAll(p.getStringList('hardWords') ?? const []);
+      // Dünden önce son ders yapıldıysa seri bozulmuştur.
+      final yesterday = DateTime.now()
+          .subtract(const Duration(days: 1))
+          .toIso8601String()
+          .substring(0, 10);
+      if (_day != null && _day!.compareTo(yesterday) < 0) streak = 0;
+    } catch (_) {}
+  }
+
+  Future<void> _save() async {
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setInt('xp', xp);
+      await p.setInt('gems', gems);
+      await p.setInt('streak', streak);
+      await p.setInt('completedLessons', completedLessons);
+      await p.setInt('lessonsToday', lessonsToday);
+      if (_day != null) await p.setString('day', _day!);
+      await p.setStringList('hardWords', hardWords.toList());
+    } catch (_) {}
+  }
+
   String _today() => DateTime.now().toIso8601String().substring(0, 10);
 
   /// Ders bittiğinde çağrılır (sadece olay/tıklama içinden, build içinden değil).
@@ -66,6 +101,7 @@ class AppState extends ChangeNotifier {
     gems += gemReward;
     if (gained) streak++;
     notifyListeners();
+    _save();
     return Reward(
       xp: xpReward,
       gems: gemReward,
