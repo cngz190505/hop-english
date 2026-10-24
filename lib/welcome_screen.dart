@@ -21,9 +21,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     if (_warmed) return;
     _warmed = true;
     const byHeight = {
-      'assets/ready/icon_flame.png': 66,
-      'assets/ready/icon_gem.png': 66,
-      'assets/ready/mascot_main.png': 360,
+      'assets/ready/icon_flame.png': 114, // _StatTile
+      'assets/ready/icon_gem.png': 114, // _StatTile
+      'assets/ready/mascot_main.png': 600, // hero ve açılış ekranı
       'assets/ready/kids.png': 200,
       'assets/ready/icon_target.png': 150,
       'assets/ready/icon_gift.png': 120,
@@ -32,6 +32,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       precacheImage(ResizeImage(AssetImage(path), height: h), context)
           .catchError((_) {});
     });
+    // Hafta kartındaki küçük alev (54) ve hero arka planı (bg_hero) de ana sayfada aynı boyutla kullanılır.
+    precacheImage(
+      const ResizeImage(AssetImage('assets/ready/icon_flame.png'), height: 54),
+      context,
+    ).catchError((_) {});
+    precacheImage(
+      const ResizeImage(AssetImage('assets/ready/bg_hero.png'), width: 1080),
+      context,
+    ).catchError((_) {});
     precacheImage(
       const ResizeImage(AssetImage('assets/ready/girl_hi.png'), width: 144),
       context,

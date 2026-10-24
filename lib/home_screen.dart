@@ -113,7 +113,7 @@ class _HeroWithCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final top = MediaQuery.of(context).padding.top;
+    final top = MediaQuery.paddingOf(context).top;
     final heroH = 290 + top;
     return Stack(
       children: [
@@ -122,84 +122,84 @@ class _HeroWithCard extends StatelessWidget {
           left: 0,
           right: 0,
           height: heroH,
+          // Tek katman: resim + degrade + yazı + maskot birlikte kayar (iç içe katman yok).
           child: RepaintBoundary(
             child: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              const Positioned.fill(
-                child: RepaintBoundary(
+              clipBehavior: Clip.none,
+              children: [
+                const Positioned.fill(
                   child: Image(
-                    image: ResizeImage(AssetImage('assets/ready/bg_london.png'), width: 1080),
+                    // Sadece görünen üst kısım (704x760), tam boy bg_london değil.
+                    image: ResizeImage(AssetImage('assets/ready/bg_hero.png'), width: 1080),
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
                     gaplessPlayback: true,
                   ),
                 ),
-              ),
-              const Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
-                      stops: [0, 0.55, 1],
+                const Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
+                        stops: [0, 0.55, 1],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 20,
-                top: top + 24,
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hop',
-                      style: TextStyle(
-                        fontSize: 44,
-                        height: 1.0,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        shadows: _lightText,
+                Positioned(
+                  left: 20,
+                  top: top + 24,
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hop',
+                        style: TextStyle(
+                          fontSize: 44,
+                          height: 1.0,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          shadows: _lightText,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'English',
-                      style: TextStyle(
-                        fontSize: 44,
-                        height: 1.0,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFFB6F04A),
-                        shadows: _lightText,
+                      Text(
+                        'English',
+                        style: TextStyle(
+                          fontSize: 44,
+                          height: 1.0,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFB6F04A),
+                          shadows: _lightText,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Daha iyi bir sen için\nİngilizce öğren!',
-                      style: TextStyle(
-                        fontSize: 15,
-                        height: 1.25,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        shadows: _lightText,
+                      SizedBox(height: 10),
+                      Text(
+                        'Daha iyi bir sen için\nİngilizce öğren!',
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.25,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          shadows: _lightText,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                right: 6,
-                bottom: 40,
-                child: Image.asset(
-                  'assets/ready/mascot_main.png',
-                  height: 190,
-                  cacheHeight: 600,
-                  gaplessPlayback: true,
+                Positioned(
+                  right: 6,
+                  bottom: 40,
+                  child: Image.asset(
+                    'assets/ready/mascot_main.png',
+                    height: 190,
+                    cacheHeight: 600,
+                    gaplessPlayback: true,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           ),
         ),
         // Kart hero'nun altına taşar; Stack'in yüksekliğini bu çocuk belirler.
