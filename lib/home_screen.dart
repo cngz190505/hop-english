@@ -389,7 +389,7 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-/// "Bugünün Dersleri": her ders için ilerleme kartı. Kilitli dersler soluk.
+/// "Bugünün Dersleri": en çok 3 ders kartı (sıradaki + sonrakiler). Hepsi için "Tümünü Gör". Kilitli dersler soluk.
 class _TodayLessons extends StatelessWidget {
   final VoidCallback onAll;
   const _TodayLessons({required this.onAll});
@@ -400,6 +400,10 @@ class _TodayLessons extends StatelessWidget {
       listenable: AppState.instance,
       builder: (context, _) {
         final s = AppState.instance;
+        // En çok 3 kart: sıradaki ders ve sonraki ikisi (son derslerde son 3).
+        final total = lessonsContent.length;
+        final shown = total < 3 ? total : 3;
+        final first = (s.completedLessons.clamp(0, total - 1)).clamp(0, total - shown);
         return Padding(
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
           child: Column(
@@ -426,7 +430,7 @@ class _TodayLessons extends StatelessWidget {
                   ],
                 ),
               ),
-              for (var i = 0; i < lessonsContent.length; i++)
+              for (var i = first; i < first + shown; i++)
                 RepaintBoundary(
                   child: _LessonTile(
                     index: i,
