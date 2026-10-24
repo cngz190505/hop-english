@@ -64,7 +64,7 @@ lib/
   profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
-  debug_tools.dart     -> performans ölçeri düğmesi (showPerfOverlay), Profilde isme uzun basınca açılır
+  debug_tools.dart     -> performans ölçeri (showPerfOverlay, Profilde isme uzun basınca) ve ana sayfa gökyüzü deneyi (heroTest, "Hop" yazısına uzun basınca)
   fx.dart              -> titreşim + ses efektleri (vibration, HapticFeedback yedek, audioplayers)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
@@ -243,6 +243,10 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 - **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
+
+- **Ana sayfa gökyüzü deneyi** (`debug_tools.dart` `heroTest`, `home_screen.dart`): Hangi parça GPU'yu yoruyor diye tek APK'da denemek için. Ana sayfada "Hop" yazısına UZUN BASINCA mod döner: 0 normal, 1 gökyüzü resmi yok (düz mavi), 2 degrade yok, 3 maskot yok, 4 hepsi yok (sadece yazılar). Hero'da "TEST n" yazar. Her modda kaydırıp performans ölçeri ekran görüntüsü alınır, en düşük Raster'ı veren parça suçludur. Sonuç bulununca bu deney KALDIRILIR (hero eski sade haline döner).
+
+- **Ana sayfada bulanık gölge kaldırıldı** (`theme.dart`, `home_screen.dart`): Performans ölçerinde Ana Sayfa'da UI ortalama 0.5 ms (kod yormuyor) ama Raster ortalama 9.6 ms, en çok 13.8 ms çıktı (çizim ağır). `theme.dart`'a `cardDecorationHard()` eklendi (blur'suz sert gölge). Ana sayfadaki 5 kart ve "Dersine Başla" kartı bunu kullanır. Diğer ekranlar eski `cardDecoration()` ile kalır. Alt menü gölgesi (blur 10) duruyor. Derlenip denenmedi; ölçerle önce/sonra karşılaştır (önce: Raster avg 9.6, max 13.8 ms). Düzelmezse sıradaki şüpheli: gökyüzü resmi + degrade.
 
 - **Uygulama simgesi, açılış ekranı ve uygulama adı** (`tools/patch_android.py`, `.github/workflows/build.yml`): `app_icon.png` hazırlanıyordu ama kullanılmıyordu, telefonda Flutter'ın varsayılan simgesi çıkıyordu. Script `flutter create` sonrası simgeyi tüm mipmap boyutlarına yazar. Açılıştaki siyah ekran, karanlık mod temasının siyah olmasındandı: açılış arka planı artık her modda düz mavi (#389BED), Android 12+ için `windowSplashScreenBackground` da eklendi. Uygulama adı "hop_english" yerine "Hop English". Derlenip denenmedi (script sahte klasör yapısıyla test edildi), APK ile test edilmeli. Not: simge eski tip (uyarlanabilir değil), bazı telefonlarda maskelenmeden görünebilir.
 
