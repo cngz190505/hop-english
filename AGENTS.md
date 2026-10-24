@@ -30,6 +30,10 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
   `StreamBuilder`/`FutureBuilder` ile gereksiz yenileme, `Opacity` ile sürekli
   değişen katmanlar, ağır `BackdropFilter`/blur, çok büyük `blurRadius` gölgeler.
 - **Paket kuralı:** Şu an ek paketler: `flutter_tts` (seslendirme), `shared_preferences` (kayıt), `audioplayers` (ses efektleri, kullanıcı onayıyla eklendi). Başka paket ekleme, gerekirse önce kullanıcıya sor.
+- **Kaydırma akıcı olmalı ("yağ gibi") (KESİN KURAL)**: Kaydırılan sayfalarda her kart `ListView`'ın KENDİ elemanı
+  olur (hepsini tek `Column`/tek `Padding` içine koyma), böylece her kart ayrı çizim katmanı olur.
+  Her görsel `ResizeImage`/`cacheWidth`/`cacheHeight` ile küçültülür ve açılış ekranındaki önyükleme ile AYNI boyutta
+  olur (örn. `bg_london` her yerde `width: 1080`). Gölge `blurRadius` en çok 10. Kaydırırken yeniden çizdiren şey yok.
 - **Uzun listelerde `ListView.builder` kullan.** Çok elemanlı listeyi `Column` içine koyma.
 
 ## 2. Tasarım
@@ -171,9 +175,37 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
     tohumlu, her seferinde aynı sonuç. 10 kelimelik ders = 12 soru.
   - Bir kelime bir soruda yanlış, başka soruda doğruysa "Zor" listesinde kalır.
   - Animasyon yok, `setState` sadece küçük widget'ta. Ek paket yok. Derlenip denenmedi, APK ile test edilmeli.
-- **Planlanan ders akışı (henüz yapılmadı, sıra bu)**: yanlış yapılan sorular dersin sonunda tekrar sorulur;
-  her 2-3 dersten sonra "Tekrar dersi" (önceki derslerin kelimeleri karışık sorulur). Konuşma (mikrofon) soru tipi
-  paket gerektirir, sonraya kaldı.
+- **Yanlışları tekrar sorma, Tekrar dersi, üst üste doğru (KURAL, kullanıcı istedi)**
+  (`quiz_screen.dart`, `lesson_data.dart`, `app_state.dart`, `result_screen.dart`, `word_list_screen.dart`):
+  - Yanlış yapılan kelime sorunun sonuna BİR KEZ tekrar eklenir (`QuizQuestion.retry`, `retryQuestion`).
+    Farklı tipte sorulur (yazılı yanlışsa Dinle ve seç, diğerlerinde yazılı). Başlık "Tekrar: ..." olur.
+    Tekrar soruları puana ve toplam soru sayısına sayılmaz (`_baseTotal`). Tekrarda doğru yapılsa da kelime "Zor"da kalır.
+    Eşleştirmede hata yapılan kelimelerin her biri için tekrar sorusu eklenir.
+  - Üst üste 3+ doğruda alt panelde "N üst üste doğru!" yazar (sadece yazı, animasyon yok).
+  - **Tekrar dersi**: Tekrar sekmesinde (Kelime Listem üstü) mavi "Tekrar Dersi" butonu. En az 5 öğrenilmiş kelime
+    olunca görünür. `pickReviewWords`: önce Zor kelimeler, sonra diğerleri (günün tarihine göre kaydırılır), en çok 10.
+    `QuizScreen(review: true)`: aynı soru tipleri. Bitince `AppState.completeReview` (+10 XP, +2 elmas, ders sayısı
+    ve seri DEĞİŞMEZ). Tebrikler ekranında "Tekrar dersini tamamladın!", "Dersi Tekrarla" butonu gizli.
+  - Derlenip denenmedi, APK ile test edilmeli.
+- **Cümle tamamlama, kelime hakimiyeti yıldızları, ders sonu özeti, günün kelimesi (KURAL, kullanıcı istedi)**
+  (`lesson_data.dart`, `quiz_screen.dart`, `app_state.dart`, `result_screen.dart`, `word_list_screen.dart`, `home_screen.dart`):
+  - **Cümle tamamlama** (`QType.sentence`, "Boşluğu doldur"): kelimenin örnek cümlesinde kelime yerine `_____` yazılır,
+    altında Türkçesi görünür, 3 İngilizce şık. `blankSentence(word)` cümleyi üretir; kelime örnek cümlede TAM BİR kez
+    geçmiyorsa soru "Doğru cevabı seç"e döner. Kontrol sonrası tam cümle sesli okunur.
+    Quiz döngüsü artık 5'li: Dinle ve seç, Görseli seç, Cümle tamamlama, Harf dizme, Doğru cevabı seç.
+  - **Kelime hakimiyeti** (`AppState.mastery`, 0-3 yıldız, kalıcı): quizde doğru +1, yanlış -1 (tekrar sorusunda yanlış
+    sayılmaz). Bir quizde kelime başına net değişim -1..+2 ile sınırlı (tek ders kelimeyi öğrendirmez).
+    `applyMastery` quiz sonunda, `complete*` çağrılmadan ÖNCE çağrılır. Kelime listesinde her kelimenin yanında 3 yıldız;
+    "Öğrenildi" sekmesi ve yeşil tik = 3 yıldız. (Ana sayfa ilerleme çubuğu eskisi gibi görülen kelimeleri sayar.)
+  - **Ders sonu özeti** (`result_screen.dart` `_SummaryCard`): kaç kelime çalışıldı, hangileri zor geldi (İngilizce = Türkçe).
+  - **Günün kelimesi** (`home_screen.dart` `_WordOfDayCard`): `wordOfDay` tarihe göre öğrenilen kelimelerden birini seçer
+    (hiç ders yoksa 1. dersten). Karta dokununca okunur. Görseli ilk açılışta yüklenir (welcome precache listesinde yok).
+  - Derlenip denenmedi, APK ile test edilmeli.
+
+- **Ana sayfa kaydırma akıcılığı düzeltildi** (`home_screen.dart`, `theme.dart`): hero arka planı (`bg_london`) tam boyutta
+  çözülüyordu, artık `ResizeImage(width: 1080)` (açılış önyüklemesiyle aynı önbellek). Kartlar tek `Column` yerine
+  `ListView`'ın ayrı elemanları (her biri ayrı katman), `cacheExtent: 800`. `cardDecoration` gölgesi blur 16 -> 10.
+  Kaydırma fiziği (`BouncingScrollPhysics`, yaylanma) aynen kaldı. Derlenip denenmedi, APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
 
@@ -228,3 +260,56 @@ Durum (tamamlanınca [x] yap):
 10. [ ] Alışveriş
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [ ]
+
+
+## 10. Soru tipleri ve ders akışı (KESİN KURAL)
+
+Proje sahibinin kesin isteği. İzin almadan çıkarma, esnetme, değiştirme. Ayrıntılar Bölüm 6.1'de.
+
+- Quiz bu 6 soru tipini içerir ve hepsi kalır: Doğru cevabı seç (`text`), Doğru görseli seç (`picture`),
+  Dinle ve seç (`listen`), Eşleştirme (`match`), Harf dizme (`scramble`), Cümle tamamlama (`sentence`). Kodları `lesson_data.dart` (`buildQuiz`),
+  `quiz_screen.dart` ve `quiz_extra.dart` içindedir.
+- Her kelime için 1 soru + her 5 kelimede 1 Eşleştirme. Sıra sabit, rastgelelik yok (sabit tohum).
+- Yanlış yapılan kelime quiz sonunda BİR KEZ tekrar sorulur (farklı tipte). Tekrar soruları puana sayılmaz.
+- Üst üste 3+ doğruda "N üst üste doğru!" yazısı çıkar (sadece yazı, animasyon yok).
+- Tekrar sekmesinde "Tekrar Dersi" butonu olur (en az 5 öğrenilmiş kelime): önce Zor kelimeler, en çok 10 kelime.
+  Ders sayısını ve seriyi değiştirmez.
+- Yeni soru tipi veya ders akışı eklerken: animasyon yok, ek paket yok (gerekirse önce sor), `setState` küçük kalır,
+  tüm renk/buton `theme.dart`'tan gelir.
+- Kelime hakimiyeti: her kelimenin 3 yıldızı var, 3 yıldız = "Öğrenildi". Ders sonunda özet kartı çıkar.
+  Ana sayfada "Günün kelimesi" kartı durur. Bunlar kalkmaz.
+- Sıradaki işler (sırayla): cümle kurma, rozetler, yavaş okuma butonu. Bildirim hatırlatması ve konuşma (mikrofon)
+  paket gerektirir, önce kullanıcıya sor.
+
+## 11. YENİ KATEGORİYE (DERSE) GEÇİŞ KONTROL LİSTESİ (KESİN KURAL, her seferinde uygulanır)
+
+Amaç: her yeni kategori aynı düzenle gelsin, hiçbir özellik atlanmasın, devamlılık bozulmasın.
+Yeni kategori = yeni ders (Bölüm 9 sırasıyla). Bir önceki ders kullanıcı onayı almadan yenisine geçilmez.
+
+**A. Başlamadan önce**
+1. Bölüm 9'daki sıradaki kategoriyi ve durumunu kontrol et. Önceki ders `test [x]` değilse dur, kullanıcıya sor.
+2. Kullanıcıya 10 kelimeyi ver: İngilizce, okunuş (`say`), Türkçe, örnek cümle + cümlenin Türkçesi, Gemini görsel prompt'ları.
+3. Örnek cümleler şu kuralları sağlamalı:
+   - Kelime örnek cümlede TAM BİR kez geçer (Cümle tamamlama bunu ister, `blankSentence` null dönmemeli).
+   - Çok kelimeli ifadeler (örn. "nice to meet you") az olsun. Mümkünse 10 kelimenin en az 4-5'i tek kelime ve
+     3-9 harfli olsun (Harf dizme sorusu için, `canScramble`).
+4. Görseller Bölüm 8'e göre hazır olmadan ders koda eklenmez.
+
+**B. Koda eklerken (sadece bunlar değişir, başka dosyaya dokunma)**
+5. `lesson_data.dart`: `lessonNWords` listesi (10 kelime, `Word` alanlarının hepsi dolu), `lessonsContent` ve
+   `lessonTitles` listelerine EKLE (aynı sıra).
+6. `assets/words/<kelime>.png` dosyaları (küçük harf, boşluksuz, saydam PNG).
+7. Ders haritası (`lesson_map_screen.dart`) ve ana sayfa içerik hazır ders sayısını `lessonsContent.length`'ten alır;
+   kilit ve ders adı doğru görünüyor mu kontrol et.
+
+**C. Otomatik gelenler (ek iş yok, ama çalıştığını kontrol et)**
+8. Quiz (`buildQuiz`): 10 kelimede 12 soru çıkmalı; 6 soru tipinin hepsi görünmeli; yanlışlar sonda tekrar sorulmalı.
+9. Tekrar dersi: yeni dersin kelimeleri otomatik katılır. Her 2-3 dersten sonra kullanıcıya "Tekrar dersi yapalım mı?" diye hatırlat.
+10. Kelime hakimiyeti yıldızları, Zor listesi, günün kelimesi, ders sonu özeti yeni kelimelerle kendiliğinden çalışır.
+11. Yeni kalıcı veri gerekirse `AppState` içinde `load()` ve `_save()` ikisi de güncellenir (Bölüm 7).
+
+**D. Bitirirken**
+12. Performans kurallarını kontrol et (Bölüm 1): animasyon yok, yeni paket yok, `const`, küçük `setState`.
+13. Bölüm 9'daki durum satırını güncelle (kelimeler [x] görseller [x] kod [x] test [ ]) ve Bölüm 6.1'e günlük yaz.
+14. Değişen dosyalar ve güncel `AGENTS.md` kullanıcıya ZIP olarak DEĞİL, tek tek dosya olarak verilir.
+15. Kullanıcı test edip onaylayınca `test [x]` yapılır, sonra sıradaki kategoriye geçilir.
