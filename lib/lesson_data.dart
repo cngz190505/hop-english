@@ -116,7 +116,7 @@ const lesson2Words = [
   ),
   Word(
     en: 'from',
-    tr: '-den, -dan',
+    tr: 'nereden',
     phonetic: '/frʌm/',
     example: 'I am from Turkey.',
     exampleTr: "Ben Türkiye'denim.",
