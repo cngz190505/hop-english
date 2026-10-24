@@ -1,24 +1,9 @@
 import 'package:flutter/material.dart';
+import 'floating.dart';
+import 'home_screen.dart';
 
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
-
-  @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
-
-class _WelcomeScreenState extends State<WelcomeScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 2),
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +40,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ),
                   Expanded(
                     child: Center(
-                      child: AnimatedBuilder(
-                        animation: _c,
-                        builder: (context, child) => Transform.translate(
-                          offset: Offset(0, -16 * _c.value),
-                          child: child,
-                        ),
+                      child: Floating(
+                        distance: 16,
                         child: Image.asset(
                           'assets/ready/mascot_main.png',
                           height: 300,
@@ -79,7 +60,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const HomeScreen(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Başlayalım  →',
                         style: TextStyle(
