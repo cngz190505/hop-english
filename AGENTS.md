@@ -39,7 +39,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 - **Tüm renk, buton, kart ve ilerleme çubuğu `lib/theme.dart` içinden gelir**
   (`kGreen`, `kYellow`, `ChunkyButton`, `cardDecoration()`, `ProgressBar` vb.).
   Yeni ekranda aynı bileşenleri kullan, yeni renk/stil uydurma. Gerekirse `theme.dart`'a ekle.
-- Maskot yeşil ejderhadır (`assets/ready/mascot_*.png`). Başka karakter ekleme.
+- Maskot yeşil ejderhadır (`assets/ready/mascot_*.png`). Başka karakter ekleme. TEK İSTİSNA: kelime görselleri (`assets/words/`) çocuk karakteridir, bkz. Bölüm 8.
 - Uygulama dili Türkçedir. Tüm yazılar Türkçe, İngilizce kelime/örnekler dersin içeriğidir.
 - Tema: Material 3, açık tema, arka plan `kBg`.
 
@@ -148,6 +148,10 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   `.github/workflows/build.yml`'e launch arka plan rengi yaması gerekir (henüz yapılmadı).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
+- **Ders kartında kelimeye özel görsel**: `lesson_screen.dart` içindeki `MascotBubble` artık `image` alır; ders ekranı `word.imagePath` (`assets/words/<kelime>.png`) gösterir. Quizdeki Türkçe soru kartı ejderha maskotu kullanmaya devam eder. `assets/words/` görselleri çocuk karakteridir (kullanıcı onayıyla, ejderha kuralının istisnası), yeni kelime için aynı stilde saydam PNG eklenir.
+
+- **Titreşim Duolingo gibi güçlendirildi** (`fx.dart`): doğru 3 darbe, yanlış 5 darbe, kutlama 10 darbe; her darbede `vibrate` + `heavyImpact`. Ek paket yok.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
@@ -155,3 +159,19 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - Yeni bir kalıcı veri eklenirse `AppState` içinde hem `load()` hem `_save()` güncellenmeli.
 - `AppState.completeLesson()` sadece tıklama/olay içinden çağrılır, `build` veya `initState` içinden asla
   (yoksa "setState called during build" hatası verir).
+
+## 8. İçerik kuralı: HER KELİMENİN KENDİ GÖRSELİ VAR (KESİN KURAL)
+
+Proje sahibinin kesin isteği. İzin almadan esnetme, atlama, değiştirme.
+
+- Her ders kelimesinin (`lesson_data.dart`) kendine ait görseli olur: `assets/words/<kelime>.png`
+  (küçük harf, boşluksuz: `thank you` -> `thankyou.png`). Kod yolu `Word.imagePath` ile otomatik gelir.
+- Ders ekranında kelime kartındaki maskot alanında **o kelimenin görseli** gösterilir
+  (`MascotBubble(image: word.imagePath)`). Her kelimede aynı görsel/ejderha TEKRARLANMAZ.
+- Aynı görsel iki farklı kelimede kullanılmaz. Karışıklık yok: 1 kelime = 1 görsel = 1 dosya.
+- Yeni kelime/ders eklerken ÖNCE görseli hazırla (aynı çocuk karakteri, aynı çizim stili, saydam PNG,
+  yaklaşık 420 px yükseklik), SONRA kelimeyi `lesson_data.dart`'a ekle. Görseli olmayan kelime eklenmez.
+- Karakter: kahverengi saçlı çocuk, yeşil tişört, mavi şort, kırmızı ayakkabı. Başka karakter/stil karıştırma.
+- Görselin pozu kelimenin anlamını anlatmalı (örn. hello = el sallıyor, yes = başparmak yukarı, please = eller birleşik).
+- Quizdeki görselli sorular da aynı dosyaları kullanır, ayrı görsel üretme.
+- Bu kural ders ekranı ve quiz için geçerlidir; yeni bir ekran kelime gösteriyorsa aynı görseli kullanır.
