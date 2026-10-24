@@ -9,18 +9,20 @@ enum _Status { done, current, locked }
 class _LessonInfo {
   final String title;
   // Konum: haritanın genişliğine (fx) ve yüksekliğine (fy) oranla 0..1.
-  // Düğümler yolun üstünde durur; kaydırmak istersen sadece bu sayıları değiştir.
+  // Kartlar yolun üstünde durur; kaydırmak istersen sadece bu sayıları değiştir.
   final double fx;
   final double fy;
-  const _LessonInfo(this.title, this.fx, this.fy);
+  final Color color; // ders numarası dairesinin rengi
+  final Color shadow; // dairenin alt gölgesi (koyu ton)
+  const _LessonInfo(this.title, this.fx, this.fy, this.color, this.shadow);
 }
 
 const _lessons = [
-  _LessonInfo('Selamlaşma', 0.63, 0.91),
-  _LessonInfo('Kendini Tanıtma', 0.45, 0.77),
-  _LessonInfo('Günlük İfadeler', 0.42, 0.63),
-  _LessonInfo('Sosyal Hayat', 0.64, 0.50),
-  _LessonInfo('Alışveriş', 0.40, 0.37),
+  _LessonInfo('Selamlaşma', 0.63, 0.91, Color(0xFF58CC02), Color(0xFF46A302)),
+  _LessonInfo('Kendini Tanıtma', 0.45, 0.77, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
+  _LessonInfo('Günlük İfadeler', 0.42, 0.63, Color(0xFF1CB0F6), Color(0xFF1288C9)),
+  _LessonInfo('Sosyal Hayat', 0.64, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
+  _LessonInfo('Alışveriş', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
 ];
 
 /// Toplam ders sayısı (_lessons listesiyle aynı olmalı).
@@ -87,9 +89,9 @@ class LessonMapTab extends StatelessWidget {
         ),
         Positioned(
           top: top + 10,
-          left: 0,
-          right: 0,
-          child: const Center(child: _TitlePill()),
+          left: 16,
+          right: 16,
+          child: const _Header(),
         ),
         const Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard()),
       ],
@@ -101,25 +103,31 @@ class LessonMapTab extends StatelessWidget {
     final status = _statusOf(i, AppState.instance.completedLessons);
     final x = l.fx * w;
     final y = l.fy * h;
+    final pillW = (w - 24).clamp(0.0, 236.0);
+    final left = (x - pillW / 2).clamp(12.0, w - pillW - 12);
+    // Maskot, kartın yanında boş yeri daha geniş olan tarafta durur.
+    final roomLeft = left;
+    final roomRight = w - (left + pillW);
+    final mascotLeft = roomLeft >= roomRight ? left - 74.0 : left + pillW + 4;
     return [
       if (status == _Status.current)
         Positioned(
-          left: x - 80 - 70,
-          top: y - 40,
+          left: mascotLeft,
+          top: y - 44,
           child: Image.asset(
             'assets/ready/mascot_wave.png',
-            height: 84,
-            cacheHeight: 252,
+            height: 88,
+            cacheHeight: 264,
             gaplessPlayback: true,
           ),
         ),
       Positioned(
-        left: x - 80,
+        left: left,
         top: y - 32,
-        width: 160,
-        child: _LessonNode(
+        width: pillW,
+        child: _LessonCard(
           number: i + 1,
-          title: l.title,
+          info: l,
           status: status,
           // İçeriği hazır olan her ders (bitmiş de olsa) istenen yerden açılır.
           onTap: i < _playableLessons ? () => openLesson(context, i) : null,
@@ -129,114 +137,161 @@ class LessonMapTab extends StatelessWidget {
   }
 }
 
-class _LessonNode extends StatelessWidget {
+/// Haritadaki ders kartı: solda renkli numara dairesi, ortada ders adı, sağda durum simgesi
+/// (tamam: yeşil tik, sıradaki: oynat, kilitli: kilit).
+class _LessonCard extends StatelessWidget {
   final int number;
-  final String title;
+  final _LessonInfo info;
   final _Status status;
   final VoidCallback? onTap;
-  const _LessonNode({
+  const _LessonCard({
     required this.number,
-    required this.title,
+    required this.info,
     required this.status,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color color;
-    final Color shadow;
-    switch (status) {
-      case _Status.done:
-        color = kGreen;
-        shadow = kGreenDark;
-      case _Status.current:
-        color = kBlue;
-        shadow = kBlueDark;
-      case _Status.locked:
-        color = kLocked;
-        shadow = kLockedDark;
-    }
+    final locked = status == _Status.locked;
+    final current = status == _Status.current;
+    final circle = locked ? kLocked : info.color;
+    final circleShadow = locked ? kLockedDark : info.shadow;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: [BoxShadow(color: shadow, offset: const Offset(0, 5))],
-            ),
-            child: Text(
-              '$number',
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
+      child: Container(
+        height: 64,
+        padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+        decoration: BoxDecoration(
+          color: const Color(0xF2FFFFFF),
+          borderRadius: BorderRadius.circular(32),
+          // Sıradaki ders: kendi renginde kalın çerçeve.
+          border: current ? Border.all(color: info.color, width: 3) : null,
+          boxShadow: const [
+            BoxShadow(color: Color(0x261C6BA8), blurRadius: 8, offset: Offset(0, 3)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: circle,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 3),
+                boxShadow: [BoxShadow(color: circleShadow, offset: const Offset(0, 3))],
+              ),
+              child: Text(
+                '$number',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xEBFFFFFF),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: status == _Status.locked ? kMuted : kInk,
-                    ),
-                  ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                info.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.15,
+                  fontWeight: FontWeight.w900,
+                  color: locked ? kMuted : kInk,
                 ),
-                if (status == _Status.done) ...[
-                  const SizedBox(width: 4),
-                  const Icon(Icons.check_circle_rounded, size: 16, color: kGreen),
-                ],
-                if (status == _Status.locked) ...[
-                  const SizedBox(width: 4),
-                  const Icon(Icons.lock_rounded, size: 14, color: kMuted),
-                ],
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            if (status == _Status.done)
+              const Icon(Icons.check_circle_rounded, size: 26, color: kGreen)
+            else if (current)
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(color: info.color, shape: BoxShape.circle),
+                child: const Icon(Icons.play_arrow_rounded, size: 20, color: Colors.white),
+              )
+            else
+              const Icon(Icons.lock_rounded, size: 22, color: kLockedDark),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _TitlePill extends StatelessWidget {
-  const _TitlePill();
+/// Üst başlık: "Ders Haritası", alt yazı ve elmas sayısı.
+class _Header extends StatelessWidget {
+  const _Header();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(18, 10, 12, 10),
       decoration: BoxDecoration(
-        color: const Color(0xEBFFFFFF),
-        borderRadius: BorderRadius.circular(22),
+        color: const Color(0xF2FFFFFF),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 3)),
         ],
       ),
-      child: const Text(
-        'Ders Haritası',
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: kInk),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ders Haritası',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w900,
+                    color: kInk,
+                  ),
+                ),
+                Text(
+                  'İngilizce yolculuğunda ilerle!',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: kMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListenableBuilder(
+            listenable: AppState.instance,
+            builder: (context, _) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6F5FF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset('assets/ready/icon_gem.png', height: 22, cacheHeight: 66),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${AppState.instance.gems}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: kBlueDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
