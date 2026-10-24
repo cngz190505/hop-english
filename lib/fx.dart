@@ -23,11 +23,11 @@ class Fx {
 
   /// Doğru cevap: sadece orta titreşim. Efekt sesi YOK, çünkü kelimenin okunuşuyla
   /// (Speech) karışıyordu. Okunuş zaten çalıyor.
-  static Future<void> right() => _buzz(const [0, 90]);
+  static Future<void> right() => _buzz(const [0, 70, 70]);
 
   /// Yanlış cevap: sadece güçlü titreşim (efekt sesi yok, sebep yukarıda).
   /// Doğrudan daha uzun: 3 darbe.
-  static Future<void> wrong() => _buzz(const [0, 110, 110]);
+  static Future<void> wrong() => _buzz(const [0, 90, 90, 90, 90]);
 
   /// Güçlü titreşim: her darbe için bekleme (ms) listesi. Paket/izin gerekmez,
   /// HapticFeedback.vibrate + heavyImpact arka arkaya verilir.
@@ -37,6 +37,7 @@ class Fx {
         if (ms > 0) await Future.delayed(Duration(milliseconds: ms));
         HapticFeedback.vibrate();
         HapticFeedback.heavyImpact();
+        HapticFeedback.vibrate();
       }
     } catch (_) {}
   }
@@ -46,7 +47,7 @@ class Fx {
     _play('celebrate.wav', volume: 1.0);
     try {
       HapticFeedback.heavyImpact();
-      for (final ms in const [120, 120, 150, 200, 250]) {
+      for (final ms in const [90, 90, 90, 110, 110, 130, 150, 180, 220]) {
         await Future.delayed(Duration(milliseconds: ms));
         HapticFeedback.heavyImpact();
       }
@@ -57,6 +58,7 @@ class Fx {
 
   /// Hediye alma: yükselen ses + güçlü titreşim.
   static void reward() {
+    HapticFeedback.vibrate();
     HapticFeedback.heavyImpact();
     _play('gift.wav');
   }
