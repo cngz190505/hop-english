@@ -189,6 +189,7 @@ enum QType {
   listen, // Kelime sesli okunur, Türkçesi seçilir
   match, // 5 İngilizce kelime 5 Türkçe karşılığıyla eşleştirilir
   scramble, // Karışık harflerden kelime oluşturulur
+  sentence, // Örnek cümlede boşluğa doğru kelime seçilir
 }
 
 /// Quiz sorusu.
@@ -201,6 +202,7 @@ class QuizQuestion {
   final List<Word> pairs; // match: eşleştirilecek kelimeler
   final List<String> letters; // scramble: karışık harfler
   final bool retry; // yanlış yapılan sorunun tekrarı (puana sayılmaz)
+  final String sentence; // sentence: boşluklu örnek cümle (___)
   const QuizQuestion({
     required this.type,
     required this.word,
@@ -210,6 +212,7 @@ class QuizQuestion {
     this.pairs = const [],
     this.letters = const [],
     this.retry = false,
+    this.sentence = '',
   });
   bool get isPicture => type == QType.picture;
 
@@ -223,7 +226,7 @@ QuizQuestion retryQuestion(List<Word> words, Word w, QType failed) {
   final n = words.length;
   final i = words.indexOf(w).clamp(0, n - 1);
   final pos = (i + 1) % 3;
-  if (failed == QType.text) {
+  if (failed == QType.text || failed == QType.sentence) {
     final others = [for (var k = 1; k < n; k++) words[(i + k) % n]];
     final options = [others[0].tr, others[others.length > 2 ? 2 : 1].tr]
       ..insert(pos, w.tr);
@@ -247,6 +250,23 @@ List<Word> pickReviewWords(List<Word> learned, Set<String> hard) {
   return [...h, ...rest].take(10).toList();
 }
 
+/// Cümle tamamlama için: örnek cümlede kelime TAM BİR kez geçiyorsa, o yer "_____" olur.
+/// Uygun değilse (kelime geçmiyor ya da birden çok geçiyor) null.
+String? blankSentence(Word w) {
+  final re = RegExp('(?<![A-Za-z])${RegExp.escape(w.en)}(?![A-Za-z])',
+      caseSensitive: false);
+  final ms = re.allMatches(w.example).toList();
+  if (ms.length != 1) return null;
+  return w.example.replaceRange(ms.first.start, ms.first.end, '_____');
+}
+
+/// Günün kelimesi: tarihe göre listeden seçilir, gün içinde hep aynıdır.
+Word wordOfDay(List<Word> pool) {
+  final now = DateTime.now();
+  final day = now.difference(DateTime(now.year)).inDays;
+  return pool[day % pool.length];
+}
+
 /// Harf dizme sorusu için uygun mu? Tek kelime, sadece harf, 3-9 harf.
 bool canScramble(Word w) =>
     !w.en.contains(RegExp(r'[^a-zA-Z]')) && w.en.length >= 3 && w.en.length <= 9;
@@ -262,16 +282,23 @@ List<String> _scrambleLetters(String s, int seed) {
 }
 
 /// Dersin sorularını üretir. Rastgelelik sabit tohumlu: her seferinde aynı sonuç.
-/// Her kelime için 1 soru: sırayla Dinle ve seç, Görseli seç, Doğru cevabı seç,
-/// Harf dizme (kelime uygun değilse Doğru cevabı seç). Sonra her 5 kelime için
+/// Her kelime için 1 soru: sırayla Dinle ve seç, Görseli seç, Cümle tamamlama,
+/// Harf dizme, Doğru cevabı seç (uygun olmayan kelimede Doğru cevabı seç). Sonra her 5 kelime için
 /// 1 Eşleştirme sorusu eklenir (ikisi varsa biri ortaya, biri sona).
 List<QuizQuestion> buildQuiz(List<Word> words) {
   final n = words.length;
   final single = <QuizQuestion>[];
   for (var i = 0; i < n; i++) {
     final w = words[i];
-    var kind = const [QType.listen, QType.picture, QType.text, QType.scramble][i % 4];
+    var kind = const [
+      QType.listen,
+      QType.picture,
+      QType.sentence,
+      QType.scramble,
+      QType.text,
+    ][i % 5];
     if (kind == QType.picture && n < 4) kind = QType.text;
+    if (kind == QType.sentence && blankSentence(w) == null) kind = QType.text;
     if (kind == QType.scramble && !canScramble(w)) kind = QType.text;
     switch (kind) {
       case QType.listen:
@@ -294,6 +321,17 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
           options: [for (final p in pics) p.en],
           correct: ppos,
           pictures: pics,
+        ));
+      case QType.sentence:
+        final spos = (i + 2) % 3;
+        final sopts = [words[(i + 1) % n].en, words[(i + 3) % n].en]
+          ..insert(spos, w.en);
+        single.add(QuizQuestion(
+          type: QType.sentence,
+          word: w,
+          options: sopts,
+          correct: spos,
+          sentence: blankSentence(w)!,
         ));
       case QType.scramble:
         single.add(QuizQuestion(

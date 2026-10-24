@@ -41,6 +41,9 @@ class AppState extends ChangeNotifier {
   int lessonsToday = 0;
   /// Quizde yanlış yapılan kelimeler (İngilizce yazılışı). "Zor" listesi.
   final Set<String> hardWords = {};
+  /// Kelime hakimiyeti: İngilizce kelime -> 0..3 yıldız. 3 yıldız = "Öğrenildi".
+  final Map<String, int> mastery = {};
+  static const maxMastery = 3;
   String? _day;
 
   // Günlük hedef (süre) ve hediye. Ders günü (_day) ile ayrı tutulur.
@@ -52,6 +55,17 @@ class AppState extends ChangeNotifier {
   bool get goalReached => studySeconds >= goalSeconds;
   bool get giftClaimed => _studyDay == _today() && _giftClaimed;
   bool get giftReady => goalReached && !giftClaimed;
+
+  int masteryOf(String en) => mastery[en] ?? 0;
+  bool isMastered(String en) => masteryOf(en) >= maxMastery;
+
+  /// Quiz bitince, complete* çağrılmadan ÖNCE çağrılır. Kelime başına net sonuç
+  /// (doğru - yanlış) -1..+2 ile sınırlanır: bir ders tek başına kelimeyi öğrendirmez.
+  void applyMastery(Map<String, int> delta) {
+    delta.forEach((en, d) {
+      mastery[en] = (masteryOf(en) + d.clamp(-1, 2)).clamp(0, maxMastery);
+    });
+  }
 
   /// Tamamlanan derslerdeki kelimeler.
   List<Word> get learnedWords => [
@@ -74,6 +88,10 @@ class AppState extends ChangeNotifier {
       // Bugün ders yapılmadıysa "bugünkü ders" sayacı sıfır.
       lessonsToday = _day == _today() ? (p.getInt('lessonsToday') ?? 0) : 0;
       hardWords.addAll(p.getStringList('hardWords') ?? const []);
+      for (final e in p.getStringList('mastery') ?? const <String>[]) {
+        final k = e.lastIndexOf('|');
+        if (k > 0) mastery[e.substring(0, k)] = int.tryParse(e.substring(k + 1)) ?? 0;
+      }
       _studyDay = p.getString('studyDay');
       _studySeconds = p.getInt('studySeconds') ?? 0;
       _giftClaimed = p.getBool('giftClaimed') ?? false;
@@ -96,6 +114,10 @@ class AppState extends ChangeNotifier {
       await p.setInt('lessonsToday', lessonsToday);
       if (_day != null) await p.setString('day', _day!);
       await p.setStringList('hardWords', hardWords.toList());
+      await p.setStringList(
+        'mastery',
+        [for (final e in mastery.entries) '${e.key}|${e.value}'],
+      );
       if (_studyDay != null) await p.setString('studyDay', _studyDay!);
       await p.setInt('studySeconds', _studySeconds);
       await p.setBool('giftClaimed', _giftClaimed);

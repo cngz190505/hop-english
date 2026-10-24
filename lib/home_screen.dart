@@ -4,6 +4,7 @@ import 'lesson_data.dart';
 import 'lesson_map_screen.dart';
 import 'lesson_screen.dart';
 import 'profile_screen.dart';
+import 'speech.dart';
 import 'theme.dart';
 import 'word_list_screen.dart';
 
@@ -88,6 +89,8 @@ class _HomeTab extends StatelessWidget {
               const _WeekCard(),
               const SizedBox(height: 12),
               const _GoalCard(),
+              const SizedBox(height: 12),
+              const _WordOfDayCard(),
               const SizedBox(height: 12),
               _HardWordsCard(onReview: onReview),
             ],
@@ -557,6 +560,76 @@ class _DayDot extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Günün kelimesi: tarihe göre öğrenilen kelimelerden biri (ders yoksa 1. dersten). Dokununca okunur.
+class _WordOfDayCard extends StatelessWidget {
+  const _WordOfDayCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final learned = AppState.instance.learnedWords;
+        final w = wordOfDay(learned.isEmpty ? lessonsContent.first : learned);
+        return GestureDetector(
+          onTap: () => Speech.speak(w.en),
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: cardDecoration(),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 84,
+                  height: 84,
+                  child: Image.asset(
+                    w.imagePath,
+                    height: 84,
+                    cacheHeight: 252,
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                    errorBuilder: (_, __, ___) =>
+                        Center(child: Text(w.emoji, style: const TextStyle(fontSize: 44))),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Günün kelimesi',
+                        style: TextStyle(fontSize: 12, color: kMuted),
+                      ),
+                      Text(
+                        w.en,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: kInk,
+                        ),
+                      ),
+                      Text(
+                        '${w.tr} · ${w.say}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: kBlueDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.volume_up_rounded, color: kBlue, size: 30),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -11,6 +11,7 @@ class ResultScreen extends StatelessWidget {
   final List<Word> words;
   final int lessonIndex;
   final bool review; // tekrar dersi mi
+  final List<String> missed; // quizde yanlış yapılan kelimeler (İngilizce)
   const ResultScreen({
     super.key,
     required this.reward,
@@ -19,6 +20,7 @@ class ResultScreen extends StatelessWidget {
     required this.words,
     this.lessonIndex = 0,
     this.review = false,
+    this.missed = const [],
   });
 
   void _home(BuildContext context) =>
@@ -107,6 +109,8 @@ class ResultScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
+                      _SummaryCard(words: words, missed: missed),
                     ],
                   ),
                 ),
@@ -147,6 +151,60 @@ class ResultScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Ders sonu özeti: kaç kelime görüldü, hangileri zor geldi.
+class _SummaryCard extends StatelessWidget {
+  final List<Word> words;
+  final List<String> missed;
+  const _SummaryCard({required this.words, required this.missed});
+
+  @override
+  Widget build(BuildContext context) {
+    final hard = [for (final w in words) if (missed.contains(w.en)) w];
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Özet',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: kInk),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Bu derste ${words.length} kelime çalıştın.',
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: kMuted),
+          ),
+          const SizedBox(height: 6),
+          if (hard.isEmpty)
+            const Text(
+              'Hiç kelime kaçırmadın, harika!',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kGreen),
+            )
+          else ...[
+            const Text(
+              'Zorlandığın kelimeler:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: kRed),
+            ),
+            const SizedBox(height: 4),
+            for (final w in hard)
+              Text(
+                '${w.en} = ${w.tr}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: kInk),
+              ),
+            const SizedBox(height: 4),
+            const Text(
+              'Bunlar Tekrar sekmesinde "Zor" listesine eklendi.',
+              style: TextStyle(fontSize: 12, color: kMuted),
+            ),
+          ],
+        ],
       ),
     );
   }

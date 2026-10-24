@@ -33,6 +33,7 @@ class _QuizScreenState extends State<QuizScreen> {
   late final int _baseTotal = _qs.length; // tekrar soruları hariç
   final Set<String> _retried = {}; // tekrar sorusu eklenen kelimeler (her kelime 1 kez)
   int _streak = 0; // üst üste doğru
+  final Map<String, int> _delta = {}; // kelime başına doğru(+1)/yanlış(-1), hakimiyet için
   int _i = 0;
   int? _sel; // seçmeli sorularda seçilen şık
   String? _answer; // harf dizmede oluşturulan kelime (tamamlanmadıysa null)
@@ -70,6 +71,14 @@ class _QuizScreenState extends State<QuizScreen> {
   void _record(Iterable<String> right, Iterable<String> missed, bool ok) {
     _rightWords.addAll(right);
     _missedWords.addAll(missed);
+    for (final w in right) {
+      _delta[w] = (_delta[w] ?? 0) + 1;
+    }
+    if (!_q.retry) {
+      for (final w in missed) {
+        _delta[w] = (_delta[w] ?? 0) - 1;
+      }
+    }
     if (ok && !_q.retry) _correct++;
     _streak = ok ? _streak + 1 : 0;
   }
@@ -90,7 +99,7 @@ class _QuizScreenState extends State<QuizScreen> {
       if (!ok) _queueRetry(_q.word, _q.type);
     });
     ok ? Fx.right() : Fx.wrong();
-    Speech.speak(_q.word.en);
+    Speech.speak(_q.type == QType.sentence ? _q.word.example : _q.word.en);
   }
 
   void _onMatchDone(Set<String> missed) {
@@ -124,6 +133,7 @@ class _QuizScreenState extends State<QuizScreen> {
       // Bir kelime bir soruda yanlış, başka soruda doğruysa "zor" kalır.
       final missed = _missedWords.toList();
       final right = _rightWords.difference(_missedWords).toList();
+      AppState.instance.applyMastery(_delta);
       final reward = widget.review
           ? AppState.instance.completeReview(missed: missed, correct: right)
           : AppState.instance.completeLesson(
@@ -141,6 +151,7 @@ class _QuizScreenState extends State<QuizScreen> {
             words: widget.words,
             lessonIndex: widget.lessonIndex,
             review: widget.review,
+            missed: missed,
           ),
         ),
       );
@@ -224,6 +235,44 @@ class _QuizScreenState extends State<QuizScreen> {
                         right: _checked ? _isRight : null,
                         onChanged: (a) => setState(() => _answer = a),
                       ),
+                    ] else if (_q.type == QType.sentence) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: cardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _q.sentence,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
+                                color: kInk,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _q.word.exampleTr,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: kMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      for (var k = 0; k < _q.options.length; k++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _Option(
+                            text: _q.options[k],
+                            state: _stateOf(k),
+                            onTap: _checked ? null : () => setState(() => _sel = k),
+                          ),
+                        ),
                     ] else if (_q.type == QType.listen) ...[
                       ListenBig(key: ValueKey(_i), word: _q.word.en),
                       const SizedBox(height: 24),
@@ -353,6 +402,8 @@ class _QuizScreenState extends State<QuizScreen> {
         return 'Eşleştir';
       case QType.scramble:
         return 'Kelimeyi oluştur';
+      case QType.sentence:
+        return 'Boşluğu doldur';
       case QType.text:
         return 'Doğru cevabı seç';
     }

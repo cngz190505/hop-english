@@ -34,7 +34,8 @@ class _WordListTabState extends State<WordListTab> {
       builder: (context, _) {
         final s = AppState.instance;
         final all = [for (final l in lessonsContent) ...l];
-        final learned = s.learnedWords.map((w) => w.en).toSet();
+        // "Öğrenildi" = 3 yıldız (kelime hakimiyeti). Yıldızlar quizde doğru bildikçe dolar.
+        final learned = {for (final w in all) if (s.isMastered(w.en)) w.en};
         final List<Word> list;
         switch (_filter) {
           case 1:
@@ -122,7 +123,7 @@ class _WordListTabState extends State<WordListTab> {
                         child: Text(
                           _filter == 1
                               ? 'Zor kelime yok, harika gidiyorsun!'
-                              : 'Henüz öğrenilen kelime yok.\nBir ders tamamla!',
+                              : 'Henüz 3 yıldızlı kelime yok.\nDers ve tekrar derslerinde doğru bil!',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 16,
@@ -140,6 +141,7 @@ class _WordListTabState extends State<WordListTab> {
                         colors: _palette[all.indexOf(list[i]) % _palette.length],
                         learned: learned.contains(list[i].en),
                         hard: s.hardWords.contains(list[i].en),
+                        stars: s.masteryOf(list[i].en),
                       ),
                     ),
             ),
@@ -155,11 +157,13 @@ class _WordRow extends StatelessWidget {
   final (Color, Color) colors;
   final bool learned;
   final bool hard;
+  final int stars; // 0..3
   const _WordRow({
     required this.word,
     required this.colors,
     required this.learned,
     required this.hard,
+    required this.stars,
   });
 
   @override
@@ -205,23 +209,34 @@ class _WordRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: light,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      word.tr,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: dark,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: light,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          word.tr,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: dark,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      for (var k = 0; k < 3; k++)
+                        Icon(
+                          Icons.star_rounded,
+                          size: 20,
+                          color: k < stars ? kYellow : kLocked,
+                        ),
+                    ],
                   ),
                 ],
               ),
