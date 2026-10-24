@@ -6,13 +6,13 @@ class Speech {
   static final FlutterTts _tts = FlutterTts();
   static bool _ready = false;
 
-  static Future<void> speak(String text) async {
+  static Future<void> speak(String text, {bool slow = false}) async {
     try {
       if (!_ready) {
         await _tts.setLanguage('en-US');
-        await _tts.setSpeechRate(0.4);
         _ready = true;
       }
+      await _tts.setSpeechRate(slow ? 0.25 : 0.4);
       await _tts.stop();
       await _tts.speak(text);
     } catch (_) {}
