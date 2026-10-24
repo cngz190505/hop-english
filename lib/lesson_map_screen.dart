@@ -25,10 +25,11 @@ const _lessons = [
   _LessonInfo('Meyveler', 0.42, 0.63, Color(0xFF1CB0F6), Color(0xFF1288C9)),
   _LessonInfo('Hayvanlar', 0.64, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
   _LessonInfo('Renkler', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('Sayılar', 0.64, 0.24, Color(0xFF14B8A6), Color(0xFF0F9488)),
 ];
 
 /// Toplam ders sayısı (_lessons listesiyle aynı olmalı).
-const _lessonsCount = 5;
+const _lessonsCount = 6;
 
 /// İçeriği hazır ders sayısı (lessonsContent ile aynı).
 final _playableLessons = lessonsContent.length;

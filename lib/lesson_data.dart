@@ -458,11 +458,105 @@ const lesson5Words = [
   ),
 ];
 
+/// 6. ders: Sayılar 1-10 (10 kelime, görseller: mavi rakam + o sayıda yıldız, çocuksuz)
+const lesson6Words = [
+  Word(
+    en: 'one',
+    tr: 'bir',
+    phonetic: '/wʌn/',
+    say: 'wan',
+    example: 'I have one cat.',
+    exampleTr: 'Bir kedim var.',
+    emoji: '1️⃣',
+  ),
+  Word(
+    en: 'two',
+    tr: 'iki',
+    phonetic: '/tuː/',
+    say: 'tuu',
+    example: 'I have two eyes.',
+    exampleTr: 'İki gözüm var.',
+    emoji: '2️⃣',
+  ),
+  Word(
+    en: 'three',
+    tr: 'üç',
+    phonetic: '/θriː/',
+    say: 'srii',
+    example: 'I see three birds.',
+    exampleTr: 'Üç kuş görüyorum.',
+    emoji: '3️⃣',
+  ),
+  Word(
+    en: 'four',
+    tr: 'dört',
+    phonetic: '/fɔːr/',
+    say: 'for',
+    example: 'I have four toys.',
+    exampleTr: 'Dört oyuncağım var.',
+    emoji: '4️⃣',
+  ),
+  Word(
+    en: 'five',
+    tr: 'beş',
+    phonetic: '/faɪv/',
+    say: 'fayv',
+    example: 'I have five fingers.',
+    exampleTr: 'Beş parmağım var.',
+    emoji: '5️⃣',
+  ),
+  Word(
+    en: 'six',
+    tr: 'altı',
+    phonetic: '/sɪks/',
+    say: 'siks',
+    example: 'I eat six apples.',
+    exampleTr: 'Altı elma yiyorum.',
+    emoji: '6️⃣',
+  ),
+  Word(
+    en: 'seven',
+    tr: 'yedi',
+    phonetic: '/ˈsɛvən/',
+    say: 'sevın',
+    example: 'There are seven days.',
+    exampleTr: 'Yedi gün var.',
+    emoji: '7️⃣',
+  ),
+  Word(
+    en: 'eight',
+    tr: 'sekiz',
+    phonetic: '/eɪt/',
+    say: 'eyt',
+    example: 'I see eight stars.',
+    exampleTr: 'Sekiz yıldız görüyorum.',
+    emoji: '8️⃣',
+  ),
+  Word(
+    en: 'nine',
+    tr: 'dokuz',
+    phonetic: '/naɪn/',
+    say: 'nayn',
+    example: 'I have nine books.',
+    exampleTr: 'Dokuz kitabım var.',
+    emoji: '9️⃣',
+  ),
+  Word(
+    en: 'ten',
+    tr: 'on',
+    phonetic: '/tɛn/',
+    say: 'ten',
+    example: 'I am ten years old.',
+    exampleTr: 'On yaşındayım.',
+    emoji: '🔟',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar'];
 
 /// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
 enum QType {
