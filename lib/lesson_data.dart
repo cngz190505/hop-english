@@ -5,12 +5,14 @@ class Word {
   final String phonetic; // Okunuşu
   final String example; // İngilizce örnek cümle
   final String exampleTr; // Örnek cümlenin Türkçesi
+  final String emoji; // Kelime listesindeki simge
   const Word({
     required this.en,
     required this.tr,
     required this.phonetic,
     required this.example,
     required this.exampleTr,
+    required this.emoji,
   });
 }
 
@@ -22,6 +24,7 @@ const lesson1Words = [
     phonetic: '/həˈloʊ/',
     example: 'Hello! How are you?',
     exampleTr: 'Merhaba! Nasılsın?',
+    emoji: '👋',
   ),
   Word(
     en: 'goodbye',
@@ -29,6 +32,7 @@ const lesson1Words = [
     phonetic: '/ɡʊdˈbaɪ/',
     example: 'Goodbye! See you tomorrow.',
     exampleTr: 'Hoşça kal! Yarın görüşürüz.',
+    emoji: '🚶',
   ),
   Word(
     en: 'thank you',
@@ -36,6 +40,7 @@ const lesson1Words = [
     phonetic: '/ˈθæŋk juː/',
     example: 'Thank you very much!',
     exampleTr: 'Çok teşekkür ederim!',
+    emoji: '❤️',
   ),
   Word(
     en: 'please',
@@ -43,6 +48,7 @@ const lesson1Words = [
     phonetic: '/pliːz/',
     example: 'Please sit down.',
     exampleTr: 'Lütfen otur.',
+    emoji: '😊',
   ),
   Word(
     en: 'yes',
@@ -50,6 +56,7 @@ const lesson1Words = [
     phonetic: '/jɛs/',
     example: 'Yes, I like it.',
     exampleTr: 'Evet, bunu beğendim.',
+    emoji: '👍',
   ),
   Word(
     en: 'no',
@@ -57,8 +64,12 @@ const lesson1Words = [
     phonetic: '/noʊ/',
     example: 'No, thank you.',
     exampleTr: 'Hayır, teşekkürler.',
+    emoji: '❌',
   ),
 ];
+
+/// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
+const lessonsContent = [lesson1Words];
 
 /// Quiz sorusu: Türkçesi gösterilir, doğru İngilizce karşılığı seçilir.
 class QuizQuestion {

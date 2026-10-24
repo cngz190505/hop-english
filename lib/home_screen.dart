@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'app_state.dart';
 import 'lesson_map_screen.dart';
 import 'lesson_screen.dart';
+import 'profile_screen.dart';
 import 'theme.dart';
+import 'word_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           SafeArea(child: _HomeTab()),
           LessonMapTab(), // kendi güvenli alanını yönetir (tam ekran harita)
-          SafeArea(child: _Soon(title: 'Tekrar')),
-          SafeArea(child: _Soon(title: 'Profil')),
+          SafeArea(child: WordListTab()),
+          SafeArea(child: ProfileTab()),
         ],
       ),
       bottomNavigationBar: DecoratedBox(
@@ -60,26 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Profil',
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Soon extends StatelessWidget {
-  final String title;
-  const _Soon({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '$title\nYakında',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: kInk,
         ),
       ),
     );

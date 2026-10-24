@@ -25,6 +25,8 @@ class _QuizScreenState extends State<QuizScreen> {
   int? _sel;
   bool _checked = false;
   int _correct = 0;
+  final List<String> _missedWords = [];
+  final List<String> _rightWords = [];
 
   QuizQuestion get _q => _qs[_i];
   bool get _isRight => _sel == _q.correct;
@@ -33,7 +35,12 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_sel == null) return;
     setState(() {
       _checked = true;
-      if (_isRight) _correct++;
+      if (_isRight) {
+        _correct++;
+        _rightWords.add(_q.word.en);
+      } else {
+        _missedWords.add(_q.word.en);
+      }
     });
     Speech.speak(_q.word.en);
   }
@@ -47,7 +54,11 @@ class _QuizScreenState extends State<QuizScreen> {
         _checked = false;
       });
     } else {
-      final reward = AppState.instance.completeLesson(0);
+      final reward = AppState.instance.completeLesson(
+        0,
+        missed: _missedWords,
+        correct: _rightWords,
+      );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => ResultScreen(
