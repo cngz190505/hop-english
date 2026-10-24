@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bouncy_scroll.dart';
+import 'theme.dart';
 import 'welcome_screen.dart';
 
 void main() => runApp(const HopEnglishApp());
@@ -9,11 +9,12 @@ class HopEnglishApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Hop English',
-      scrollBehavior: BouncyScrollBehavior(),
-      home: WelcomeScreen(),
+      theme: buildTheme(),
+      scrollBehavior: const NoBounceScrollBehavior(),
+      home: const WelcomeScreen(),
     );
   }
 }

@@ -1,19 +1,5 @@
 import 'package:flutter/material.dart';
-import 'floating.dart';
-
-const _green = Color(0xFF58CC02);
-const _bg = Color(0xFFF3F9FF);
-const _ink = Color(0xFF2B3A4A);
-
-BoxDecoration _cardDecoration() {
-  return BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(22),
-    boxShadow: const [
-      BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, 4)),
-    ],
-  );
-}
+import 'theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,35 +15,43 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: kBg,
       body: SafeArea(
-        child: _index == 0
-            ? const _HomeTab()
-            : _Soon(title: _titles[_index]),
+        child: _index == 0 ? const _HomeTab() : _Soon(title: _titles[_index]),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFFDDF0FF),
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_rounded),
-            label: 'Ana Sayfa',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.menu_book_rounded),
-            label: 'Dersler',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.refresh_rounded),
-            label: 'Tekrar',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profil',
-          ),
-        ],
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x141C6BA8),
+              blurRadius: 16,
+              offset: Offset(0, -4),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          animationDuration: Duration.zero,
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_rounded),
+              label: 'Ana Sayfa',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.menu_book_rounded),
+              label: 'Dersler',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.refresh_rounded),
+              label: 'Tekrar',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_rounded),
+              label: 'Profil',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -76,7 +70,7 @@ class _Soon extends StatelessWidget {
         style: const TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w800,
-          color: _ink,
+          color: kInk,
         ),
       ),
     );
@@ -93,17 +87,17 @@ class _HomeTab extends StatelessWidget {
       children: const [
         _Header(),
         SizedBox(height: 16),
-        _MascotCard(),
-        SizedBox(height: 20),
+        _HeroCard(),
+        SizedBox(height: 22),
         Text(
-          'Günün dersi',
+          'Senin Derslerin',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: _ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: kInk,
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 12),
         _LessonCard(),
         SizedBox(height: 16),
         _GoalCard(),
@@ -117,122 +111,160 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        const CircleAvatar(
-          radius: 24,
-          backgroundColor: Colors.white,
-          backgroundImage: AssetImage('assets/ready/girl_hi.png'),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(
+                color: kBlue,
+                shape: BoxShape.circle,
+              ),
+              child: const CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.white,
+                backgroundImage: AssetImage('assets/ready/girl_hi.png'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Merhaba,',
+                    style: TextStyle(fontSize: 13, color: kMuted),
+                  ),
+                  Text(
+                    'Yeni Başlangıç',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: kInk,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const _StatPill(asset: 'assets/ready/icon_flame.png', value: '3'),
+            const SizedBox(width: 8),
+            const _StatPill(asset: 'assets/ready/icon_gem.png', value: '120'),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Yeni Başlangıç',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: _ink,
-                ),
+        const SizedBox(height: 12),
+        const Row(
+          children: [
+            Expanded(child: ProgressBar(value: 45 / 200, height: 8)),
+            SizedBox(width: 10),
+            Text(
+              'Seviye 1  •  45 / 200 XP',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: kMuted,
               ),
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: const LinearProgressIndicator(
-                  value: 45 / 200,
-                  minHeight: 8,
-                  color: _green,
-                  backgroundColor: Color(0xFFDDE7EF),
-                ),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'Seviye 1  •  45 / 200 XP',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        const _Stat(asset: 'assets/ready/icon_flame.png', value: '3'),
-        const SizedBox(width: 10),
-        const _Stat(asset: 'assets/ready/icon_gem.png', value: '120'),
       ],
     );
   }
 }
 
-class _Stat extends StatelessWidget {
+class _StatPill extends StatelessWidget {
   final String asset;
   final String value;
-  const _Stat({required this.asset, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Image.asset(asset, height: 26),
-        const SizedBox(width: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: _ink,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MascotCard extends StatelessWidget {
-  const _MascotCard();
+  const _StatPill({required this.asset, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(asset, height: 22),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: kInk,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroCard extends StatelessWidget {
+  const _HeroCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFCDEBFF), Color(0xFFE6F5FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFCFEBFF), Color(0xFFEAF6FF)],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1A1C6BA8),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Floating(
-            distance: 8,
-            child: Image.asset('assets/ready/mascot_main.png', height: 110),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Harika gidiyorsun!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: _ink,
+          Image.asset('assets/ready/mascot_main.png', height: 120),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bugünün Hedefi',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: kInk,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Bugün 5 dakikanı ayır ve İngilizcenin gücünü hisset!',
+                  style: TextStyle(fontSize: 13, color: kMuted, height: 1.3),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(child: ProgressBar(value: 0, height: 10)),
+                    SizedBox(width: 8),
+                    Text(
+                      '0/1',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: kMuted,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Bugün 5 dakikanı ayır ve İngilizcenin gücünü hisset!',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -248,22 +280,22 @@ class _LessonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: cardDecoration(),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
-                padding: const EdgeInsets.all(4),
+                width: 64,
+                height: 64,
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEAF6FF),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Image.asset('assets/ready/kids.png', fit: BoxFit.contain),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,44 +303,41 @@ class _LessonCard extends StatelessWidget {
                     Text(
                       'Selamlaşma ve Kendini Tanıtma',
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: _ink,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: kInk,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      '0/6',
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.menu_book_rounded, size: 16, color: kMuted),
+                        SizedBox(width: 6),
+                        Text(
+                          '0/6',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: kMuted,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(child: ProgressBar(value: 0, height: 8)),
+                      ],
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _green,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Ders ekranı yakında eklenecek')),
-                );
-              },
-              child: const Text(
-                'Derse Başla',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-              ),
-            ),
+          const SizedBox(height: 16),
+          ChunkyButton(
+            text: 'Derse Başla',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Ders ekranı yakında eklenecek')),
+              );
+            },
           ),
         ],
       ),
@@ -323,45 +352,39 @@ class _GoalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
+      decoration: cardDecoration(),
       child: Row(
         children: [
-          Image.asset('assets/ready/icon_target.png', height: 46),
-          const SizedBox(width: 12),
+          Image.asset('assets/ready/icon_target.png', height: 48),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Günlük hedef',
-                  style: TextStyle(fontSize: 12, color: Colors.black54),
+                  'Günlük Hedef',
+                  style: TextStyle(fontSize: 12, color: kMuted),
                 ),
                 const Text(
                   '5 dakika öğren',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: _ink,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: kInk,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: const LinearProgressIndicator(
-                          value: 0,
-                          minHeight: 8,
-                          color: _green,
-                          backgroundColor: Color(0xFFDDE7EF),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
+                  children: const [
+                    Expanded(child: ProgressBar(value: 0, height: 8)),
+                    SizedBox(width: 8),
+                    Text(
                       '0/5',
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: kMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -369,7 +392,7 @@ class _GoalCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Image.asset('assets/ready/icon_gift.png', height: 38),
+          Image.asset('assets/ready/icon_gift.png', height: 40),
         ],
       ),
     );
