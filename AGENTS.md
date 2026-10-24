@@ -152,6 +152,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Titreşim Duolingo gibi güçlendirildi** (`fx.dart`): doğru 3 darbe, yanlış 5 darbe, kutlama 10 darbe; her darbede `vibrate` + `heavyImpact`. Ek paket yok.
 - **Ders 2 (Kendini Tanıtma) eklendi**: `lesson_data.dart` içinde `lesson2Words` (10 kelime), `lessonsContent` listesinde. `openLesson1` yerine `openLesson(context, index)` var; `LessonScreen`, `QuizScreen`, `ResultScreen` `lessonIndex` taşır ve `completeLesson(index)` doğru dersi işaretler. Ders haritasında içerik hazır ders sayısı `lessonsContent.length`'ten gelir. Ana sayfa butonu sıradaki dersi açar, ilerleme çubuğu öğrenilen kelime/toplam kelime gösterir. Derlenip denenmedi.
+- **Türkçe okunuş eklendi**: `Word.say` (örn. `yuu`) her kelimede zorunlu; ders kartında IPA yanında `/juː/ · yuu` gösterilir. Yeni kelimede `say` da yazılır.
 
 ## 7. Durum yönetimi kuralı
 
