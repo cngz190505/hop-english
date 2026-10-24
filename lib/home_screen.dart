@@ -76,25 +76,21 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Her kart ListView'ın kendi elemanı: ListView her elemanı ayrı RepaintBoundary içine alır,
+    // kaydırırken kartlar önceden çizilmiş katman olarak kayar (tek büyük parça olmaz).
+    const side = EdgeInsets.fromLTRB(14, 0, 14, 12);
     return ListView(
       padding: EdgeInsets.zero,
+      cacheExtent: 800,
       children: [
         const _Hero(),
+        const Padding(padding: side, child: _ContinueCard()),
+        const Padding(padding: side, child: _WeekCard()),
+        const Padding(padding: side, child: _GoalCard()),
+        const Padding(padding: side, child: _WordOfDayCard()),
         Padding(
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
-          child: Column(
-            children: [
-              const _ContinueCard(),
-              const SizedBox(height: 12),
-              const _WeekCard(),
-              const SizedBox(height: 12),
-              const _GoalCard(),
-              const SizedBox(height: 12),
-              const _WordOfDayCard(),
-              const SizedBox(height: 12),
-              _HardWordsCard(onReview: onReview),
-            ],
-          ),
+          child: _HardWordsCard(onReview: onReview),
         ),
       ],
     );
@@ -122,7 +118,8 @@ class _Hero extends StatelessWidget {
           const Positioned.fill(
             child: RepaintBoundary(
               child: Image(
-                image: AssetImage('assets/ready/bg_london.png'),
+                // Açılış ekranındaki önyükleme ile AYNI boyut (width: 1080), tam boyut çözülmez.
+                image: ResizeImage(AssetImage('assets/ready/bg_london.png'), width: 1080),
                 fit: BoxFit.cover,
                 alignment: Alignment.topCenter,
                 gaplessPlayback: true,

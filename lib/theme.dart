@@ -140,7 +140,7 @@ BoxDecoration cardDecoration() => BoxDecoration(
       borderRadius: BorderRadius.circular(24),
       border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
       boxShadow: const [
-        BoxShadow(color: Color(0x1A1C6BA8), blurRadius: 16, offset: Offset(0, 6)),
+        BoxShadow(color: Color(0x1A1C6BA8), blurRadius: 10, offset: Offset(0, 5)),
       ],
     );
 
