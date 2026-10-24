@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'lesson_screen.dart';
 import 'theme.dart';
 
 enum _Status { done, current, locked }
@@ -111,15 +112,7 @@ class LessonMapTab extends StatelessWidget {
           number: i + 1,
           title: l.title,
           status: status,
-          onTap: status == _Status.current
-              ? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ders ekranı yakında eklenecek'),
-                    ),
-                  );
-                }
-              : null,
+          onTap: status == _Status.current ? () => openLesson1(context) : null,
         ),
       ),
     ];

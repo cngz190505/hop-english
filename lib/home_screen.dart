@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'lesson_map_screen.dart';
+import 'lesson_screen.dart';
 import 'theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -351,11 +352,7 @@ class _LessonCard extends StatelessWidget {
           const SizedBox(height: 16),
           ChunkyButton(
             text: 'Derse Başla',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Ders ekranı yakında eklenecek')),
-              );
-            },
+            onPressed: () => openLesson1(context),
           ),
         ],
       ),
