@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_state.dart';
 import 'lesson_data.dart';
 import 'quiz_screen.dart';
 import 'speech.dart';
@@ -26,8 +27,10 @@ class LessonScreen extends StatefulWidget {
 
 class _LessonScreenState extends State<LessonScreen> {
   int _i = 0;
+  final StudyTimer _timer = StudyTimer();
 
   void _next() {
+    _timer.tap();
     Speech.stop();
     if (_i < widget.words.length - 1) {
       setState(() => _i++);
@@ -40,6 +43,7 @@ class _LessonScreenState extends State<LessonScreen> {
 
   @override
   void dispose() {
+    _timer.finish();
     Speech.stop();
     super.dispose();
   }

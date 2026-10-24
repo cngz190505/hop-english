@@ -25,6 +25,7 @@ class _QuizScreenState extends State<QuizScreen> {
   int? _sel;
   bool _checked = false;
   int _correct = 0;
+  final StudyTimer _timer = StudyTimer();
   final List<String> _missedWords = [];
   final List<String> _rightWords = [];
 
@@ -33,6 +34,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void _check() {
     if (_sel == null) return;
+    _timer.tap();
     setState(() {
       _checked = true;
       if (_isRight) {
@@ -46,6 +48,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _next() {
+    _timer.tap();
     Speech.stop();
     if (_i < _qs.length - 1) {
       setState(() {
@@ -74,6 +77,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   void dispose() {
+    _timer.finish();
     Speech.stop();
     super.dispose();
   }

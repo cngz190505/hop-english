@@ -283,13 +283,19 @@ class _HeroProgress extends StatelessWidget {
     return ListenableBuilder(
       listenable: AppState.instance,
       builder: (context, _) {
-        final done = AppState.instance.lessonsToday.clamp(0, 1);
+        final sec = AppState.instance.studySeconds;
+        final min = (sec ~/ 60).clamp(0, 5);
         return Row(
           children: [
-            Expanded(child: ProgressBar(value: done / 1, height: 10)),
+            Expanded(
+              child: ProgressBar(
+                value: (sec / AppState.goalSeconds).clamp(0.0, 1.0),
+                height: 10,
+              ),
+            ),
             const SizedBox(width: 8),
             Text(
-              '$done/1',
+              '$min/5',
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -395,51 +401,98 @@ class _GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: cardDecoration(),
-      child: Row(
-        children: [
-          Image.asset('assets/ready/icon_target.png', height: 48, cacheHeight: 150),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Günlük Hedef',
-                  style: TextStyle(fontSize: 12, color: kMuted),
-                ),
-                const Text(
-                  '5 dakika öğren',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: kInk,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: const [
-                    Expanded(child: ProgressBar(value: 0, height: 8)),
-                    SizedBox(width: 8),
-                    Text(
-                      '0/5',
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final s = AppState.instance;
+        final min = (s.studySeconds ~/ 60).clamp(0, 5);
+        final String hint;
+        if (s.giftReady) {
+          hint = 'Hediyeni aç!';
+        } else if (s.giftClaimed) {
+          hint = 'Hediye alındı ✓';
+        } else {
+          hint = '';
+        }
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: cardDecoration(),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/ready/icon_target.png',
+                height: 48,
+                cacheHeight: 150,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Günlük Hedef',
+                      style: TextStyle(fontSize: 12, color: kMuted),
+                    ),
+                    const Text(
+                      '5 dakika öğren',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: kMuted,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: kInk,
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ProgressBar(
+                            value:
+                                (s.studySeconds / AppState.goalSeconds).clamp(0.0, 1.0),
+                            height: 8,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$min/5',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: kMuted,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: s.giftReady ? AppState.instance.claimGift : null,
+                behavior: HitTestBehavior.opaque,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/ready/icon_gift.png',
+                      height: 40,
+                      cacheHeight: 120,
+                    ),
+                    if (hint.isNotEmpty)
+                      Text(
+                        hint,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: s.giftReady ? kBlue : kMuted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Image.asset('assets/ready/icon_gift.png', height: 40, cacheHeight: 120),
-        ],
-      ),
+        );
+      },
     );
   }
 }
