@@ -55,6 +55,8 @@ lib/
   lesson_screen.dart   -> ders ekranı (yeni kelime kartları)
   quiz_screen.dart     -> quiz (Doğru cevabı seç, Kontrol Et / Devam Et)
   result_screen.dart   -> Tebrikler ekranı (XP, seri, elmas)
+  word_list_screen.dart -> Tekrar sekmesi: Kelime Listem (Tümü/Zor/Öğrenildi)
+  profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
@@ -89,13 +91,15 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 4. [x] Ders ekranı (yeni kelime: kelime, okunuş, Türkçesi, "Dinle", "Devam Et")
 5. [x] Quiz ekranı ("Doğru cevabı seç", 3 şık)
 6. [x] Tebrikler ekranı (XP, seri, elmas)
-7. [ ] Kelime Listem
-8. [ ] Profil
-9. [ ] Tekrar sekmesi
+7. [x] Kelime Listem (Tekrar sekmesinde)
+8. [x] Profil
+9. [x] Tekrar sekmesi (= Kelime Listem)
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
 Sadece 1. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
 Puan/elmas/seri şimdilik sadece bellekte tutulur, uygulama kapanınca sıfırlanır (kalıcı kayıt yok).
+Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
+Profilde Ayarlar / Yardım satırları henüz yok.
 Günlük hedef süresi (0/5 dakika) henüz ölçülmüyor.
 
 ## 7. Durum yönetimi kuralı
