@@ -26,7 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
         // Sayfalar bellekte kalır: sekme değişince silinip yeniden kurulmaz.
         index: _index,
         children: [
-          _HomeTab(onReview: () => setState(() => _index = 2)),
+          _HomeTab(
+            onReview: () => setState(() => _index = 2),
+            onLessons: () => setState(() => _index = 1),
+          ),
           const LessonMapTab(), // kendi güvenli alanını yönetir (tam ekran harita)
           const SafeArea(child: WordListTab()),
           const ProfileTab(), // lacivert üst bölüm durum çubuğunun altına uzanır, SafeArea yok
@@ -72,19 +75,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class _HomeTab extends StatelessWidget {
   final VoidCallback onReview;
-  const _HomeTab({required this.onReview});
+  final VoidCallback onLessons;
+  const _HomeTab({required this.onReview, required this.onLessons});
 
   @override
   Widget build(BuildContext context) {
-    // Her kart ListView'ın kendi elemanı: ListView her elemanı ayrı RepaintBoundary içine alır,
-    // kaydırırken kartlar önceden çizilmiş katman olarak kayar (tek büyük parça olmaz).
+    // Her kart ListView'ın kendi elemanı: kaydırırken kartlar önceden çizilmiş katman olarak kayar.
     const side = EdgeInsets.fromLTRB(14, 0, 14, 12);
     return ListView(
       padding: EdgeInsets.zero,
       cacheExtent: 800,
       children: [
-        const _Hero(),
-        const Padding(padding: side, child: _ContinueCard()),
+        const _HeroWithCard(),
+        _TodayLessons(onAll: onLessons),
         const Padding(padding: side, child: _WeekCard()),
         const Padding(padding: side, child: _GoalCard()),
         const Padding(padding: side, child: _WordOfDayCard()),
@@ -97,77 +100,114 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
-const _softShadow = [
-  BoxShadow(color: Color(0x1F1C6BA8), blurRadius: 10, offset: Offset(0, 3)),
-];
+const _lightText = [Shadow(color: Color(0x8C0A3C78), blurRadius: 6)];
 
-const _lightText = [Shadow(color: Color(0x8C0A3C78), blurRadius: 4)];
-
-/// Üstteki gökyüzü bölümü: arka plan resmi, profil, seri/elmas, ejderha ve konuşma balonu.
-class _Hero extends StatelessWidget {
-  const _Hero();
+/// Üstte gökyüzü + başlık + maskot; altına taşan Seri/Puan kartı ve "Dersine Başla" butonu.
+class _HeroWithCard extends StatelessWidget {
+  const _HeroWithCard();
 
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
-    return SizedBox(
-      height: 300 + top,
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-        children: [
-          const Positioned.fill(
-            child: RepaintBoundary(
-              child: Image(
-                // Açılış ekranındaki önyükleme ile AYNI boyut (width: 1080), tam boyut çözülmez.
-                image: ResizeImage(AssetImage('assets/ready/bg_london.png'), width: 1080),
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter,
-                gaplessPlayback: true,
-              ),
-            ),
-          ),
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
-                  stops: [0, 0.45, 1],
+    final heroH = 290 + top;
+    return Stack(
+      children: [
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: heroH,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              const Positioned.fill(
+                child: RepaintBoundary(
+                  child: Image(
+                    image: ResizeImage(AssetImage('assets/ready/bg_london.png'), width: 1080),
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    gaplessPlayback: true,
+                  ),
                 ),
               ),
-            ),
+              const Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
+                      stops: [0, 0.55, 1],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 20,
+                top: top + 24,
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hop',
+                      style: TextStyle(
+                        fontSize: 44,
+                        height: 1.0,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        shadows: _lightText,
+                      ),
+                    ),
+                    Text(
+                      'English',
+                      style: TextStyle(
+                        fontSize: 44,
+                        height: 1.0,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFFB6F04A),
+                        shadows: _lightText,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Daha iyi bir sen için\nİngilizce öğren!',
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.25,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        shadows: _lightText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                right: 6,
+                bottom: 40,
+                child: Image.asset(
+                  'assets/ready/mascot_main.png',
+                  height: 190,
+                  cacheHeight: 600,
+                  gaplessPlayback: true,
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: top + 12,
-            left: 16,
-            right: 16,
-            child: const _Header(),
-          ),
-          Positioned(
-            left: 16,
-            top: top + 92,
-            width: 178,
-            child: const _Bubble(),
-          ),
-          Positioned(
-            right: 6,
-            bottom: -6,
-            child: Image.asset(
-              'assets/ready/mascot_main.png',
-              height: 200,
-              cacheHeight: 600,
-              gaplessPlayback: true,
-            ),
-          ),
-        ],
-      ),
+        ),
+        // Kart hero'nun altına taşar; Stack'in yüksekliğini bu çocuk belirler.
+        Padding(
+          padding: EdgeInsets.fromLTRB(14, heroH - 44, 14, 16),
+          child: const _StartCard(),
+        ),
+      ],
     );
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header();
+/// Günlük Seri | Puan kutuları, seviye çubuğu ve büyük yeşil başlat butonu.
+class _StartCard extends StatelessWidget {
+  const _StartCard();
 
   @override
   Widget build(BuildContext context) {
@@ -175,164 +215,266 @@ class _Header extends StatelessWidget {
       listenable: AppState.instance,
       builder: (context, _) {
         final s = AppState.instance;
-        return Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const CircleAvatar(
-                radius: 22,
-                backgroundColor: Colors.white,
-                backgroundImage: ResizeImage(
-                  AssetImage('assets/ready/girl_hi.png'),
-                  width: 144,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        final total = lessonsContent.length;
+        final allDone = s.completedLessons >= total;
+        final idx = allDone ? total - 1 : s.completedLessons;
+        final resume = _resumeText(idx);
+        final label = allDone
+            ? 'Tekrar Et'
+            : (resume != null ? 'Devam Et' : 'Dersine Başla');
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xF2FFFFFF),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
+            boxShadow: const [
+              BoxShadow(color: Color(0x261C6BA8), blurRadius: 16, offset: Offset(0, 6)),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'Merhaba,',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      shadows: _lightText,
+                  Expanded(
+                    child: _StatTile(
+                      asset: 'assets/ready/icon_flame.png',
+                      title: 'Günlük Seri',
+                      value: '${s.streak} gün',
                     ),
                   ),
-                  Text(
-                    'Yeni Başlangıç',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      shadows: _lightText,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatTile(
+                      asset: 'assets/ready/icon_gem.png',
+                      title: 'Puan',
+                      value: '${s.gems}',
                     ),
                   ),
                 ],
               ),
-            ),
-            _StatPill(asset: 'assets/ready/icon_flame.png', value: '${s.streak}'),
-            const SizedBox(width: 8),
-            _StatPill(asset: 'assets/ready/icon_gem.png', value: '${s.gems}'),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StatPill extends StatelessWidget {
-  final String asset;
-  final String value;
-  const _StatPill({required this.asset, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(6, 4, 12, 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: _softShadow,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(asset, height: 24, cacheHeight: 72),
-          const SizedBox(width: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w900,
-              color: kInk,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Bubble extends StatelessWidget {
-  const _Bubble();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: AppState.instance,
-      builder: (context, _) {
-        final s = AppState.instance;
-        final title = s.giftReady
-            ? 'Hediyeni aç!'
-            : (s.goalReached ? 'Bugünkü hedefin tamam!' : 'Hadi devam edelim!');
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-              decoration: const BoxDecoration(
-                color: Color(0xF0FFFFFF),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                  bottomLeft: Radius.circular(6),
-                ),
-                boxShadow: _softShadow,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 12),
+              Row(
                 children: [
                   Text(
-                    title,
+                    'Seviye ${s.level}',
                     style: const TextStyle(
-                      fontSize: 17,
+                      fontSize: 12,
                       fontWeight: FontWeight.w900,
                       color: kInk,
-                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  const Text(
-                    'Bugün 5 dakika yeter.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ProgressBar(value: s.xpInLevel / AppState.xpPerLevel, height: 10),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${s.xpInLevel} / ${AppState.xpPerLevel} XP',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
                       color: kMuted,
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Seviye ${s.level}  •  ${s.xpInLevel} / ${AppState.xpPerLevel} XP',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                shadows: _lightText,
+              const SizedBox(height: 14),
+              ChunkyButton(
+                text: '$label  →',
+                height: 52,
+                fontSize: 18,
+                onPressed: () => openLesson(context, idx),
               ),
-            ),
-            const SizedBox(height: 4),
-            ProgressBar(value: s.xpInLevel / AppState.xpPerLevel, height: 12),
-          ],
+              if (resume != null && !allDone) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '${lessonTitles[idx]} • $resume',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: kMuted,
+                  ),
+                ),
+              ],
+            ],
+          ),
         );
       },
     );
   }
 }
 
-/// Büyük yeşil "Devam Et" kartı: sıradaki dersi açar.
-/// Yarıda kalmış ders varsa "Kaldığın yer: ..." yazısı, yoksa null.
+class _StatTile extends StatelessWidget {
+  final String asset;
+  final String title;
+  final String value;
+  const _StatTile({required this.asset, required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Image.asset(asset, height: 38, cacheHeight: 114),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: kMuted),
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: kInk),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Bugünün Dersleri": her ders için ilerleme kartı. Kilitli dersler soluk.
+class _TodayLessons extends StatelessWidget {
+  final VoidCallback onAll;
+  const _TodayLessons({required this.onAll});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        final s = AppState.instance;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Bugünün Dersleri',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: kInk),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: onAll,
+                      behavior: HitTestBehavior.opaque,
+                      child: const Text(
+                        'Tümünü Gör  ›',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: kBlueDark),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              for (var i = 0; i < lessonsContent.length; i++)
+                _LessonTile(
+                  index: i,
+                  done: i < s.completedLessons,
+                  locked: i > s.completedLessons,
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _LessonTile extends StatelessWidget {
+  final int index;
+  final bool done;
+  final bool locked;
+  const _LessonTile({required this.index, required this.done, required this.locked});
+
+  @override
+  Widget build(BuildContext context) {
+    final n = lessonsContent[index].length;
+    final r = AppState.instance.resumeFor(index);
+    var step = 0;
+    if (done) {
+      step = n;
+    } else if (!locked && r != null && r['stage'] != 'quiz') {
+      step = (r['i'] is int) ? (r['i'] as int).clamp(0, n) : 0;
+    } else if (!locked && r != null) {
+      step = n;
+    }
+    final Color c = done ? kGreen : (locked ? kLocked : kBlue);
+    return GestureDetector(
+      onTap: locked ? null : () => openLesson(context, index),
+      behavior: HitTestBehavior.opaque,
+      child: Opacity(
+        opacity: locked ? 0.6 : 1,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: cardDecoration(),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+                child: done
+                    ? const Icon(Icons.check_rounded, color: Colors.white, size: 28)
+                    : Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lessonTitles[index],
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: kInk),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      locked ? 'Kilitli' : '$step / $n tamamlandı',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kMuted),
+                    ),
+                    const SizedBox(height: 7),
+                    ProgressBar(value: n == 0 ? 0 : step / n, height: 7, color: c),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Icon(
+                locked ? Icons.lock_rounded : Icons.chevron_right_rounded,
+                color: kLocked,
+                size: 26,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 String? _resumeText(int idx) {
   final r = AppState.instance.resumeFor(idx);
   if (r == null) return null;
@@ -342,110 +484,6 @@ String? _resumeText(int idx) {
     return total > 0 ? 'Kaldığın yer: Soru ${i + 1}/$total' : 'Kaldığın yerden devam';
   }
   return 'Kaldığın yer: Kelime ${i + 1}/${lessonsContent[idx].length}';
-}
-
-class _ContinueCard extends StatelessWidget {
-  const _ContinueCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: AppState.instance,
-      builder: (context, _) {
-        final total = lessonsContent.length;
-        final allDone = AppState.instance.completedLessons >= total;
-        final idx = allDone ? total - 1 : AppState.instance.completedLessons;
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF6BDC1E), Color(0xFF4CB800)],
-            ),
-            borderRadius: BorderRadius.circular(26),
-            boxShadow: const [
-              BoxShadow(color: Color(0xFF348A00), offset: Offset(0, 5)),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.white, Color(0xFFE4F5D3)],
-                      ),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFB8EE8A), width: 4),
-                    ),
-                    child: Text(
-                      '${idx + 1}',
-                      style: const TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF3E9A00),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          allDone ? 'DERSİ TEKRARLA' : 'SIRADAKİ DERS',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          lessonTitles[idx],
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            height: 1.15,
-                          ),
-                        ),
-                        Text(
-                          _resumeText(idx) ?? '${lessonsContent[idx].length} kelime',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              ChunkyButton(
-                text: allDone ? 'Tekrar Et' : 'Devam Et',
-                color: Colors.white,
-                shadowColor: const Color(0xFFBFE5A3),
-                textColor: const Color(0xFF3E9A00),
-                height: 48,
-                fontSize: 17,
-                onPressed: () => openLesson(context, idx),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 /// Haftalık seri satırı (Pzt-Paz). Seri sayısından hesaplanır.
