@@ -29,7 +29,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 - **Sürekli yeniden çizdiren şeyler yasak:** `Timer.periodic` ile sürekli `setState`,
   `StreamBuilder`/`FutureBuilder` ile gereksiz yenileme, `Opacity` ile sürekli
   değişen katmanlar, ağır `BackdropFilter`/blur, çok büyük `blurRadius` gölgeler.
-- **Paket kuralı:** Şu an ek paketler: `flutter_tts` (seslendirme), `shared_preferences` (kayıt), `audioplayers` (ses efektleri, kullanıcı onayıyla eklendi). Başka paket ekleme, gerekirse önce kullanıcıya sor.
+- **Paket kuralı:** Şu an ek paketler: `flutter_tts` (seslendirme), `shared_preferences` (kayıt), `audioplayers` (ses efektleri, kullanıcı onayıyla eklendi), `vibration` (güçlü titreşim, kullanıcı "telefon sallansın" diye isteyince eklendi). Başka paket ekleme, gerekirse önce kullanıcıya sor.
 - **Kaydırma akıcı olmalı ("yağ gibi") (KESİN KURAL)**: Kaydırılan sayfalarda her kart `ListView`'ın KENDİ elemanı
   olur (hepsini tek `Column`/tek `Padding` içine koyma), böylece her kart ayrı çizim katmanı olur.
   Her görsel `ResizeImage`/`cacheWidth`/`cacheHeight` ile küçültülür ve açılış ekranındaki önyükleme ile AYNI boyutta
@@ -60,11 +60,11 @@ lib/
   quiz_screen.dart     -> quiz (5 soru tipi, Kontrol Et / Devam Et)
   quiz_extra.dart      -> yeni soru widget'ları: ListenBig (dinle ve seç), MatchQuestion (eşleştirme), ScrambleQuestion (harf dizme)
   result_screen.dart   -> Tebrikler ekranı (XP, seri, elmas)
-  word_list_screen.dart -> Tekrar sekmesi: Kelime Listem (Tümü/Zor/Öğrenildi)
+  word_list_screen.dart -> Tekrar sekmesi: Kelime Listem (özet kartı, arama, Tümü/Yeni/Zor/Öğrenildi, derse göre gruplu)
   profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
-  fx.dart              -> titreşim + ses efektleri (HapticFeedback, audioplayers)
+  fx.dart              -> titreşim + ses efektleri (vibration, HapticFeedback yedek, audioplayers)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
 assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
@@ -225,6 +225,20 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   çözülüyordu, artık `ResizeImage(width: 1080)` (açılış önyüklemesiyle aynı önbellek). Kartlar tek `Column` yerine
   `ListView`'ın ayrı elemanları (her biri ayrı katman), `cacheExtent: 800`. `cardDecoration` gölgesi blur 16 -> 10.
   Kaydırma fiziği (`BouncingScrollPhysics`, yaylanma) aynen kaldı. Derlenip denenmedi, APK ile test edilmeli.
+
+- **Kelime Listem yeniden tasarlandı** (`word_list_screen.dart`): Kullanıcının tasarımına göre. Üstte renkli özet kartı
+  (x/N öğrenildi, çubuk, yıldız ve zor sayısı, "Tekrar Dersi" butonu içinde), arama (büyüteç), sayılı sekmeler
+  (Tümü / Yeni / Zor / Öğrenildi), derse göre başlıklı liste, kart başına durum rozeti (Yeni / Öğreniyor / Zor / Öğrenildi).
+  Animasyon YOK (ilk sürümde yanlışlıkla `Animated*` ve `TweenAnimationBuilder` kullanılmıştı, kaldırıldı).
+- **Ana sayfa yeniden tasarlandı** (`home_screen.dart`): Kullanıcının tasarımına göre. Gökyüzü + "Hop English" başlığı + maskot,
+  hero'nun altına taşan kart (Günlük Seri | Puan, seviye çubuğu, "Dersine Başla / Devam Et" butonu, kaldığın yer yazısı),
+  "Bugünün Dersleri" (ders başına ilerleme kartı, kilitliler soluk, "Tümünü Gör" Dersler sekmesine gider), sonra Bu hafta,
+  Günlük Hedef, Günün kelimesi, Zor kelimeler kartları. Eski "Devam Et" kartı, avatar ve konuşma balonu kaldırıldı.
+- **Titreşim güçlendirildi** (`fx.dart`, `theme.dart`, tüm ekranlar): `vibration` paketi ile gerçek titreşim.
+  Doğru: 2 sert vuruş, yanlış: 3 uzun vuruş, kutlama/hediye: uzun. `Fx.tap()` (kısa tık: sekme, kart, seçenek) ve
+  `Fx.press()` (sert darbe: `ChunkyButton` her basışta). Cihaz desteklemezse eski `HapticFeedback` yöntemi yedek.
+- `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
+- Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
 
