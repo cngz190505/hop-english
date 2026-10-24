@@ -69,6 +69,7 @@ lib/
 assets/images/         -> ham görseller (elleme)
 assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
+                          (`bg_hero.png` = `bg_london`un ana sayfada görünen üst kısmı, 704x760 opak; script üretir)
 ```
 
 - Silinen ve geri EKLENMEYECEK dosya: `floating.dart` (maskotu sürekli hareket ettiriyordu).
@@ -166,7 +167,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Ana sayfa görselleri önceden yüklenir** (`welcome_screen.dart`): Videoda "Başlayalım"dan sonra avatar,
   alev/elmas, ders kartı, hedef ve hediye simgeleri yarım saniye boş gelip sonra beliriyordu.
   Artık açılış ekranı `precacheImage` ile bunları yükler. Boyutlar `home_screen.dart`'taki `cacheHeight` /
-  `ResizeImage` değerleriyle AYNI kalmalı (66, 360, 200, 150, 120, avatar width 144). Home'da bir
+  `ResizeImage` değerleriyle AYNI kalmalı (alev/elmas 114, hafta kartı alevi 54, maskot 600, kids 200, hedef 150, hediye 120, `bg_hero` width 1080, avatar width 144). Home'da bir
   görselin boyutu değişirse welcome_screen.dart'taki listeyi de güncelle.
 - Açılışta ~2 sn siyah ekran var: Android'in kendi başlatma ekranı, Flutter kodundan değil. Düzeltmek için
   `.github/workflows/build.yml`'e launch arka plan rengi yaması gerekir (henüz yapılmadı).
@@ -240,6 +241,13 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - `Speech.speak(text, {slow})`: `slow: true` yavaş okur (ders ekranındaki "Yavaş dinle" butonu bunu çağırıyordu, parametre eksikti, derleme hatası veriyordu).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 - **Kelime Listem dersleri kapanır-açılır yapıldı** (`word_list_screen.dart`): Dersler kapalı gelir, kullanıcı başlığa dokunup açar (Bölüm 12). Animasyon yok.
+
+- **Ana sayfa kaydırma ağırlığı azaltıldı** (`home_screen.dart`, `welcome_screen.dart`, `tools/prepare_images.py`):
+  Diğer sekmeler akıcıydı, sadece ana sayfa kasıyordu; şüphe üstteki gökyüzü (hero) bölümüydü.
+  - Hero artık tam boy `bg_london` (704x1504, saydam kanallı) yerine sadece görünen üst kısmı olan `bg_hero.png` (704x760, opak, ~4 kat küçük) kullanır. `prepare_images.py` bunu `bg_london`dan keser. Açılış ekranı `bg_london`u kullanmaya devam eder.
+  - Hero'daki iç içe `RepaintBoundary` ve `Clip.hardEdge` kaldırıldı: tek katman. `MediaQuery.of` yerine `MediaQuery.paddingOf` (gereksiz yeniden kurmayı önler).
+  - Açılış önyüklemesindeki boyutlar ana sayfayla eşitlendi (alev/elmas 66 -> 114, maskot 360 -> 600; hafta alevi 54 ve `bg_hero` eklendi). Eskiden anahtarlar tutmadığı için önbellek işe yaramıyordu.
+  - Görünüm aynı. Derlenip denenmedi, APK ile test edilmeli. Hâlâ kasarsa sıradaki şüpheliler: `ProgressBar` içindeki `ClipRRect`, `cacheExtent: 2000`.
 
 ## 7. Durum yönetimi kuralı
 
