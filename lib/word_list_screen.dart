@@ -4,6 +4,16 @@ import 'lesson_data.dart';
 import 'speech.dart';
 import 'theme.dart';
 
+// Her kelime sırayla bu renklerden birini alır: (açık ton, koyu ton)
+const _palette = [
+  (Color(0xFFEDE7FF), Color(0xFF7B5CE6)), // mor
+  (Color(0xFFE1F3FF), Color(0xFF1288C9)), // mavi
+  (Color(0xFFE3F8D2), Color(0xFF3F8F00)), // yeşil
+  (Color(0xFFFFEBD6), Color(0xFFE07B00)), // turuncu
+  (Color(0xFFFFE4F0), Color(0xFFD6277A)), // pembe
+  (Color(0xFFD9F7F2), Color(0xFF0F8F82)), // turkuaz
+];
+
 /// Tekrar sekmesi: Kelime Listem (Tümü / Zor / Öğrenildi).
 class WordListTab extends StatefulWidget {
   const WordListTab({super.key});
@@ -107,6 +117,7 @@ class _WordListTabState extends State<WordListTab> {
                       itemCount: list.length,
                       itemBuilder: (context, i) => _WordRow(
                         word: list[i],
+                        colors: _palette[all.indexOf(list[i]) % _palette.length],
                         learned: learned.contains(list[i].en),
                         hard: s.hardWords.contains(list[i].en),
                       ),
@@ -121,34 +132,44 @@ class _WordListTabState extends State<WordListTab> {
 
 class _WordRow extends StatelessWidget {
   final Word word;
+  final (Color, Color) colors;
   final bool learned;
   final bool hard;
   const _WordRow({
     required this.word,
+    required this.colors,
     required this.learned,
     required this.hard,
   });
 
   @override
   Widget build(BuildContext context) {
+    final (light, dark) = colors;
     return GestureDetector(
       onTap: () => Speech.speak(word.en),
       behavior: HitTestBehavior.opaque,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: cardDecoration(),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: light, width: 2),
+          boxShadow: [
+            BoxShadow(color: light, offset: const Offset(0, 4)),
+          ],
+        ),
         child: Row(
           children: [
             Container(
-              width: 46,
-              height: 46,
+              width: 54,
+              height: 54,
               alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: Color(0xFFEAF6FF),
-                shape: BoxShape.circle,
+              decoration: BoxDecoration(
+                color: light,
+                borderRadius: BorderRadius.circular(18),
               ),
-              child: Text(word.emoji, style: const TextStyle(fontSize: 24)),
+              child: Text(word.emoji, style: const TextStyle(fontSize: 28)),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -158,14 +179,29 @@ class _WordRow extends StatelessWidget {
                   Text(
                     word.en,
                     style: const TextStyle(
-                      fontSize: 17,
+                      fontSize: 19,
                       fontWeight: FontWeight.w900,
                       color: kInk,
                     ),
                   ),
-                  Text(
-                    word.tr,
-                    style: const TextStyle(fontSize: 13, color: kMuted),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: light,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      word.tr,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: dark,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -179,7 +215,7 @@ class _WordRow extends StatelessWidget {
               learned
                   ? Icons.check_circle_rounded
                   : Icons.radio_button_unchecked_rounded,
-              size: 28,
+              size: 30,
               color: learned ? kGreen : kLocked,
             ),
           ],
