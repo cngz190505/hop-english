@@ -263,7 +263,7 @@ const lesson3Words = [
     en: 'peach',
     tr: 'şeftali',
     phonetic: '/piːtʃ/',
-    say: 'piiç',
+    say: 'piitş',
     example: 'This peach is very sweet.',
     exampleTr: 'Bu şeftali çok tatlı.',
     emoji: '🍑',
