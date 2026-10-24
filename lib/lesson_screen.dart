@@ -157,9 +157,24 @@ class _WordCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.volume_up_rounded, size: 24, color: kBlue),
                   const SizedBox(width: 8),
-                  Text(
-                    word.phonetic,
-                    style: const TextStyle(fontSize: 18, color: kMuted),
+                  Flexible(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: word.phonetic),
+                          const TextSpan(text: '  ·  '),
+                          TextSpan(
+                            text: word.say,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: kInk,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, color: kMuted),
+                    ),
                   ),
                 ],
               ),
