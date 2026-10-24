@@ -148,6 +148,17 @@ BoxDecoration cardDecoration() => BoxDecoration(
       ],
     );
 
+/// Bulanık gölge yerine sert (blur'suz) gölge: GPU'yu yormaz, Duolingo tarzı "basılı" görünür.
+/// Çok kartlı, kaydırılan sayfalarda (Ana Sayfa) kullanılır.
+BoxDecoration cardDecorationHard() => BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
+      boxShadow: const [
+        BoxShadow(color: Color(0xFFDCEAF6), offset: Offset(0, 4)),
+      ],
+    );
+
 class ProgressBar extends StatelessWidget {
   final double value;
   final double height;

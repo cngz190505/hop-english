@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'debug_tools.dart';
 import 'fx.dart';
 import 'app_state.dart';
 import 'lesson_data.dart';
@@ -104,6 +105,9 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
+// Deney modlarının adları (debug_tools.dart heroTest).
+const _heroTestNames = ['', 'resim yok', 'degrade yok', 'maskot yok', 'hepsi yok'];
+
 // Bulanık (blur) metin gölgesi kaydırırken pahalı: sert, ucuz gölge kullanılır.
 const _lightText = [Shadow(color: Color(0x990A3C78), offset: Offset(0, 2))];
 
@@ -123,82 +127,115 @@ class _HeroWithCard extends StatelessWidget {
           right: 0,
           height: heroH,
           // Tek katman: resim + degrade + yazı + maskot birlikte kayar (iç içe katman yok).
-          child: RepaintBoundary(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Positioned.fill(
-                  child: Image(
-                    // Sadece görünen üst kısım (704x760), tam boy bg_london değil.
-                    image: ResizeImage(AssetImage('assets/ready/bg_hero.png'), width: 1080),
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    gaplessPlayback: true,
+          child: ValueListenableBuilder<int>(
+            // Deney modu (debug_tools.dart): sadece mod değişince bu bölüm yenilenir.
+            valueListenable: heroTest,
+            builder: (context, mode, _) => RepaintBoundary(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: (mode == 1 || mode == 4)
+                        ? const ColoredBox(color: Color(0xFF4BA6F5))
+                        : const Image(
+                            // Sadece görünen üst kısım (704x760), tam boy bg_london değil.
+                            image: ResizeImage(
+                              AssetImage('assets/ready/bg_hero.png'),
+                              width: 1080,
+                            ),
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            gaplessPlayback: true,
+                          ),
                   ),
-                ),
-                const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
-                        stops: [0, 0.55, 1],
+                  if (mode != 2 && mode != 4)
+                    const Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0x401E8CE6), Color(0x00EEF7FF), kBg],
+                            stops: [0, 0.55, 1],
+                          ),
+                        ),
                       ),
                     ),
+                  Positioned(
+                    left: 20,
+                    top: top + 24,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Uzun basınca deney modu değişir (debug_tools.dart).
+                        GestureDetector(
+                          onLongPress: () {
+                            Fx.press();
+                            heroTest.value = (heroTest.value + 1) % 5;
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: const Text(
+                            'Hop',
+                            style: TextStyle(
+                              fontSize: 44,
+                              height: 1.0,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              shadows: _lightText,
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          'English',
+                          style: TextStyle(
+                            fontSize: 44,
+                            height: 1.0,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFFB6F04A),
+                            shadows: _lightText,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Daha iyi bir sen için\nİngilizce öğren!',
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.25,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            shadows: _lightText,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Positioned(
-                  left: 20,
-                  top: top + 24,
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hop',
-                        style: TextStyle(
-                          fontSize: 44,
-                          height: 1.0,
+                  if (mode != 3 && mode != 4)
+                    Positioned(
+                      right: 6,
+                      bottom: 40,
+                      child: Image.asset(
+                        'assets/ready/mascot_main.png',
+                        height: 190,
+                        cacheHeight: 600,
+                        gaplessPlayback: true,
+                      ),
+                    ),
+                  if (mode != 0)
+                    Positioned(
+                      left: 20,
+                      bottom: 56,
+                      child: Text(
+                        'TEST $mode: ${_heroTestNames[mode]}',
+                        style: const TextStyle(
+                          fontSize: 13,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           shadows: _lightText,
                         ),
                       ),
-                      Text(
-                        'English',
-                        style: TextStyle(
-                          fontSize: 44,
-                          height: 1.0,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFB6F04A),
-                          shadows: _lightText,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Daha iyi bir sen için\nİngilizce öğren!',
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.25,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          shadows: _lightText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  right: 6,
-                  bottom: 40,
-                  child: Image.asset(
-                    'assets/ready/mascot_main.png',
-                    height: 190,
-                    cacheHeight: 600,
-                    gaplessPlayback: true,
-                  ),
-                ),
-              ],
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -236,7 +273,7 @@ class _StartCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
             boxShadow: const [
-              BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 6)),
+              BoxShadow(color: Color(0xFFD3E5F5), offset: Offset(0, 5)),
             ],
           ),
           child: Column(
@@ -435,7 +472,7 @@ class _LessonTile extends StatelessWidget {
       child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
-          decoration: cardDecoration(),
+          decoration: cardDecorationHard(),
           child: Row(
             children: [
               Container(
@@ -518,7 +555,7 @@ class _WeekCard extends StatelessWidget {
         final back = doneToday ? s.streak - 1 : s.streak;
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: cardDecoration(),
+          decoration: cardDecorationHard(),
           child: Column(
             children: [
               Row(
@@ -645,7 +682,7 @@ class _WordOfDayCard extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Container(
             padding: const EdgeInsets.all(14),
-            decoration: cardDecoration(),
+            decoration: cardDecorationHard(),
             child: Row(
               children: [
                 SizedBox(
@@ -711,7 +748,7 @@ class _HardWordsCard extends StatelessWidget {
         final n = AppState.instance.hardWords.length;
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: cardDecoration(),
+          decoration: cardDecorationHard(),
           child: Row(
             children: [
               Expanded(
@@ -791,7 +828,7 @@ class _GoalCard extends StatelessWidget {
         }
         return Container(
           padding: const EdgeInsets.all(16),
-          decoration: cardDecoration(),
+          decoration: cardDecorationHard(),
           child: Row(
             children: [
               Image.asset(
