@@ -495,7 +495,12 @@ class _QuizScreenState extends State<QuizScreen> {
                           ),
                         ),
                     ] else ...[
-                    MascotBubble(text: _q.word.tr, height: 170),
+                    MascotBubble(
+                      text: _q.word.tr,
+                      image: _q.word.imagePath,
+                      height: 170,
+                      imageCacheHeight: 510,
+                    ),
                     const SizedBox(height: 16),
                     const Text(
                       'İngilizcesi hangisi?',

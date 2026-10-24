@@ -435,7 +435,7 @@ class _TodayLessons extends StatelessWidget {
                   child: _LessonTile(
                     index: i,
                     done: i < s.completedLessons,
-                    locked: i > s.completedLessons,
+                    locked: !kUnlockAll && i > s.completedLessons,
                   ),
                 ),
             ],

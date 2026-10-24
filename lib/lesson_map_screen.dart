@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'fx.dart';
 import 'app_state.dart';
+import 'debug_tools.dart';
 import 'lesson_data.dart';
 import 'lesson_screen.dart';
 import 'theme.dart';
@@ -38,6 +39,7 @@ const _mapAspect = 1504 / 704;
 _Status _statusOf(int i, int completed) {
   if (i < completed) return _Status.done;
   if (i == completed && i < _playableLessons) return _Status.current;
+  if (kUnlockAll && i < _playableLessons) return _Status.current; // TEST: hepsi açık
   return _Status.locked;
 }
 
@@ -111,7 +113,7 @@ class LessonMapTab extends StatelessWidget {
     final roomRight = w - (left + pillW);
     final mascotLeft = roomLeft >= roomRight ? left - 74.0 : left + pillW + 4;
     return [
-      if (status == _Status.current)
+      if (status == _Status.current && i == AppState.instance.completedLessons)
         Positioned(
           left: mascotLeft,
           top: y - 44,

@@ -9,3 +9,7 @@ final ValueNotifier<bool> showPerfOverlay = ValueNotifier<bool>(false);
 /// Ana sayfada "Hop" yazısına UZUN BASINCA mod değişir: 0 normal, 1 gökyüzü resmi yok,
 /// 2 degrade yok, 3 maskot yok, 4 hepsi yok (sadece yazılar). Her açılışta 0'dan başlar.
 final ValueNotifier<int> heroTest = ValueNotifier<int>(0);
+
+/// TEST: true ise içeriği hazır TÜM dersler kilitsiz açılır (harita ve ana sayfa).
+/// Test bitince false yap, kilitler normale döner.
+const bool kUnlockAll = true;
