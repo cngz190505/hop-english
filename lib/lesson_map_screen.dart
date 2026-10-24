@@ -24,7 +24,7 @@ const _lessons = [
   _LessonInfo('Kendini Tanıtma', 0.45, 0.77, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
   _LessonInfo('Meyveler', 0.42, 0.63, Color(0xFF1CB0F6), Color(0xFF1288C9)),
   _LessonInfo('Hayvanlar', 0.64, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
-  _LessonInfo('Alışveriş', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('Renkler', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
 ];
 
 /// Toplam ders sayısı (_lessons listesiyle aynı olmalı).

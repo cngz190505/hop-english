@@ -364,11 +364,105 @@ const lesson4Words = [
   ),
 ];
 
+/// 5. ders: Renkler (10 kelime, görseller çocuksuz nesne)
+const lesson5Words = [
+  Word(
+    en: 'red',
+    tr: 'kırmızı',
+    phonetic: '/rɛd/',
+    say: 'red',
+    example: 'The apple is red.',
+    exampleTr: 'Elma kırmızı.',
+    emoji: '❤️',
+  ),
+  Word(
+    en: 'blue',
+    tr: 'mavi',
+    phonetic: '/bluː/',
+    say: 'bluu',
+    example: 'The sky is blue.',
+    exampleTr: 'Gökyüzü mavi.',
+    emoji: '🎈',
+  ),
+  Word(
+    en: 'green',
+    tr: 'yeşil',
+    phonetic: '/ɡriːn/',
+    say: 'griin',
+    example: 'The grass is green.',
+    exampleTr: 'Çimen yeşil.',
+    emoji: '🍃',
+  ),
+  Word(
+    en: 'yellow',
+    tr: 'sarı',
+    phonetic: '/ˈjɛloʊ/',
+    say: 'yelou',
+    example: 'The banana is yellow.',
+    exampleTr: 'Muz sarı.',
+    emoji: '☀️',
+  ),
+  Word(
+    en: 'black',
+    tr: 'siyah',
+    phonetic: '/blæk/',
+    say: 'blek',
+    example: 'The cat is black.',
+    exampleTr: 'Kedi siyah.',
+    emoji: '🎩',
+  ),
+  Word(
+    en: 'white',
+    tr: 'beyaz',
+    phonetic: '/waɪt/',
+    say: 'wayt',
+    example: 'The cow is white.',
+    exampleTr: 'İnek beyaz.',
+    emoji: '☁️',
+  ),
+  Word(
+    en: 'pink',
+    tr: 'pembe',
+    phonetic: '/pɪŋk/',
+    say: 'pink',
+    example: 'My bag is pink.',
+    exampleTr: 'Çantam pembe.',
+    emoji: '🍭',
+  ),
+  Word(
+    en: 'purple',
+    tr: 'mor',
+    phonetic: '/ˈpɜːrpəl/',
+    say: 'pörpıl',
+    example: 'The grapes are purple.',
+    exampleTr: 'Üzümler mor.',
+    emoji: '💜',
+  ),
+  Word(
+    en: 'brown',
+    tr: 'kahverengi',
+    phonetic: '/braʊn/',
+    say: 'braun',
+    example: 'The horse is brown.',
+    exampleTr: 'At kahverengi.',
+    emoji: '🍫',
+  ),
+  Word(
+    en: 'gray',
+    tr: 'gri',
+    phonetic: '/ɡreɪ/',
+    say: 'grey',
+    example: 'The elephant is gray.',
+    exampleTr: 'Fil gri.',
+    emoji: '🪨',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler'];
 
 /// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
 enum QType {
