@@ -29,7 +29,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 - **Sürekli yeniden çizdiren şeyler yasak:** `Timer.periodic` ile sürekli `setState`,
   `StreamBuilder`/`FutureBuilder` ile gereksiz yenileme, `Opacity` ile sürekli
   değişen katmanlar, ağır `BackdropFilter`/blur, çok büyük `blurRadius` gölgeler.
-- **Paket kuralı:** Şu an ek paketler: `flutter_tts` (ses), `shared_preferences` (kayıt). Başka paket ekleme, gerekirse önce kullanıcıya sor.
+- **Paket kuralı:** Şu an ek paketler: `flutter_tts` (seslendirme), `shared_preferences` (kayıt), `audioplayers` (ses efektleri, kullanıcı onayıyla eklendi). Başka paket ekleme, gerekirse önce kullanıcıya sor.
 - **Uzun listelerde `ListView.builder` kullan.** Çok elemanlı listeyi `Column` içine koyma.
 
 ## 2. Tasarım
@@ -59,8 +59,10 @@ lib/
   profile_screen.dart  -> Profil sekmesi (seviye, istatistik, rozetler)
   app_state.dart       -> TEK durum kaynağı: xp, elmas, seri, tamamlanan ders
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
+  fx.dart              -> titreşim + ses efektleri (HapticFeedback, audioplayers)
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
 assets/images/         -> ham görseller (elleme)
+assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav (küçük, elle üretildi)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
 ```
 
@@ -124,6 +126,12 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
     en az 4 kelime gerekir. Görseller `Word.emoji` alanından gelir, yeni görsel dosyası/paket yok.
   - Soyut kelimelerde (hello, yes, no) emoji yaklaşık anlatır. Somut kelimeli derslerde daha iyi olur.
   - Kullanıcının onayı olmadan yeni çizim görseli eklenmedi.
+- **Titreşim eklendi** (`fx.dart`, `quiz_screen.dart`, `app_state.dart`): Kontrol Et'te doğruysa orta,
+  yanlışsa güçlü titreşim; hediye alınca güçlü titreşim. `HapticFeedback` kullanır, ek paket/izin yok.
+- **Ses efektleri eklendi** (kullanıcı onayladı): `audioplayers` paketi (`pubspec.yaml`) ve `assets/sounds/`
+  içinde 3 kısa wav: `correct.wav` (ding), `wrong.wav` (bzzt), `gift.wav` (hediye). `Fx.right/wrong/reward`
+  hem titreşir hem ses çalar. Oynatıcılar ilk kullanımda kurulur, hata olursa sessizce geçer.
+  Ses değiştirmek için aynı isimli wav dosyasını değiştir.
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
