@@ -385,3 +385,5 @@ Proje sahibinin kesin isteği. İzin almadan değiştirme.
 - Arama yazılırken bulunan kelimelerin görünmesi için dersler açık gösterilir (arama kutusu kapanınca eski hali).
 - Açma/kapama anında olur, ANİMASYON YOK (Bölüm 1). Ok simgesi iki ayrı ikondur (`keyboard_arrow_down/up`), döndürme yok.
 - Yeni ders eklenince de aynı kural geçerli: kelimeler kapalı gelir. Başlık `lessonTitles`'tan okunur.
+
+- **Ana sayfa titreme deneyi: Impeller kapatıldı** (`tools/patch_android.py` bölüm 5): Ekran kaydı analizinde (hero tamamen kapalıyken de) ana sayfada yukarı yaylanırken kare aralıkları düzensizdi; performans ölçerde kare süreleri 16 ms altındaydı. Şüphe: Android'de varsayılan Impeller (Vulkan). Manifest'e `EnableImpeller=false` eklenir (Skia). Düzelmezse bu bölüm kaldırılır. Derlenip denenmedi, APK ile test edilmeli.
