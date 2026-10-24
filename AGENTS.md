@@ -107,7 +107,7 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 9. [x] Tekrar sekmesi (= Kelime Listem)
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
-1., 2., 3. ve 4. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
+1., 2., 3., 4., 5. ve 6. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
 Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedilir (`AppState.load/_save`).
 Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
@@ -275,6 +275,12 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Açılış ekranı artık karşılama ekranıyla aynı resim** (`tools/patch_android.py` bölüm 2, kullanıcı istedi): Eskiden ~1 sn düz mavi ekran, sonra başka bir ekran geliyordu (iki ekran arka arkaya). Şimdi Android açılış arka planı `assets/ready/bg_london.png` (yanlardan 9:20'ye kırpılmış, `drawable-nodpi/splash_bg.jpg`, `gravity=fill`) ve karşılama ekranı (`welcome_screen.dart`) aynı resmi kullanır; Flutter açılınca üstüne sadece yazı, maskot ve buton gelir. Statik, animasyon yok. Resim yoksa düz mavi kalır. Not: Android 12+ telefonlarda sistem kendi açılış ekranını (düz renk + uygulama simgesi) gösterir ve resim kullanılamaz; orada mavi kalabilir. `welcome_screen.dart` arka planı değişirse bu bölümdeki resim de aynı kalmalı. Sahte klasörde test edildi, gerçek APK ile denenmedi.
 
+- **Ders 5 (Renkler) eklendi**: `lesson_data.dart` içinde `lesson5Words` (10 kelime), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında (red, blue, green, yellow, black, white, pink, purple, brown, gray; saydam PNG, 380 px yükseklik). Meyveler gibi ÇOCUKSUZ, sadece nesne (kullanıcı istedi, Bölüm 8 istisnası): red=kalp, blue=balon, green=yaprak, yellow=güneş, black=şapka, white=bulut, pink=lolipop, purple=lavanta, brown=çikolata, gray=taş. Nesneler önceki derslerle karışmasın diye bilerek farklı seçildi (elma, muz, üzüm vb. kullanılmadı). Ders haritasında 5. kart "Alışveriş" yerine "Renkler" oldu (`lesson_map_screen.dart`). Her kelime örnek cümlede tam bir kez geçer. Görseller tek bir Gemini sayfasından kesilip arka planı silindi. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 5 bitince "Tekrar dersi yapalım mı?" diye sor.
+
+- **Kontrol ve plan güncellemesi** (kullanıcı istedi): Ders 1-5 kontrol edildi: her kelimenin `assets/words/<kelime>.png` dosyası var, her örnek cümlede kelime tam bir kez geçiyor, kelime tekrarı yok, `lessonsContent` ile `lessonTitles` aynı sırada (5 ders), `pubspec.yaml` `assets/words/` tanımlı. Ders haritasında `_lessons` listesi ve `_lessonsCount` (`lesson_map_screen.dart`) elle yazılıdır, `lessonsContent.length`'ten GELMEZ: yeni ders eklenince ikisi de güncellenir (Bölüm 11-B7'deki "otomatik" notu sadece `_playableLessons` için doğru). Kullanıcı Ders 4'ü test edip onayladı. Çalışma düzeni: kullanıcı bir dersi telefonda test ederken Claude sıradaki dersin kelime ve görsel prompt'larını paralel hazırlar (bekleme yok); yine de ders koda, önceki dersin onayı gelince eklenir. Sayılar dersi (Ders 6) müfredata eklendi, Araçlar ve sonrası bir sıra kaydı. ÖNERİ (kullanıcı onayı bekliyor, uygulanmadı): Aile ve Vücut'tan sonra Günlük İfadeler dersini öne alma ve her 2-3 dersten sonra "cümle kurma" dersi ekleme ("I like ___" kalıpları), çünkü kelimeler cümleye dönmezse çocuk kullanmayı öğrenemez.
+
+- **Ders 6 (Sayılar) eklendi**: `lesson_data.dart` içinde `lesson6Words` (one ... ten), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında `one.png` ... `ten.png` (saydam PNG, 380 px yükseklik): büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz. Gemini'nin ürettiği 7'de 6, 9'da 8 yıldız vardı; yıldızlar koddan düzeltildi (7 = 4+3, 9 = 5+4), 1-10 yıldız sayıları tek tek sayıldı. Tüm görseller aynı ölçekte ve üstten hizalı, rakamlar eşit büyüklükte görünür. Ders haritasına 6. kart eklendi (`_lessons`: Sayılar, fx 0.64 / fy 0.24, turkuaz renk) ve `_lessonsCount` 6 yapıldı. Kart konumu ekranda denenmedi: haritada yolun dışına düşerse sadece `fx/fy` sayıları değiştirilir. Her örnek cümlede kelime tam bir kez geçer. Derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
@@ -306,7 +312,7 @@ Kurallar:
 - 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 - Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
 - Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
-- Ders haritası şu an 5 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Günlük İfadeler, Sosyal Hayat, Alışveriş).
+- Ders haritası şu an 6 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar).
   Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
 
 Her ders için 4 adım:
@@ -320,17 +326,20 @@ Durum (tamamlanınca [x] yap):
 1. [x] Selamlaşma (6 kelime: hello, goodbye, thank you, please, yes, no; görseller hazır). 10'a tamamlamak isteğe bağlı.
 2. [x] Kendini Tanıtma (10 kelime: name, I, you, my, age, from, nice to meet you, friend, student, fine). Kullanıcı test etti, onayladı.
 3. [x] Meyveler (10 kelime: apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach). Kullanıcı devam dedi, onaylı sayıldı.
-4. [~] Hayvanlar (10 kelime: cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Görseller ve kod eklendi, kullanıcı testi bekleniyor.
-5. [ ] Renkler
-6. [ ] Araçlar
-7. [ ] Aile
-8. [ ] Vücut
-9. [ ] Günlük İfadeler
-10. [ ] Alışveriş
+4. [x] Hayvanlar (10 kelime: cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Kullanıcı test etti, onayladı.
+5. [~] Renkler (10 kelime: red, blue, green, yellow, black, white, pink, purple, brown, gray). Görseller çocuksuz nesne: kalp, balon, yaprak, güneş, şapka, bulut, lolipop, lavanta, çikolata, taş. Kod eklendi, kullanıcı testi bekleniyor.
+6. [~] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kod eklendi, kullanıcı testi bekleniyor.
+7. [ ] Araçlar
+8. [ ] Aile
+9. [ ] Vücut
+10. [ ] Günlük İfadeler
+11. [ ] Alışveriş
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
-Ders 4: kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 4: kelimeler [x] görseller [x] kod [x] test [x]
+Ders 5: kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 6: kelimeler [x] görseller [x] kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
