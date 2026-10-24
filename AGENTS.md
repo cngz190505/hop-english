@@ -192,7 +192,7 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   - **Cümle tamamlama** (`QType.sentence`, "Boşluğu doldur"): kelimenin örnek cümlesinde kelime yerine `_____` yazılır,
     altında Türkçesi görünür, 3 İngilizce şık. `blankSentence(word)` cümleyi üretir; kelime örnek cümlede TAM BİR kez
     geçmiyorsa soru "Doğru cevabı seç"e döner. Kontrol sonrası tam cümle sesli okunur.
-    Quiz döngüsü artık 5'li: Dinle ve seç, Görseli seç, Cümle tamamlama, Harf dizme, Doğru cevabı seç.
+    Tanıma sorusu döngüsü 4'lü: Dinle ve seç, Görseli seç, Cümle tamamlama, Doğru cevabı seç. Harf dizme ayrı, her kelimede (Bölüm 10).
   - **Kelime hakimiyeti** (`AppState.mastery`, 0-3 yıldız, kalıcı): quizde doğru +1, yanlış -1 (tekrar sorusunda yanlış
     sayılmaz). Bir quizde kelime başına net değişim -1..+2 ile sınırlı (tek ders kelimeyi öğrendirmez).
     `applyMastery` quiz sonunda, `complete*` çağrılmadan ÖNCE çağrılır. Kelime listesinde her kelimenin yanında 3 yıldız;
@@ -269,7 +269,11 @@ Proje sahibinin kesin isteği. İzin almadan çıkarma, esnetme, değiştirme. A
 - Quiz bu 6 soru tipini içerir ve hepsi kalır: Doğru cevabı seç (`text`), Doğru görseli seç (`picture`),
   Dinle ve seç (`listen`), Eşleştirme (`match`), Harf dizme (`scramble`), Cümle tamamlama (`sentence`). Kodları `lesson_data.dart` (`buildQuiz`),
   `quiz_screen.dart` ve `quiz_extra.dart` içindedir.
-- Her kelime için 1 soru + her 5 kelimede 1 Eşleştirme. Sıra sabit, rastgelelik yok (sabit tohum).
+- Quiz sırası (`buildQuiz`): 1) her kelime için 1 tanıma sorusu (Dinle ve seç, Görseli seç, Cümle tamamlama, Doğru cevabı seç
+  döngüsü), 2) 1. Eşleştirme, 3) HER kelime için Harf dizme (üretme), 4) 2. Eşleştirme. 10 kelime = 10+1+10+1 = 22 soru.
+  Eşleştirme: 5 kelimede 1, 6+ kelimede 2 tane (ilk 5 ve son 5 kelime).
+- **Harf dizme HER kelimede çıkar** (kullanıcı istedi): tek kelimede harfler, çok kelimeli ifadede ("nice to meet you")
+  kelime parçaları dizilir (`scrambleTiles`). Tek istisna: tek parçalı kelime (örn. "I"). Sıra sabit, rastgelelik yok (sabit tohum).
 - Yanlış yapılan kelime quiz sonunda BİR KEZ tekrar sorulur (farklı tipte). Tekrar soruları puana sayılmaz.
 - Üst üste 3+ doğruda "N üst üste doğru!" yazısı çıkar (sadece yazı, animasyon yok).
 - Tekrar sekmesinde "Tekrar Dersi" butonu olur (en az 5 öğrenilmiş kelime): önce Zor kelimeler, en çok 10 kelime.
@@ -281,6 +285,10 @@ Proje sahibinin kesin isteği. İzin almadan çıkarma, esnetme, değiştirme. A
 - Sıradaki işler (sırayla): cümle kurma, rozetler, yavaş okuma butonu. Bildirim hatırlatması ve konuşma (mikrofon)
   paket gerektirir, önce kullanıcıya sor.
 
+- **Ders uzunluğu kararı**: Kullanıcı 22 soruluk dersi olduğu gibi bıraktı. Telefonda test edilip çocuk için çok uzun
+  bulunursa sırayla: önce "akıllı kısaltma" (tanıma sorusunu doğru bilen kelimede harf dizme atlanır), hâlâ uzunsa
+  dersi 2 kısma bölme (5+5 kelime). Kullanıcı istemeden yapma.
+
 ## 11. YENİ KATEGORİYE (DERSE) GEÇİŞ KONTROL LİSTESİ (KESİN KURAL, her seferinde uygulanır)
 
 Amaç: her yeni kategori aynı düzenle gelsin, hiçbir özellik atlanmasın, devamlılık bozulmasın.
@@ -289,10 +297,9 @@ Yeni kategori = yeni ders (Bölüm 9 sırasıyla). Bir önceki ders kullanıcı 
 **A. Başlamadan önce**
 1. Bölüm 9'daki sıradaki kategoriyi ve durumunu kontrol et. Önceki ders `test [x]` değilse dur, kullanıcıya sor.
 2. Kullanıcıya 10 kelimeyi ver: İngilizce, okunuş (`say`), Türkçe, örnek cümle + cümlenin Türkçesi, Gemini görsel prompt'ları.
-3. Örnek cümleler şu kuralları sağlamalı:
+3. Örnek cümleler şu kuralları sağlamalı (Harf dizme artık her kelimede çıkar, uzunluk sınırı yok):
    - Kelime örnek cümlede TAM BİR kez geçer (Cümle tamamlama bunu ister, `blankSentence` null dönmemeli).
-   - Çok kelimeli ifadeler (örn. "nice to meet you") az olsun. Mümkünse 10 kelimenin en az 4-5'i tek kelime ve
-     3-9 harfli olsun (Harf dizme sorusu için, `canScramble`).
+   - Çok kelimeli ifadeler çok uzun olmasın (Harf dizmede kelime parçaları dizilir, en çok 4-5 parça).
 4. Görseller Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 
 **B. Koda eklerken (sadece bunlar değişir, başka dosyaya dokunma)**
@@ -303,7 +310,7 @@ Yeni kategori = yeni ders (Bölüm 9 sırasıyla). Bir önceki ders kullanıcı 
    kilit ve ders adı doğru görünüyor mu kontrol et.
 
 **C. Otomatik gelenler (ek iş yok, ama çalıştığını kontrol et)**
-8. Quiz (`buildQuiz`): 10 kelimede 12 soru çıkmalı; 6 soru tipinin hepsi görünmeli; yanlışlar sonda tekrar sorulmalı.
+8. Quiz (`buildQuiz`): 10 kelimede 22 soru çıkmalı (10 tanıma + 1 eşleştirme + 10 harf dizme + 1 eşleştirme); 6 soru tipinin hepsi görünmeli; yanlışlar sonda tekrar sorulmalı.
 9. Tekrar dersi: yeni dersin kelimeleri otomatik katılır. Her 2-3 dersten sonra kullanıcıya "Tekrar dersi yapalım mı?" diye hatırlat.
 10. Kelime hakimiyeti yıldızları, Zor listesi, günün kelimesi, ders sonu özeti yeni kelimelerle kendiliğinden çalışır.
 11. Yeni kalıcı veri gerekirse `AppState` içinde `load()` ve `_save()` ikisi de güncellenir (Bölüm 7).
