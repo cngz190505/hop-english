@@ -2,8 +2,41 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'theme.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  bool _warmed = false;
+
+  /// Ana sayfadaki görseller, kullanıcı açılış ekranındayken belleğe alınır.
+  /// Boyutlar home_screen.dart'taki cacheWidth/cacheHeight ile AYNI olmalı,
+  /// yoksa önbellek tutmaz. (Animasyon değil, sadece önceden yükleme.)
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_warmed) return;
+    _warmed = true;
+    const byHeight = {
+      'assets/ready/icon_flame.png': 66,
+      'assets/ready/icon_gem.png': 66,
+      'assets/ready/mascot_main.png': 360,
+      'assets/ready/kids.png': 200,
+      'assets/ready/icon_target.png': 150,
+      'assets/ready/icon_gift.png': 120,
+    };
+    byHeight.forEach((path, h) {
+      precacheImage(ResizeImage(AssetImage(path), height: h), context)
+          .catchError((_) {});
+    });
+    precacheImage(
+      const ResizeImage(AssetImage('assets/ready/girl_hi.png'), width: 144),
+      context,
+    ).catchError((_) {});
+  }
 
   @override
   Widget build(BuildContext context) {
