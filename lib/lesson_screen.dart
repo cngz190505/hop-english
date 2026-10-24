@@ -141,139 +141,151 @@ class _WordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: cardDecoration(),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: _purpleLight,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.auto_awesome_rounded, size: 16, color: _purple),
-                SizedBox(width: 6),
-                Text(
-                  'Yeni Kelime',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: _purple,
-                  ),
+          // 1) Büyük kelime görseli (balon yok, iç içe kart yok).
+          RepaintBoundary(
+            child: Container(
+              width: double.infinity,
+              height: 190,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFFBFE4FF), Color(0xFFE6F5FF)],
                 ),
-              ],
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Image.asset(
+                word.imagePath,
+                height: 172,
+                cacheHeight: 516,
+                gaplessPlayback: true,
+              ),
             ),
           ),
           const SizedBox(height: 14),
+          // 2) İngilizce kelime (en büyük yazı)
           Text(
             word.en,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 42,
+              fontSize: 46,
+              height: 1.1,
               fontWeight: FontWeight.w900,
               color: kInk,
             ),
           ),
-          const SizedBox(height: 4),
-          GestureDetector(
-            onTap: () {
-              Fx.tap();
-              Speech.speak(word.en);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.volume_up_rounded, size: 24, color: kBlue),
-                  const SizedBox(width: 8),
-                  // Sadece Türkçe okunuş: tek satır, büyük. (IPA çocuklar için karışık, gösterilmez.)
-                  Flexible(
-                    child: Text(
-                      word.say,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                        color: kBlue,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Text(
-            'Dinlemek için dokun',
-            style: TextStyle(fontSize: 12, color: kMuted),
-          ),
-          const SizedBox(height: 8),
-          // Yavaş dinle: sesler net anlaşılsın diye daha yavaş okur.
-          GestureDetector(
-            onTap: () {
-              Fx.tap();
-              Speech.speak(word.en, slow: true);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE6F5FF),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: kBlue, width: 2),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('🐢', style: TextStyle(fontSize: 18)),
-                  SizedBox(width: 6),
-                  Text(
-                    'Yavaş dinle',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: kBlue,
-                    ),
-                  ),
-                ],
-              ),
+          // 3) Türkçe okunuş (küçük, mavi). IPA çocuklar için karışık, gösterilmez.
+          Text(
+            word.say,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: kBlue,
             ),
           ),
           const SizedBox(height: 8),
+          // 4) Türkçe anlamı
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 6),
             decoration: BoxDecoration(
               color: _purpleLight,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Text(
               word.tr,
               style: const TextStyle(
-                fontSize: 17,
+                fontSize: 19,
                 fontWeight: FontWeight.w800,
                 color: _purple,
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          MascotBubble(
-            text: _bubbleText(word.en),
-            image: word.imagePath,
-            imageCacheHeight: 420,
+          const SizedBox(height: 14),
+          // 5) Tek büyük Dinle + küçük Yavaş butonu
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Fx.tap();
+                    Speech.speak(word.en);
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    height: 52,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: kBlue,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(color: kBlueDark, offset: Offset(0, 4)),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.volume_up_rounded, color: Colors.white, size: 26),
+                        SizedBox(width: 8),
+                        Text(
+                          'Dinle',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Yavaş dinle: sesler net anlaşılsın diye daha yavaş okur.
+              GestureDetector(
+                onTap: () {
+                  Fx.tap();
+                  Speech.speak(word.en, slow: true);
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  width: 62,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE6F5FF),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: kBlue, width: 2),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.slow_motion_video_rounded, color: kBlue, size: 22),
+                      Text(
+                        'Yavaş',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: kBlue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
+          // 6) Örnek cümle: tek satır kutu, dokununca okunur.
           _Sentence(word: word),
         ],
       ),
     );
   }
-
-  static String _bubbleText(String en) =>
-      '${en[0].toUpperCase()}${en.substring(1)}!';
 }
 
 /// Maskot + konuşma balonu kartı (ders ve quiz ekranlarında ortak).
@@ -355,8 +367,8 @@ class _Sentence extends StatelessWidget {
     final lower = word.example.toLowerCase();
     final at = lower.indexOf(word.en.toLowerCase());
     const base = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w700,
+      fontSize: 17,
+      fontWeight: FontWeight.w800,
       color: kInk,
     );
     final spans = at < 0
@@ -369,67 +381,43 @@ class _Sentence extends StatelessWidget {
             ),
             TextSpan(text: word.example.substring(at + word.en.length)),
           ];
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F8FF),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(text: TextSpan(style: base, children: spans)),
-                const SizedBox(height: 4),
-                Text(
-                  word.exampleTr,
-                  style: const TextStyle(fontSize: 13, color: kMuted),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Fx.tap();
+        Speech.speak(word.example);
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F0FF),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(text: TextSpan(style: base, children: spans)),
+                  const SizedBox(height: 3),
+                  // Türkçe karşılık mor: ana ekrandaki "anlam" etiketiyle aynı renk.
+                  Text(
+                    word.exampleTr,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: _purple,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              Fx.tap();
-              Speech.speak(word.example);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: const BoxDecoration(
-                    color: kBlue,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(color: kBlueDark, offset: Offset(0, 3)),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.volume_up_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Dinle',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: kBlue,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            const Icon(Icons.volume_up_rounded, size: 26, color: kBlue),
+          ],
+        ),
       ),
     );
   }
