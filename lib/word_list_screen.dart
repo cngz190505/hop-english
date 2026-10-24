@@ -551,15 +551,28 @@ class _WordRow extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // Kelimenin kendi görseli (AGENTS.md Bölüm 8): üst kısmı (yüz) daire içinde görünür.
+              // Emoji yazısı yerine küçültülmüş resim: cacheWidth = 54 x 3.
               Container(
                 width: 54,
                 height: 54,
-                alignment: Alignment.center,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   color: light,
                   shape: BoxShape.circle,
                 ),
-                child: Text(w.emoji, style: const TextStyle(fontSize: 28)),
+                child: Image.asset(
+                  w.imagePath,
+                  width: 54,
+                  height: 54,
+                  cacheWidth: 162,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                  gaplessPlayback: true,
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Text(w.emoji, style: const TextStyle(fontSize: 28)),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
