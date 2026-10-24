@@ -21,45 +21,49 @@ class Fx {
     } catch (_) {}
   }
 
-  /// Doğru cevap: sadece orta titreşim. Efekt sesi YOK, çünkü kelimenin okunuşuyla
-  /// (Speech) karışıyordu. Okunuş zaten çalıyor.
-  static Future<void> right() => _buzz(const [0, 70, 70]);
+  /// Doğru cevap: tek uzun, kesintisiz güçlü titreşim (efekt sesi YOK, çünkü kelimenin
+  /// okunuşuyla (Speech) karışıyordu).
+  static Future<void> right() => _pattern(const [220]);
 
-  /// Yanlış cevap: sadece güçlü titreşim (efekt sesi yok, sebep yukarıda).
-  /// Doğrudan daha uzun: 3 darbe.
-  static Future<void> wrong() => _buzz(const [0, 90, 90, 90, 90]);
+  /// Yanlış cevap: 3 uzun güçlü titreşim (arada kısa duraklama), sonuncusu en uzun.
+  static Future<void> wrong() => _pattern(const [260, 90, 260, 90, 380]);
 
-  /// Güçlü titreşim: her darbe için bekleme (ms) listesi. Paket/izin gerekmez,
-  /// HapticFeedback.vibrate + heavyImpact arka arkaya verilir.
-  static Future<void> _buzz(List<int> gaps) async {
+  /// Kesintisiz güçlü titreşim: [ms] süre boyunca her 25 ms'de bir `vibrate` + `heavyImpact`
+  /// gönderir. Tek bir `HapticFeedback` çağrısı kısa bir "tık"tır; peş peşe gönderince
+  /// titreşim kesilmeden, çok daha güçlü ve uzun hissedilir. Paket/izin gerekmez.
+  static Future<void> _burst(int ms) async {
+    final sw = Stopwatch()..start();
+    while (sw.elapsedMilliseconds < ms) {
+      HapticFeedback.vibrate();
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 25));
+    }
+  }
+
+  /// Desen: tek sayılar (0., 2., ...) titreşim süresi, çift sayılar (1., 3., ...) sessiz
+  /// bekleme süresi, hepsi ms. Örn. [260, 90, 260] = titre, dur, titre.
+  static Future<void> _pattern(List<int> parts) async {
     try {
-      for (final ms in gaps) {
-        if (ms > 0) await Future.delayed(Duration(milliseconds: ms));
-        HapticFeedback.vibrate();
-        HapticFeedback.heavyImpact();
-        HapticFeedback.vibrate();
+      for (var i = 0; i < parts.length; i++) {
+        if (i.isEven) {
+          await _burst(parts[i]);
+        } else {
+          await Future.delayed(Duration(milliseconds: parts[i]));
+        }
       }
     } catch (_) {}
   }
 
-  /// Ders bitti (Tebrikler ekranı): güçlü fanfar sesi + arka arkaya güçlü titreşim.
+  /// Ders bitti (Tebrikler ekranı): güçlü fanfar sesi + uzun, kesintisiz kutlama titreşimi
+  /// (4 kısa darbe, sonda çok uzun bir titreşim). Toplam yaklaşık 2 saniye.
   static Future<void> celebrate() async {
     _play('celebrate.wav', volume: 1.0);
-    try {
-      HapticFeedback.heavyImpact();
-      for (final ms in const [90, 90, 90, 110, 110, 130, 150, 180, 220]) {
-        await Future.delayed(Duration(milliseconds: ms));
-        HapticFeedback.heavyImpact();
-      }
-      await Future.delayed(const Duration(milliseconds: 250));
-      HapticFeedback.vibrate();
-    } catch (_) {}
+    await _pattern(const [220, 80, 220, 80, 220, 80, 220, 120, 700]);
   }
 
-  /// Hediye alma: yükselen ses + güçlü titreşim.
+  /// Hediye alma: yükselen ses + uzun güçlü titreşim.
   static void reward() {
-    HapticFeedback.vibrate();
-    HapticFeedback.heavyImpact();
     _play('gift.wav');
+    _pattern(const [320, 90, 420]);
   }
 }
