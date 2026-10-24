@@ -611,7 +611,7 @@ class _WordOfDayCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${w.tr} · ${w.say}',
+                        w.tr,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,

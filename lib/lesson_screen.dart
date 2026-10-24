@@ -157,28 +157,25 @@ class _WordCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.volume_up_rounded, size: 24, color: kBlue),
                   const SizedBox(width: 8),
+                  // Sadece Türkçe okunuş: tek satır, büyük. (IPA çocuklar için karışık, gösterilmez.)
                   Flexible(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: word.phonetic),
-                          const TextSpan(text: '  ·  '),
-                          TextSpan(
-                            text: word.say,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              color: kInk,
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Text(
+                      word.say,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18, color: kMuted),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: kBlue,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
+          ),
+          const Text(
+            'Dinlemek için dokun',
+            style: TextStyle(fontSize: 12, color: kMuted),
           ),
           const SizedBox(height: 8),
           Container(
