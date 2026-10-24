@@ -105,6 +105,27 @@ Günlük hedef (5 dk): ders ve quiz ekranlarında geçen süre `StudyTimer` ile 
 en fazla 60 sn sayılır). 5 dk dolunca hediye kutusu +10 elmas verir, her gün sıfırlanır.
 Yeni bir çalışma ekranı eklenirse içine `StudyTimer` konmalı: `tap()` dokunuşlarda, `finish()` dispose'da.
 
+## 6.1 Yapılanlar (değişiklik günlüğü)
+
+Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya dosya olarak verilir.
+
+- **Günlük hedef sayacı bağlandı** (`lesson_screen.dart`, `quiz_screen.dart`, `home_screen.dart`):
+  - Ders ve quiz ekranlarında `StudyTimer` var: `tap()` Devam Et / Kontrol Et dokunuşlarında,
+    `finish()` `dispose` içinde çağrılır.
+  - Ana sayfada "Bugünün Hedefi" ve "Günlük Hedef" kartları gerçek süreyi gösterir (x/5 dk, çubuk).
+    Eskiden "Bugünün Hedefi" ders sayısını gösteriyordu, artık süreyi gösterir.
+  - 5 dk dolunca hediye kutusunun altında "Hediyeni aç!" yazar, basınca +10 elmas verir
+    (`AppState.claimGift`), sonra "Hediye alındı ✓" görünür. Süre ekran kapanınca ana sayfaya yansır
+    (canlı yenileme yok, performans kuralı).
+- **Görselli quiz sorusu eklendi** (`lesson_data.dart`, `quiz_screen.dart`):
+  - `QuizQuestion.pictures` doluysa "Doğru görseli seç" sorusudur: üstte İngilizce kelime + dinle
+    butonu (`_ListenWord`), altta 2x2 kart (`_PicOption`: büyük emoji + Türkçesi).
+  - `buildQuiz`: tek numaralı sorular (2., 4., 6.) görselli, diğerleri yazılı. Görselli soru için
+    en az 4 kelime gerekir. Görseller `Word.emoji` alanından gelir, yeni görsel dosyası/paket yok.
+  - Soyut kelimelerde (hello, yes, no) emoji yaklaşık anlatır. Somut kelimeli derslerde daha iyi olur.
+  - Kullanıcının onayı olmadan yeni çizim görseli eklenmedi.
+- Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
