@@ -28,7 +28,24 @@ for dp, _, files in os.walk(RES):
             if f.startswith("ic_launcher") and f.endswith(".xml"):
                 os.remove(os.path.join(dp, f))
 
-# 2) Acilis arka plani: her yerde duz mavi (karanlik modda siyah olmasin)
+# 2) Acilis arka plani: acilis ekrani (welcome_screen) ile AYNI gokyuzu/Londra resmi.
+#    Eskiden ~1 sn duz mavi ekran, sonra baska bir ekran geliyordu (iki ekran arka arkaya).
+#    Simdi telefon acilirken zaten ayni resim durur, Flutter acilinca ustune yazi, maskot ve
+#    buton gelir. Statik, animasyon yok. Resim yoksa duz mavi kalir.
+BG = "assets/ready/bg_london.png"
+bg_item = ""
+if os.path.exists(BG):
+    os.makedirs(RES + "/drawable-nodpi", exist_ok=True)
+    im = Image.open(BG).convert("RGB")
+    # Telefon ekrani ~9:20; resmi yanlardan hafif kirp ki gerilince bozulmasin (BoxFit.cover gibi)
+    tw = round(im.height * 9 / 20)
+    if tw < im.width:
+        x0 = (im.width - tw) // 2
+        im = im.crop((x0, 0, x0 + tw, im.height))
+    im.save(RES + "/drawable-nodpi/splash_bg.jpg", quality=88)
+    bg_item = ('    <item>\n'
+               '        <bitmap android:src="@drawable/splash_bg" android:gravity="fill" />\n'
+               '    </item>\n')
 LB = ('<?xml version="1.0" encoding="utf-8"?>\n'
       '<layer-list xmlns:android="http://schemas.android.com/apk/res/android">\n'
       '    <item>\n'
@@ -36,7 +53,8 @@ LB = ('<?xml version="1.0" encoding="utf-8"?>\n'
       '            <solid android:color="%s" />\n'
       '        </shape>\n'
       '    </item>\n'
-      '</layer-list>\n' % COLOR)
+      '%s'
+      '</layer-list>\n' % (COLOR, bg_item))
 found = False
 for dp, _, files in os.walk(RES):
     if "launch_background.xml" in files:
