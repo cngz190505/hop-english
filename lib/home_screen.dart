@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _HomeTab(onReview: () => setState(() => _index = 2)),
           const LessonMapTab(), // kendi güvenli alanını yönetir (tam ekran harita)
           const SafeArea(child: WordListTab()),
-          const SafeArea(child: ProfileTab()),
+          const ProfileTab(), // lacivert üst bölüm durum çubuğunun altına uzanır, SafeArea yok
         ],
       ),
       bottomNavigationBar: DecoratedBox(
