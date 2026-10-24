@@ -71,3 +71,17 @@ t = open(mp, encoding="utf8").read()
 t = re.sub(r'android:label="[^"]*"', 'android:label="%s"' % NAME, t, count=1)
 open(mp, "w", encoding="utf8").write(t)
 print("Android yamalari tamam: simge, acilis rengi, uygulama adi")
+
+# 5) Impeller kapali (Skia): bazi Xiaomi/Redmi telefonlarda Impeller (Vulkan) kaydirma/yaylanmada
+#    kare atlatiyor. Ana sayfadaki titreme icin deney; duzelmezse bu bolum kaldirilir.
+mt = open(mp, encoding="utf8").read()
+if "EnableImpeller" not in mt:
+    mt = mt.replace(
+        "<application",
+        "<application", 1)
+    mt = re.sub(
+        r"(<application[^>]*>)",
+        r'\1\n        <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false" />',
+        mt, count=1)
+    open(mp, "w", encoding="utf8").write(mt)
+print("Impeller kapatildi (Skia)")
