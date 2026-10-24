@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'fx.dart';
 import 'lesson_data.dart';
 
 /// Ders bitince kazanılanlar.
@@ -122,6 +123,7 @@ class AppState extends ChangeNotifier {
   void claimGift() {
     if (!giftReady) return;
     _giftClaimed = true;
+    Fx.reward();
     gems += giftGems;
     notifyListeners();
     _save();

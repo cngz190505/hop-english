@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_state.dart';
+import 'fx.dart';
 import 'lesson_data.dart';
 import 'lesson_screen.dart';
 import 'result_screen.dart';
@@ -44,6 +45,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _missedWords.add(_q.word.en);
       }
     });
+    _isRight ? Fx.right() : Fx.wrong();
     Speech.speak(_q.word.en);
   }
 
