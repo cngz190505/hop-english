@@ -177,6 +177,9 @@ const lesson2Words = [
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
 const lessonsContent = [lesson1Words, lesson2Words];
 
+/// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma'];
+
 /// Quiz sorusu: Türkçesi gösterilir, doğru İngilizce karşılığı seçilir.
 class QuizQuestion {
   final Word word;
