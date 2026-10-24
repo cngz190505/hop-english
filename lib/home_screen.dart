@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_state.dart';
+import 'lesson_data.dart';
 import 'lesson_map_screen.dart';
 import 'lesson_screen.dart';
 import 'profile_screen.dart';
@@ -358,7 +359,7 @@ class _LessonCard extends StatelessWidget {
           const SizedBox(height: 16),
           ChunkyButton(
             text: 'Derse Başla',
-            onPressed: () => openLesson1(context),
+            onPressed: () => openLesson(context, AppState.instance.completedLessons),
           ),
         ],
       ),
@@ -374,13 +375,14 @@ class _LessonProgress extends StatelessWidget {
     return ListenableBuilder(
       listenable: AppState.instance,
       builder: (context, _) {
-        final done = AppState.instance.completedLessons >= 1 ? 6 : 0;
+        final total = lessonsContent.fold<int>(0, (a, l) => a + l.length);
+        final done = AppState.instance.learnedWords.length;
         return Row(
           children: [
             const Icon(Icons.menu_book_rounded, size: 16, color: kMuted),
             const SizedBox(width: 6),
             Text(
-              '$done/6',
+              '$done/$total',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -388,7 +390,7 @@ class _LessonProgress extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(child: ProgressBar(value: done / 6, height: 8)),
+            Expanded(child: ProgressBar(value: done / total, height: 8)),
           ],
         );
       },

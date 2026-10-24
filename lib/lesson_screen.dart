@@ -8,18 +8,20 @@ import 'theme.dart';
 const _purple = Color(0xFF7B5CE6);
 const _purpleLight = Color(0xFFEDE7FF);
 
-/// 1. dersi açar (ana sayfadaki buton ve ders haritası bunu kullanır).
-void openLesson1(BuildContext context) {
+/// [index]. dersi açar (0 = 1. ders). Ana sayfa butonu ve ders haritası bunu kullanır.
+void openLesson(BuildContext context, int index) {
+  final i = index.clamp(0, lessonsContent.length - 1);
   Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (_) => const LessonScreen(words: lesson1Words),
+      builder: (_) => LessonScreen(words: lessonsContent[i], lessonIndex: i),
     ),
   );
 }
 
 class LessonScreen extends StatefulWidget {
   final List<Word> words;
-  const LessonScreen({super.key, required this.words});
+  final int lessonIndex;
+  const LessonScreen({super.key, required this.words, this.lessonIndex = 0});
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
@@ -36,7 +38,11 @@ class _LessonScreenState extends State<LessonScreen> {
       setState(() => _i++);
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => QuizScreen(words: widget.words)),
+        MaterialPageRoute(builder: (_) => QuizScreen(
+            words: widget.words,
+            lessonIndex: widget.lessonIndex,
+          ),
+        ),
       );
     }
   }

@@ -9,12 +9,14 @@ class ResultScreen extends StatelessWidget {
   final int correct;
   final int total;
   final List<Word> words;
+  final int lessonIndex;
   const ResultScreen({
     super.key,
     required this.reward,
     required this.correct,
     required this.total,
     required this.words,
+    this.lessonIndex = 0,
   });
 
   void _home(BuildContext context) =>
@@ -120,7 +122,10 @@ class ResultScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (_) => LessonScreen(words: words),
+                            builder: (_) => LessonScreen(
+                              words: words,
+                              lessonIndex: lessonIndex,
+                            ),
                           ),
                         );
                       },

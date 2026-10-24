@@ -72,8 +72,92 @@ const lesson1Words = [
   ),
 ];
 
+/// 2. ders: Kendini Tanıtma (10 kelime)
+const lesson2Words = [
+  Word(
+    en: 'name',
+    tr: 'isim',
+    phonetic: '/neɪm/',
+    example: 'What is your name?',
+    exampleTr: 'Adın ne?',
+    emoji: '📛',
+  ),
+  Word(
+    en: 'I',
+    tr: 'ben',
+    phonetic: '/aɪ/',
+    example: 'I am Ali.',
+    exampleTr: "Ben Ali'yim.",
+    emoji: '🙋',
+  ),
+  Word(
+    en: 'you',
+    tr: 'sen',
+    phonetic: '/juː/',
+    example: 'Are you ready?',
+    exampleTr: 'Hazır mısın?',
+    emoji: '👉',
+  ),
+  Word(
+    en: 'my',
+    tr: 'benim',
+    phonetic: '/maɪ/',
+    example: 'My name is Ali.',
+    exampleTr: 'Benim adım Ali.',
+    emoji: '🧸',
+  ),
+  Word(
+    en: 'age',
+    tr: 'yaş',
+    phonetic: '/eɪdʒ/',
+    example: 'What is your age?',
+    exampleTr: 'Yaşın kaç?',
+    emoji: '🎂',
+  ),
+  Word(
+    en: 'from',
+    tr: '-den, -dan',
+    phonetic: '/frʌm/',
+    example: 'I am from Turkey.',
+    exampleTr: "Ben Türkiye'denim.",
+    emoji: '🌍',
+  ),
+  Word(
+    en: 'nice to meet you',
+    tr: 'memnun oldum',
+    phonetic: '/naɪs tə miːt juː/',
+    example: 'Nice to meet you, Ali.',
+    exampleTr: 'Memnun oldum, Ali.',
+    emoji: '🤝',
+  ),
+  Word(
+    en: 'friend',
+    tr: 'arkadaş',
+    phonetic: '/frɛnd/',
+    example: 'You are my friend.',
+    exampleTr: 'Sen benim arkadaşımsın.',
+    emoji: '🧑‍🤝‍🧑',
+  ),
+  Word(
+    en: 'student',
+    tr: 'öğrenci',
+    phonetic: '/ˈstuːdənt/',
+    example: 'I am a student.',
+    exampleTr: 'Ben öğrenciyim.',
+    emoji: '🎒',
+  ),
+  Word(
+    en: 'fine',
+    tr: 'iyi',
+    phonetic: '/faɪn/',
+    example: 'I am fine, thank you.',
+    exampleTr: 'İyiyim, teşekkür ederim.',
+    emoji: '😌',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words];
+const lessonsContent = [lesson1Words, lesson2Words];
 
 /// Quiz sorusu: Türkçesi gösterilir, doğru İngilizce karşılığı seçilir.
 class QuizQuestion {

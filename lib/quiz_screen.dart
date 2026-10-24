@@ -14,7 +14,8 @@ const _badText = Color(0xFFD33030);
 
 class QuizScreen extends StatefulWidget {
   final List<Word> words;
-  const QuizScreen({super.key, required this.words});
+  final int lessonIndex;
+  const QuizScreen({super.key, required this.words, this.lessonIndex = 0});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -60,7 +61,7 @@ class _QuizScreenState extends State<QuizScreen> {
       });
     } else {
       final reward = AppState.instance.completeLesson(
-        0,
+        widget.lessonIndex,
         missed: _missedWords,
         correct: _rightWords,
       );
@@ -72,6 +73,7 @@ class _QuizScreenState extends State<QuizScreen> {
             correct: _correct,
             total: _qs.length,
             words: widget.words,
+            lessonIndex: widget.lessonIndex,
           ),
         ),
       );

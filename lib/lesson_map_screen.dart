@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_state.dart';
+import 'lesson_data.dart';
 import 'lesson_screen.dart';
 import 'theme.dart';
 
@@ -25,8 +26,8 @@ const _lessons = [
 /// Toplam ders sayısı (_lessons listesiyle aynı olmalı).
 const _lessonsCount = 5;
 
-/// İçeriği hazır ders sayısı (şimdilik sadece 1. ders).
-const _playableLessons = 1;
+/// İçeriği hazır ders sayısı (lessonsContent ile aynı).
+final _playableLessons = lessonsContent.length;
 
 // bg_map.png oranı (704 x 1504)
 const _mapAspect = 1504 / 704;
@@ -120,7 +121,7 @@ class LessonMapTab extends StatelessWidget {
           number: i + 1,
           title: l.title,
           status: status,
-          onTap: status == _Status.current ? () => openLesson1(context) : null,
+          onTap: status == _Status.current ? () => openLesson(context, i) : null,
         ),
       ),
     ];
