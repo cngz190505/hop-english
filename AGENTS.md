@@ -273,6 +273,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Meyve görselleri çocuksuz yapıldı** (`assets/words/` apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach; kullanıcı istedi): Ders 3 görselleri yalnızca meyve. Aynı dosya adları, kod değişmedi. Bölüm 8'e istisna notu eklendi. Peach okunuşu `piitş` (Türkçede kaba kelimeye benzediği için `piiç` değiştirildi).
 
+- **Açılış ekranı artık karşılama ekranıyla aynı resim** (`tools/patch_android.py` bölüm 2, kullanıcı istedi): Eskiden ~1 sn düz mavi ekran, sonra başka bir ekran geliyordu (iki ekran arka arkaya). Şimdi Android açılış arka planı `assets/ready/bg_london.png` (yanlardan 9:20'ye kırpılmış, `drawable-nodpi/splash_bg.jpg`, `gravity=fill`) ve karşılama ekranı (`welcome_screen.dart`) aynı resmi kullanır; Flutter açılınca üstüne sadece yazı, maskot ve buton gelir. Statik, animasyon yok. Resim yoksa düz mavi kalır. Not: Android 12+ telefonlarda sistem kendi açılış ekranını (düz renk + uygulama simgesi) gösterir ve resim kullanılamaz; orada mavi kalabilir. `welcome_screen.dart` arka planı değişirse bu bölümdeki resim de aynı kalmalı. Sahte klasörde test edildi, gerçek APK ile denenmedi.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
