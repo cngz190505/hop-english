@@ -19,7 +19,8 @@ const _palette = [
 class _Header {
   final int lesson;
   final int count;
-  const _Header(this.lesson, this.count);
+  final bool open;
+  const _Header(this.lesson, this.count, this.open);
 }
 
 class _Item {
@@ -54,6 +55,8 @@ class WordListTab extends StatefulWidget {
 class _WordListTabState extends State<WordListTab> {
   int _filter = 0;
   bool _searching = false;
+  // Açık dersler. Dersler KAPALI gelir, kullanıcı başlığa dokunup kendi açar (AGENTS.md Bölüm 12).
+  final Set<int> _open = {};
   String _query = '';
   final _ctrl = TextEditingController();
   static const _tabs = ['Tümü', 'Yeni', 'Zor', 'Öğrenildi'];
@@ -100,8 +103,10 @@ class _WordListTabState extends State<WordListTab> {
         for (var l = 0; l < lessonsContent.length; l++) {
           final inLesson = shown.where((e) => lessonOf[e.word.en] == l).toList();
           if (inLesson.isEmpty) continue;
-          rows.add(_Header(l, inLesson.length));
-          rows.addAll(inLesson);
+          // Arama yazılıyorsa bulunan kelimeler görünsün diye dersler açık gösterilir.
+          final open = q.isNotEmpty || _open.contains(l);
+          rows.add(_Header(l, inLesson.length, open));
+          if (open) rows.addAll(inLesson);
         }
 
         return Column(
@@ -216,6 +221,8 @@ class _WordListTabState extends State<WordListTab> {
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
+                // Liste kısa: hepsini önceden kur, kaydırırken satır çizilmesin.
+                cacheExtent: 4000,
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 itemCount: rows.length + 1 + (rows.isEmpty ? 1 : 0),
                 itemBuilder: (context, i) {
@@ -240,7 +247,17 @@ class _WordListTabState extends State<WordListTab> {
                     return _Empty(filter: _filter, searching: q.isNotEmpty);
                   }
                   final r = rows[i - 1];
-                  if (r is _Header) return _LessonHeader(r);
+                  if (r is _Header) {
+                    return _LessonHeader(
+                      r,
+                      onTap: () {
+                        Fx.tap();
+                        setState(() {
+                          if (!_open.add(r.lesson)) _open.remove(r.lesson);
+                        });
+                      },
+                    );
+                  }
                   final e = r as _Item;
                   return RepaintBoundary(
                     child: _WordRow(
@@ -392,14 +409,18 @@ class _Chip extends StatelessWidget {
 
 class _LessonHeader extends StatelessWidget {
   final _Header h;
-  const _LessonHeader(this.h);
+  final VoidCallback onTap;
+  const _LessonHeader(this.h, {required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final c = _palette[h.lesson % _palette.length];
     final title = h.lesson < lessonTitles.length ? lessonTitles[h.lesson] : 'Ders';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 14, 2, 10),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+      padding: const EdgeInsets.fromLTRB(2, 10, 2, 10),
       child: Row(
         children: [
           Container(
@@ -435,7 +456,14 @@ class _LessonHeader extends StatelessWidget {
               color: kMuted,
             ),
           ),
+          const SizedBox(width: 4),
+          Icon(
+            h.open ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+            size: 26,
+            color: kMuted,
+          ),
         ],
+      ),
       ),
     );
   }

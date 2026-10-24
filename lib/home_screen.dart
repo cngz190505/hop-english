@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           boxShadow: [
             BoxShadow(
               color: Color(0x141C6BA8),
-              blurRadius: 16,
+              blurRadius: 10,
               offset: Offset(0, -4),
             ),
           ],
@@ -88,7 +88,7 @@ class _HomeTab extends StatelessWidget {
     const side = EdgeInsets.fromLTRB(14, 0, 14, 12);
     return ListView(
       padding: EdgeInsets.zero,
-      cacheExtent: 800,
+      cacheExtent: 2000,
       children: [
         const _HeroWithCard(),
         _TodayLessons(onAll: onLessons),
@@ -104,7 +104,8 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
-const _lightText = [Shadow(color: Color(0x8C0A3C78), blurRadius: 6)];
+// Bulanık (blur) metin gölgesi kaydırırken pahalı: sert, ucuz gölge kullanılır.
+const _lightText = [Shadow(color: Color(0x990A3C78), offset: Offset(0, 2))];
 
 /// Üstte gökyüzü + başlık + maskot; altına taşan Seri/Puan kartı ve "Dersine Başla" butonu.
 class _HeroWithCard extends StatelessWidget {
@@ -121,7 +122,8 @@ class _HeroWithCard extends StatelessWidget {
           left: 0,
           right: 0,
           height: heroH,
-          child: Stack(
+          child: RepaintBoundary(
+            child: Stack(
             clipBehavior: Clip.hardEdge,
             children: [
               const Positioned.fill(
@@ -198,6 +200,7 @@ class _HeroWithCard extends StatelessWidget {
               ),
             ],
           ),
+          ),
         ),
         // Kart hero'nun altına taşar; Stack'in yüksekliğini bu çocuk belirler.
         Padding(
@@ -229,7 +232,7 @@ class _StartCard extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xF2FFFFFF),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: const Color(0xFFE3EEF8), width: 1.5),
             boxShadow: const [
