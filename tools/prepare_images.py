@@ -40,3 +40,9 @@ for src, name, transparent, thresh in FILES:
             ImageDraw.floodfill(img, xy, (0, 0, 0, 0), thresh=thresh)
     img.save(os.path.join(OUT, name + ".png"))
     print("OK:", name)
+    if name == "bg_london":
+        # Ana sayfa gokyuzu bolumu sadece ust kismi gosterir: kirpilmis, opak kopya
+        # (kucuk ve hizli cizilir). Acilis ekrani tam bg_london'u kullanmaya devam eder.
+        img.crop((0, 0, 704, 760)).convert("RGB").save(
+            os.path.join(OUT, "bg_hero.png"))
+        print("OK: bg_hero")
