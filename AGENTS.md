@@ -265,6 +265,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 4 (Hayvanlar) eklendi**: `lesson_data.dart` içinde `lesson4Words` (10 kelime), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında (cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Not: bu görsellerde çocuk önceki derslerden biraz farklı (daha koyu ten ve saç, daha kıvırcık); kullanıcı "nasıl çıkmışsa çıkmış" diyerek kabul etti. Büyük hayvanlı görseller (cow, horse, dog, lion, elephant) daha geniştir; ders kartı yüksekliğe göre ölçeklediği için sorun olmaz. Ders haritasında 4. kart "Sosyal Hayat" yerine "Hayvanlar" oldu. Derlenip denenmedi, APK ile test edilmeli.
 
+- **Ana sayfa "Bugünün Dersleri" kısaltıldı** (`home_screen.dart` `_TodayLessons`): Ders sayısı arttıkça liste uzuyordu. Artık en çok 3 kart gösterilir: sıradaki ders + sonraki ikisi (son derslerde son 3 ders). Tüm dersler "Tümünü Gör" ile Dersler sekmesinde. Animasyon yok, ek paket yok. Derlenip denenmedi, APK ile test edilmeli.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
