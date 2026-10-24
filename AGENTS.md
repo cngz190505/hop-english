@@ -139,6 +139,13 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Tebrikler ekranında kutlama**: `Fx.celebrate()` quiz bitince (`quiz_screen.dart`, sonuç ekranına geçmeden
   hemen önce, olay içinden) çağrılır. `assets/sounds/celebrate.wav` (güçlü fanfar, ~2 sn) çalar, ayrıca
   arka arkaya 6 güçlü titreşim + sonda uzun `vibrate` verir. Animasyon yok, sadece ses ve titreşim.
+- **Ana sayfa görselleri önceden yüklenir** (`welcome_screen.dart`): Videoda "Başlayalım"dan sonra avatar,
+  alev/elmas, ders kartı, hedef ve hediye simgeleri yarım saniye boş gelip sonra beliriyordu.
+  Artık açılış ekranı `precacheImage` ile bunları yükler. Boyutlar `home_screen.dart`'taki `cacheHeight` /
+  `ResizeImage` değerleriyle AYNI kalmalı (66, 360, 200, 150, 120, avatar width 144). Home'da bir
+  görselin boyutu değişirse welcome_screen.dart'taki listeyi de güncelle.
+- Açılışta ~2 sn siyah ekran var: Android'in kendi başlatma ekranı, Flutter kodundan değil. Düzeltmek için
+  `.github/workflows/build.yml`'e launch arka plan rengi yaması gerekir (henüz yapılmadı).
 - Bu değişiklikler Flutter ile derlenip denenmedi, APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
