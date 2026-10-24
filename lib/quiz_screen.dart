@@ -3,6 +3,7 @@ import 'app_state.dart';
 import 'fx.dart';
 import 'lesson_data.dart';
 import 'lesson_screen.dart';
+import 'quiz_extra.dart';
 import 'result_screen.dart';
 import 'speech.dart';
 import 'theme.dart';
@@ -24,30 +25,68 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> {
   late final List<QuizQuestion> _qs = buildQuiz(widget.words);
   int _i = 0;
-  int? _sel;
+  int? _sel; // seçmeli sorularda seçilen şık
+  String? _answer; // harf dizmede oluşturulan kelime (tamamlanmadıysa null)
   bool _checked = false;
+  bool _matchRight = false; // eşleştirmede hiç hata yapılmadı mı
   int _correct = 0;
   final StudyTimer _timer = StudyTimer();
-  final List<String> _missedWords = [];
-  final List<String> _rightWords = [];
+  final Set<String> _missedWords = {};
+  final Set<String> _rightWords = {};
 
   QuizQuestion get _q => _qs[_i];
-  bool get _isRight => _sel == _q.correct;
+  bool get _isRight {
+    switch (_q.type) {
+      case QType.match:
+        return _matchRight;
+      case QType.scramble:
+        return _answer?.toLowerCase() == _q.word.en.toLowerCase();
+      default:
+        return _sel == _q.correct;
+    }
+  }
+
+  /// Kontrol Et'e basılabilir mi? (Eşleştirmede buton yok, bitince kendiliğinden kontrol olur.)
+  bool get _canCheck {
+    switch (_q.type) {
+      case QType.match:
+        return false;
+      case QType.scramble:
+        return _answer != null;
+      default:
+        return _sel != null;
+    }
+  }
+
+  void _record(Iterable<String> right, Iterable<String> missed, bool ok) {
+    _rightWords.addAll(right);
+    _missedWords.addAll(missed);
+    if (ok) _correct++;
+  }
 
   void _check() {
-    if (_sel == null) return;
+    if (!_canCheck) return;
     _timer.tap();
+    final ok = _isRight;
     setState(() {
       _checked = true;
-      if (_isRight) {
-        _correct++;
-        _rightWords.add(_q.word.en);
-      } else {
-        _missedWords.add(_q.word.en);
-      }
+      _record(ok ? [_q.word.en] : [], ok ? [] : [_q.word.en], ok);
     });
-    _isRight ? Fx.right() : Fx.wrong();
+    ok ? Fx.right() : Fx.wrong();
     Speech.speak(_q.word.en);
+  }
+
+  void _onMatchDone(Set<String> missed) {
+    if (!mounted || _checked) return;
+    _timer.tap();
+    final all = [for (final w in _q.pairs) w.en];
+    final ok = missed.isEmpty;
+    setState(() {
+      _checked = true;
+      _matchRight = ok;
+      _record(all.where((w) => !missed.contains(w)), missed, ok);
+    });
+    if (ok) Fx.right();
   }
 
   void _next() {
@@ -57,13 +96,16 @@ class _QuizScreenState extends State<QuizScreen> {
       setState(() {
         _i++;
         _sel = null;
+        _answer = null;
         _checked = false;
+        _matchRight = false;
       });
     } else {
+      // Bir kelime bir soruda yanlış, başka soruda doğruysa "zor" kalır.
       final reward = AppState.instance.completeLesson(
         widget.lessonIndex,
-        missed: _missedWords,
-        correct: _rightWords,
+        missed: _missedWords.toList(),
+        correct: _rightWords.difference(_missedWords).toList(),
       );
       Fx.celebrate();
       Navigator.of(context).pushReplacement(
@@ -128,7 +170,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _q.isPicture ? 'Doğru görseli seç' : 'Doğru cevabı seç',
+                      _title,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -136,7 +178,49 @@ class _QuizScreenState extends State<QuizScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    if (_q.isPicture) ...[
+                    if (_q.type == QType.match)
+                      MatchQuestion(
+                        key: ValueKey(_i),
+                        pairs: _q.pairs,
+                        onDone: _onMatchDone,
+                      )
+                    else if (_q.type == QType.scramble) ...[
+                      MascotBubble(
+                        text: _q.word.tr,
+                        image: _q.word.imagePath,
+                        height: 170,
+                        imageCacheHeight: 510,
+                      ),
+                      const SizedBox(height: 24),
+                      ScrambleQuestion(
+                        key: ValueKey(_i),
+                        letters: _q.letters,
+                        locked: _checked,
+                        right: _checked ? _isRight : null,
+                        onChanged: (a) => setState(() => _answer = a),
+                      ),
+                    ] else if (_q.type == QType.listen) ...[
+                      ListenBig(key: ValueKey(_i), word: _q.word.en),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Türkçesi hangisi?',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: kInk,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      for (var k = 0; k < _q.options.length; k++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _Option(
+                            text: _q.options[k],
+                            state: _stateOf(k),
+                            onTap: _checked ? null : () => setState(() => _sel = k),
+                          ),
+                        ),
+                    ] else if (_q.isPicture) ...[
                       _ListenWord(word: _q.word.en),
                       const SizedBox(height: 16),
                       for (var r = 0; r < 2; r++)
@@ -206,7 +290,11 @@ class _QuizScreenState extends State<QuizScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            _isRight ? 'Harika!' : 'Doğrusu: ${_q.word.en}',
+                            _isRight
+                                ? 'Harika!'
+                                : (_q.type == QType.match
+                                    ? 'Bazı eşleşmeler yanlıştı'
+                                    : 'Doğrusu: ${_q.answerText}'),
                             style: TextStyle(
                               fontSize: 19,
                               fontWeight: FontWeight.w900,
@@ -228,6 +316,21 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
+  String get _title {
+    switch (_q.type) {
+      case QType.picture:
+        return 'Doğru görseli seç';
+      case QType.listen:
+        return 'Dinle ve seç';
+      case QType.match:
+        return 'Eşleştir';
+      case QType.scramble:
+        return 'Kelimeyi oluştur';
+      case QType.text:
+        return 'Doğru cevabı seç';
+    }
+  }
+
   Widget _button() {
     if (_checked) {
       return ChunkyButton(
@@ -237,9 +340,9 @@ class _QuizScreenState extends State<QuizScreen> {
         onPressed: _next,
       );
     }
-    if (_sel == null) {
+    if (!_canCheck) {
       return ChunkyButton(
-        text: 'Kontrol Et',
+        text: _q.type == QType.match ? 'Çiftleri eşleştir' : 'Kontrol Et',
         color: kTrack,
         shadowColor: kLocked,
         textColor: kLockedDark,

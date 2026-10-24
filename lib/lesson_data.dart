@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// Ders içerikleri. Yeni kelime/ders eklemek için sadece bu dosyayı düzenle.
 class Word {
   final String en; // İngilizce
@@ -180,40 +182,110 @@ const lessonsContent = [lesson1Words, lesson2Words];
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
 const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma'];
 
-/// Quiz sorusu: Türkçesi gösterilir, doğru İngilizce karşılığı seçilir.
-class QuizQuestion {
-  final Word word;
-  final List<String> options;
-  final int correct; // doğru şıkkın sırası
-  /// Doluysa "Doğru görseli seç" sorusudur: İngilizcesi gösterilir, 4 görselden biri seçilir.
-  final List<Word> pictures;
-  const QuizQuestion(this.word, this.options, this.correct,
-      {this.pictures = const []});
-  bool get isPicture => pictures.isNotEmpty;
+/// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
+enum QType {
+  text, // Türkçesi gösterilir, İngilizce şık seçilir
+  picture, // İngilizcesi gösterilir, 4 görselden biri seçilir
+  listen, // Kelime sesli okunur, Türkçesi seçilir
+  match, // 5 İngilizce kelime 5 Türkçe karşılığıyla eşleştirilir
+  scramble, // Karışık harflerden kelime oluşturulur
 }
 
-/// Her kelime için 1 soru üretir. Yanlış şıklar diğer kelimelerden gelir.
-/// Doğru şıkkın yeri sırayla değişir (rastgelelik yok, hep aynı sonuç).
+/// Quiz sorusu.
+class QuizQuestion {
+  final QType type;
+  final Word word; // sorunun kelimesi (eşleştirmede ilk kelime)
+  final List<String> options; // şıklar (text, picture, listen)
+  final int correct; // doğru şıkkın sırası
+  final List<Word> pictures; // picture: 4 görsel
+  final List<Word> pairs; // match: eşleştirilecek kelimeler
+  final List<String> letters; // scramble: karışık harfler
+  const QuizQuestion({
+    required this.type,
+    required this.word,
+    this.options = const [],
+    this.correct = 0,
+    this.pictures = const [],
+    this.pairs = const [],
+    this.letters = const [],
+  });
+  bool get isPicture => type == QType.picture;
+
+  /// Cevap kutusunda "Doğrusu: ..." olarak gösterilen metin.
+  String get answerText => type == QType.listen ? '${word.en} (${word.tr})' : word.en;
+}
+
+/// Harf dizme sorusu için uygun mu? Tek kelime, sadece harf, 3-9 harf.
+bool canScramble(Word w) =>
+    !w.en.contains(RegExp(r'[^a-zA-Z]')) && w.en.length >= 3 && w.en.length <= 9;
+
+List<String> _scrambleLetters(String s, int seed) {
+  final chars = s.split('');
+  final r = Random(seed);
+  for (var t = 0; t < 8; t++) {
+    chars.shuffle(r);
+    if (chars.join() != s) return chars;
+  }
+  return chars.reversed.toList();
+}
+
+/// Dersin sorularını üretir. Rastgelelik sabit tohumlu: her seferinde aynı sonuç.
+/// Her kelime için 1 soru: sırayla Dinle ve seç, Görseli seç, Doğru cevabı seç,
+/// Harf dizme (kelime uygun değilse Doğru cevabı seç). Sonra her 5 kelime için
+/// 1 Eşleştirme sorusu eklenir (ikisi varsa biri ortaya, biri sona).
 List<QuizQuestion> buildQuiz(List<Word> words) {
   final n = words.length;
-  return [
-    for (var i = 0; i < n; i++)
-      () {
-        // Tek numaralı sorular görselli (4 kelime olmalı), diğerleri yazılı.
-        if (i.isOdd && n >= 4) {
-          final pos = i % 4;
-          final pics = [
-            words[(i + 1) % n],
-            words[(i + 2) % n],
-            words[(i + 4) % n],
-          ]..insert(pos, words[i]);
-          return QuizQuestion(words[i], [for (final w in pics) w.en], pos,
-              pictures: pics);
-        }
-        final pos = i % 3;
-        final options = [words[(i + 1) % n].en, words[(i + 3) % n].en]
-          ..insert(pos, words[i].en);
-        return QuizQuestion(words[i], options, pos);
-      }(),
-  ];
+  final single = <QuizQuestion>[];
+  for (var i = 0; i < n; i++) {
+    final w = words[i];
+    var kind = const [QType.listen, QType.picture, QType.text, QType.scramble][i % 4];
+    if (kind == QType.picture && n < 4) kind = QType.text;
+    if (kind == QType.scramble && !canScramble(w)) kind = QType.text;
+    switch (kind) {
+      case QType.listen:
+        final others = [for (var k = 1; k < n; k++) words[(i + k) % n]];
+        final lpos = i % 3;
+        final lopts = [others[0].tr, others[others.length > 2 ? 2 : 1].tr]
+          ..insert(lpos, w.tr);
+        single.add(QuizQuestion(
+            type: QType.listen, word: w, options: lopts, correct: lpos));
+      case QType.picture:
+        final ppos = i % 4;
+        final pics = [
+          words[(i + 1) % n],
+          words[(i + 2) % n],
+          words[(i + 4) % n],
+        ]..insert(ppos, w);
+        single.add(QuizQuestion(
+          type: QType.picture,
+          word: w,
+          options: [for (final p in pics) p.en],
+          correct: ppos,
+          pictures: pics,
+        ));
+      case QType.scramble:
+        single.add(QuizQuestion(
+          type: QType.scramble,
+          word: w,
+          letters: _scrambleLetters(w.en, 7 + i),
+        ));
+      default:
+        final dpos = i % 3;
+        final dopts = [words[(i + 1) % n].en, words[(i + 3) % n].en]
+          ..insert(dpos, w.en);
+        single.add(QuizQuestion(
+            type: QType.text, word: w, options: dopts, correct: dpos));
+    }
+  }
+  final matches = <QuizQuestion>[];
+  if (n >= 5) {
+    for (var c = 0; c + 5 <= n; c += 5) {
+      final pairs = words.sublist(c, c + 5);
+      matches.add(QuizQuestion(type: QType.match, word: pairs.first, pairs: pairs));
+    }
+  }
+  final out = [...single];
+  if (matches.length > 1) out.insert(single.length ~/ 2, matches.removeAt(0));
+  out.addAll(matches);
+  return out;
 }
