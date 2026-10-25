@@ -107,7 +107,7 @@ Referans tasarıma göre sırayla yapılır. Sırayı bozma, bir önceki bitmede
 9. [x] Tekrar sekmesi (= Kelime Listem)
 
 Akış: Ders (6 kelime) -> Quiz (6 soru) -> Tebrikler -> Ana sayfa.
-1., 2., 3., 4., 5. ve 6. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
+1., 2., 3., 4., 5., 6. ve 7. ders içeriği var, diğer dersler kilitli. Yeni ders içeriği `lesson_data.dart`'a eklenir.
 Puan/elmas/seri/ilerleme/zor kelimeler `shared_preferences` ile telefona kaydedilir (`AppState.load/_save`).
 Seri: dünden önce son ders yapıldıysa açılışta sıfırlanır.
 Quizde yanlış yapılan kelimeler "Zor" listesine düşer, sonra doğru bilinirse çıkar.
@@ -277,9 +277,12 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 5 (Renkler) eklendi**: `lesson_data.dart` içinde `lesson5Words` (10 kelime), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında (red, blue, green, yellow, black, white, pink, purple, brown, gray; saydam PNG, 380 px yükseklik). Meyveler gibi ÇOCUKSUZ, sadece nesne (kullanıcı istedi, Bölüm 8 istisnası): red=kalp, blue=balon, green=yaprak, yellow=güneş, black=şapka, white=bulut, pink=lolipop, purple=lavanta, brown=çikolata, gray=taş. Nesneler önceki derslerle karışmasın diye bilerek farklı seçildi (elma, muz, üzüm vb. kullanılmadı). Ders haritasında 5. kart "Alışveriş" yerine "Renkler" oldu (`lesson_map_screen.dart`). Her kelime örnek cümlede tam bir kez geçer. Görseller tek bir Gemini sayfasından kesilip arka planı silindi. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 5 bitince "Tekrar dersi yapalım mı?" diye sor.
 
-- **Kontrol ve plan güncellemesi** (kullanıcı istedi): Ders 1-5 kontrol edildi: her kelimenin `assets/words/<kelime>.png` dosyası var, her örnek cümlede kelime tam bir kez geçiyor, kelime tekrarı yok, `lessonsContent` ile `lessonTitles` aynı sırada (5 ders), `pubspec.yaml` `assets/words/` tanımlı. Ders haritasında `_lessons` listesi ve `_lessonsCount` (`lesson_map_screen.dart`) elle yazılıdır, `lessonsContent.length`'ten GELMEZ: yeni ders eklenince ikisi de güncellenir (Bölüm 11-B7'deki "otomatik" notu sadece `_playableLessons` için doğru). Kullanıcı Ders 4'ü test edip onayladı. Çalışma düzeni: kullanıcı bir dersi telefonda test ederken Claude sıradaki dersin kelime ve görsel prompt'larını paralel hazırlar (bekleme yok); yine de ders koda, önceki dersin onayı gelince eklenir. Sayılar dersi (Ders 6) müfredata eklendi, Araçlar ve sonrası bir sıra kaydı. ÖNERİ (kullanıcı onayı bekliyor, uygulanmadı): Aile ve Vücut'tan sonra Günlük İfadeler dersini öne alma ve her 2-3 dersten sonra "cümle kurma" dersi ekleme ("I like ___" kalıpları), çünkü kelimeler cümleye dönmezse çocuk kullanmayı öğrenemez.
+- **Kontrol ve plan güncellemesi** (kullanıcı istedi): Ders 1-5 kontrol edildi: her kelimenin `assets/words/<kelime>.png` dosyası var, her örnek cümlede kelime tam bir kez geçiyor, kelime tekrarı yok, `lessonsContent` ile `lessonTitles` aynı sırada (5 ders), `pubspec.yaml` `assets/words/` tanımlı. Ders haritasında `_lessons` listesi ve `_lessonsCount` (`lesson_map_screen.dart`) elle yazılıdır, `lessonsContent.length`'ten GELMEZ: yeni ders eklenince ikisi de güncellenir (Bölüm 11-B7'deki "otomatik" notu sadece `_playableLessons` için doğru). Kullanıcı Ders 4'ü test edip onayladı. Çalışma düzeni: kullanıcı bir dersi telefonda test ederken Claude sıradaki dersin kelime ve görsel prompt'larını paralel hazırlar (bekleme yok); yine de ders koda, önceki dersin onayı gelince eklenir. Sayılar dersi (Ders 6) müfredata eklendi, Araçlar ve sonrası bir sıra kaydı. KARAR (kullanıcı istedi, Bölüm 13): her 2-3 kelime dersinden sonra "cümle kurma" dersi eklenir. Günlük İfadeler'i öne alma önerisi henüz onaylanmadı. Eski öneri metni:  Aile ve Vücut'tan sonra Günlük İfadeler dersini öne alma ve her 2-3 dersten sonra "cümle kurma" dersi ekleme ("I like ___" kalıpları), çünkü kelimeler cümleye dönmezse çocuk kullanmayı öğrenemez.
 
 - **Ders 6 (Sayılar) eklendi**: `lesson_data.dart` içinde `lesson6Words` (one ... ten), `lessonsContent` ve `lessonTitles` listelerine eklendi. Görseller `assets/words/` altında `one.png` ... `ten.png` (saydam PNG, 380 px yükseklik): büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz. Gemini'nin ürettiği 7'de 6, 9'da 8 yıldız vardı; yıldızlar koddan düzeltildi (7 = 4+3, 9 = 5+4), 1-10 yıldız sayıları tek tek sayıldı. Tüm görseller aynı ölçekte ve üstten hizalı, rakamlar eşit büyüklükte görünür. Ders haritasına 6. kart eklendi (`_lessons`: Sayılar, fx 0.64 / fy 0.24, turkuaz renk) ve `_lessonsCount` 6 yapıldı. Kart konumu ekranda denenmedi: haritada yolun dışına düşerse sadece `fx/fy` sayıları değiştirilir. Her örnek cümlede kelime tam bir kez geçer. Derlenip denenmedi, APK ile test edilmeli.
+
+- **Ders 7 (Cümle Kurma 1) eklendi** (kullanıcı cümle listesini ve akışı onayladı): 10 cümle, yeni kelime ve yeni görsel yok (Ders 3-6 kelimeleri, mevcut `assets/words/` görselleri): I like apples. / I have two ducks. / The lion is yellow. / I see three fish. / I like red cherries. / The rabbit is white. / I have four lemons. / I see a green pear. / The horse is black. / I eat six grapes. Teknik tasarım: cümle dersi de `lessonsContent` içinde bir `Word` listesidir (`lesson7Words`), böylece ders haritası, ilerleme ve kaldığı yer kaydı aynen çalışır. `Word`a iki isteğe bağlı alan eklendi: `blank` (Boşluğu doldur'da gizlenen kelime, dolu olması dersin cümle dersi olduğunu gösterir: `Word.isSentence`) ve `image` (görsel dosya adı). Cümlede `en` = cümle, `tr` = Türkçesi, `example` = cümlenin kendisi. Sorular (`_buildSentenceQuiz`, 20 soru): her cümle için 1 tanıma sorusu (Dinle ve seç = Türkçesini seç / Boşluğu doldur / Doğru cevabı seç döngüsü) + her cümle için Cümleyi oluştur (parça dizme). Görselli, eşleştirme ve yazma sorusu yok. Cümleler `sentenceKeys` ile ayrılır ve şuralara GİRMEZ: Kelime Listem (`word_list_screen.dart`), zor listesi ve hakimiyet yıldızı (`app_state.dart`), tekrar dersi havuzu ve günün kelimesi (`learnedWords`). Ders ekranında cümle kartında yazı 30 punto ve alttaki örnek cümle kutusu gösterilmez. Ders sonu özetinde "cümle" yazar. Değişen dosyalar: lesson_data, app_state, lesson_screen, quiz_screen, result_screen, word_list_screen, home_screen, lesson_map_screen. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi ve veri tutarlılığı elle kontrol edildi), APK ile test edilmeli.
+- **UYARI, ders haritası kapasitesi**: `bg_map.png` tek ekranlık sabit bir resim, yol ve kasaba yaklaşık 6 kartlık yer sunuyor. 7. kart (fx 0.40 / fy 0.12) yolun bittiği gökyüzü bölgesine düşer. Ders 8'den itibaren harita uzatılmalı ya da kartlar liste görünümüne alınmalı. Bu büyük bir değişiklik, kullanıcıyla konuşmadan yapılmaz.
 
 ## 7. Durum yönetimi kuralı
 
@@ -312,7 +315,7 @@ Kurallar:
 - 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 - Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
 - Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
-- Ders haritası şu an 6 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar).
+- Ders haritası şu an 7 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar, Cümle Kurma 1).
   Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
 
 Her ders için 4 adım:
@@ -329,17 +332,20 @@ Durum (tamamlanınca [x] yap):
 4. [x] Hayvanlar (10 kelime: cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Kullanıcı test etti, onayladı.
 5. [~] Renkler (10 kelime: red, blue, green, yellow, black, white, pink, purple, brown, gray). Görseller çocuksuz nesne: kalp, balon, yaprak, güneş, şapka, bulut, lolipop, lavanta, çikolata, taş. Kod eklendi, kullanıcı testi bekleniyor.
 6. [~] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kod eklendi, kullanıcı testi bekleniyor.
-7. [ ] Araçlar
-8. [ ] Aile
-9. [ ] Vücut
-10. [ ] Günlük İfadeler
-11. [ ] Alışveriş
+7. [~] Cümle Kurma 1 (kod eklendi, kullanıcı testi bekleniyor; yeni kelime YOK; Ders 3-6 kelimeleriyle "I have ___", "I like ___", "The ___ is ___" kalıpları, Bölüm 13)
+8. [ ] Araçlar
+9. [ ] Aile
+10. [ ] Vücut
+11. [ ] Cümle Kurma 2 (Ders 7-10 kelimeleriyle, Bölüm 13)
+12. [ ] Günlük İfadeler
+13. [ ] Alışveriş
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 4: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 5: kelimeler [x] görseller [x] kod [x] test [ ]
 Ders 6: kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 7 (Cümle Kurma 1): cümleler [x] görseller [x] (mevcut) kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
@@ -362,7 +368,7 @@ Proje sahibinin kesin isteği. İzin almadan çıkarma, esnetme, değiştirme. A
   tüm renk/buton `theme.dart`'tan gelir.
 - Kelime hakimiyeti: her kelimenin 3 yıldızı var, 3 yıldız = "Öğrenildi". Ders sonunda özet kartı çıkar.
   Ana sayfada "Günün kelimesi" kartı durur. Bunlar kalkmaz.
-- Sıradaki işler (sırayla): cümle kurma, rozetler, yavaş okuma butonu. Bildirim hatırlatması ve konuşma (mikrofon)
+- Sıradaki işler (sırayla): cümle kurma dersleri (Bölüm 13), rozetler, yavaş okuma butonu (yavaş okuma yapıldı). Bildirim hatırlatması ve konuşma (mikrofon)
   paket gerektirir, önce kullanıcıya sor.
 
 - **Ders uzunluğu kararı**: Kullanıcı 22 soruluk dersi olduğu gibi bıraktı. Telefonda test edilip çocuk için çok uzun
@@ -413,3 +419,17 @@ Proje sahibinin kesin isteği. İzin almadan değiştirme.
 - Yeni ders eklenince de aynı kural geçerli: kelimeler kapalı gelir. Başlık `lessonTitles`'tan okunur.
 
 - **Impeller KAPALI kalmalı (KALICI, kaldırma)** (`tools/patch_android.py` bölüm 5): Ana sayfada yukarı aşağı kaydırırken/yaylanırken kare aralıkları düzensiz olup titreme oluyordu (performans ölçerde kare süreleri 16 ms altındaydı, hero tamamen kapalıyken de sürdü). Sebep Android'de varsayılan Impeller (Vulkan) çıktı: manifest'e `io.flutter.embedding.android.EnableImpeller=false` eklenince (Skia) titreme tamamen geçti, APK'da doğrulandı. Bu bölümü silme, silinirse titreme geri gelir. Yaylanmalı kaydırma (`BouncingScrollPhysics`) aynen duruyor.
+
+## 13. Cümle kurma dersleri (KESİN KURAL, kullanıcı istedi)
+
+Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sadece kelime veren uygulama olmayacağız.
+
+- **Sıklık:** Her 2-3 kelime dersinden sonra 1 cümle kurma dersi konur (müfredat sırası Bölüm 9'da). İlki Ders 6 (Sayılar) sonrası: "Cümle Kurma 1".
+- **Yeni kelime YOK.** Sadece önceki derslerde öğrenilmiş kelimeler kullanılır. Bu yüzden yeni kelime görseli gerekmez, mevcut `assets/words/` görselleri kullanılır (Bölüm 8 bozulmaz). "1 ders = 10 kelime" kuralı bu dersler için geçerli değildir.
+- **Kalıplar:** "I have ___", "I like ___", "I see ___", "The ___ is ___" (örn. "The cat is black.", "I have two cats."). Kalıp başına kısa, kolay cümleler, çok uzun cümle yok (en çok 5-6 kelime).
+- **Soru tipi:** Önce mevcut yapılar kullanılır: cümle tamamlama (`QType.sentence`) ve parça dizme (`scrambleTiles`, kelime parçalarıyla cümle kurma). Yeni soru tipi gerekirse önce kullanıcıya sor ve Bölüm 10'a ekle.
+- **Kurallar aynen geçerli:** animasyon yok, ek paket yok, `setState` küçük, renk/buton `theme.dart`'tan (Bölüm 1, 2).
+- **Uygulama (yapıldı, Ders 7):** `Word.blank` dolu = cümle dersi, `Word.image` = görsel adı, `buildQuiz` cümle dersini `_buildSentenceQuiz`'e yönlendirir. Yeni cümle dersi eklerken sadece `lessonNWords` listesi + `lessonsContent` + `lessonTitles` + harita kartı gerekir.
+- **İçerik:** Cümleler `lesson_data.dart`'a yeni bir ders olarak eklenir (`lessonsContent` ve `lessonTitles` aynı sırada), ders haritasında kendi kartı olur (`_lessons` ve `_lessonsCount` elle güncellenir, Bölüm 6.1 kontrol notu).
+- **Başlamadan önce:** Claude cümle listesini ve soru akışını kullanıcıya gösterir, onay alır, sonra koda ekler. Onaysız kod yazma.
+- Ders sayısı arttıkça kullanıcıya "Tekrar dersi yapalım mı?" hatırlatması da yapılır (Bölüm 11-C9).
