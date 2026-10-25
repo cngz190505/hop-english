@@ -60,6 +60,15 @@ class LessonMapTab extends StatelessWidget {
   Widget _content(BuildContext context, double top) {
     return Stack(
       children: [
+        // Haritanın üstündeki boşluk gökyüzü, altındaki ve esneme payı orman rengiyle dolsun.
+        const Positioned.fill(
+          child: Column(
+            children: [
+              Expanded(child: ColoredBox(color: Color(0xFF3BA4EB))),
+              Expanded(child: ColoredBox(color: Color(0xFF365529))),
+            ],
+          ),
+        ),
         Positioned.fill(
           child: LayoutBuilder(
             builder: (context, c) {
@@ -68,24 +77,27 @@ class LessonMapTab extends StatelessWidget {
               return SingleChildScrollView(
                 // Harita en alttan (1. dersten) başlar, yukarı doğru ilerler.
                 reverse: true,
-                padding: const EdgeInsets.only(bottom: 96),
-                child: SizedBox(
-                  width: w,
-                  height: h,
-                  child: Stack(
-                    children: [
-                      const Positioned.fill(
-                        child: RepaintBoundary(
+                // Üstte başlık kartı (Header) kadar boşluk: en üstteki kart başlığın altında kalmasın.
+                padding: EdgeInsets.only(top: top + 100, bottom: 96),
+                // Tüm harita (resim + kartlar) tek katman: kaydırırken sadece kayar,
+                // kartlar ve gölgeleri her karede yeniden çizilmez.
+                child: RepaintBoundary(
+                  child: SizedBox(
+                    width: w,
+                    height: h,
+                    child: Stack(
+                      children: [
+                        const Positioned.fill(
                           child: Image(
                             image: AssetImage('assets/ready/bg_map.png'),
                             fit: BoxFit.fill,
                             gaplessPlayback: true,
                           ),
                         ),
-                      ),
-                      for (var i = 0; i < _lessons.length; i++)
-                        ..._buildLesson(context, i, w, h),
-                    ],
+                        for (var i = 0; i < _lessons.length; i++)
+                          ..._buildLesson(context, i, w, h),
+                      ],
+                    ),
                   ),
                 ),
               );
