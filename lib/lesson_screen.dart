@@ -172,8 +172,8 @@ class _WordCard extends StatelessWidget {
           Text(
             word.en,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 46,
+            style: TextStyle(
+              fontSize: word.isSentence ? 30 : 46,
               height: 1.1,
               fontWeight: FontWeight.w900,
               color: kInk,
@@ -279,9 +279,11 @@ class _WordCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          // 6) Örnek cümle: tek satır kutu, dokununca okunur.
-          _Sentence(word: word),
+          // 6) Örnek cümle: tek satır kutu, dokununca okunur (cümle derslerinde gösterilmez).
+          if (!word.isSentence) ...[
+            const SizedBox(height: 14),
+            _Sentence(word: word),
+          ],
         ],
       ),
     );

@@ -9,6 +9,8 @@ class Word {
   final String example; // İngilizce örnek cümle
   final String exampleTr; // Örnek cümlenin Türkçesi
   final String emoji; // Kelime listesindeki simge
+  final String blank; // Sadece cümle derslerinde: Boşluğu doldur sorusunda gizlenen kelime
+  final String image; // Sadece cümle derslerinde: görsel dosya adı (assets/words/<image>.png)
   const Word({
     required this.en,
     required this.tr,
@@ -17,11 +19,18 @@ class Word {
     required this.example,
     required this.exampleTr,
     required this.emoji,
+    this.blank = '',
+    this.image = '',
   });
+
+  /// Cümle dersindeki cümle mi? (kelime listesine, zor/hakimiyet kaydına girmez, Bölüm 13)
+  bool get isSentence => blank.isNotEmpty;
 
   /// Kelimenin resmi: assets/words/<kelime>.png (boşluksuz, küçük harf), örn. thankyou.png.
   /// Resim dosyası yoksa quizde emoji gösterilir.
-  String get imagePath => 'assets/words/${en.replaceAll(' ', '').toLowerCase()}.png';
+  String get imagePath => image.isNotEmpty
+      ? 'assets/words/$image.png'
+      : 'assets/words/${en.replaceAll(' ', '').toLowerCase()}.png';
 }
 
 /// 1. ders: Selamlaşma (6 kelime)
@@ -552,11 +561,134 @@ const lesson6Words = [
   ),
 ];
 
+/// 7. ders: Cümle Kurma 1 (yeni kelime YOK, Ders 3-6 kelimeleriyle 10 cümle; Bölüm 13).
+/// `en` = cümle, `tr` = Türkçesi, `blank` = Boşluğu doldur sorusunda gizlenen kelime,
+/// `image` = cümlenin görseli (assets/words/<image>.png, mevcut dosyalar).
+const lesson7Words = [
+  Word(
+    en: 'I like apples.',
+    tr: 'Elma severim.',
+    phonetic: '',
+    say: 'ay layk eplz',
+    example: 'I like apples.',
+    exampleTr: 'Elma severim.',
+    emoji: '🍎',
+    blank: 'apples',
+    image: 'apple',
+  ),
+  Word(
+    en: 'I have two ducks.',
+    tr: 'İki ördeğim var.',
+    phonetic: '',
+    say: 'ay hev tuu daks',
+    example: 'I have two ducks.',
+    exampleTr: 'İki ördeğim var.',
+    emoji: '🦆',
+    blank: 'two',
+    image: 'duck',
+  ),
+  Word(
+    en: 'The lion is yellow.',
+    tr: 'Aslan sarı.',
+    phonetic: '',
+    say: 'dı layın iz yelou',
+    example: 'The lion is yellow.',
+    exampleTr: 'Aslan sarı.',
+    emoji: '🦁',
+    blank: 'yellow',
+    image: 'lion',
+  ),
+  Word(
+    en: 'I see three fish.',
+    tr: 'Üç balık görüyorum.',
+    phonetic: '',
+    say: 'ay sii srii fiş',
+    example: 'I see three fish.',
+    exampleTr: 'Üç balık görüyorum.',
+    emoji: '🐟',
+    blank: 'fish',
+    image: 'fish',
+  ),
+  Word(
+    en: 'I like red cherries.',
+    tr: 'Kırmızı kiraz severim.',
+    phonetic: '',
+    say: 'ay layk red çeriz',
+    example: 'I like red cherries.',
+    exampleTr: 'Kırmızı kiraz severim.',
+    emoji: '🍒',
+    blank: 'red',
+    image: 'cherry',
+  ),
+  Word(
+    en: 'The rabbit is white.',
+    tr: 'Tavşan beyaz.',
+    phonetic: '',
+    say: 'dı rebit iz wayt',
+    example: 'The rabbit is white.',
+    exampleTr: 'Tavşan beyaz.',
+    emoji: '🐰',
+    blank: 'rabbit',
+    image: 'rabbit',
+  ),
+  Word(
+    en: 'I have four lemons.',
+    tr: 'Dört limonum var.',
+    phonetic: '',
+    say: 'ay hev for lemınz',
+    example: 'I have four lemons.',
+    exampleTr: 'Dört limonum var.',
+    emoji: '🍋',
+    blank: 'four',
+    image: 'lemon',
+  ),
+  Word(
+    en: 'I see a green pear.',
+    tr: 'Yeşil bir armut görüyorum.',
+    phonetic: '',
+    say: 'ay sii ey griin per',
+    example: 'I see a green pear.',
+    exampleTr: 'Yeşil bir armut görüyorum.',
+    emoji: '🍐',
+    blank: 'pear',
+    image: 'pear',
+  ),
+  Word(
+    en: 'The horse is black.',
+    tr: 'At siyah.',
+    phonetic: '',
+    say: 'dı hors iz blek',
+    example: 'The horse is black.',
+    exampleTr: 'At siyah.',
+    emoji: '🐴',
+    blank: 'horse',
+    image: 'horse',
+  ),
+  Word(
+    en: 'I eat six grapes.',
+    tr: 'Altı üzüm yerim.',
+    phonetic: '',
+    say: 'ay iit siks greyps',
+    example: 'I eat six grapes.',
+    exampleTr: 'Altı üzüm yerim.',
+    emoji: '🍇',
+    blank: 'six',
+    image: 'grapes',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Cümle Kurma 1'];
+
+/// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
+final Set<String> sentenceKeys = {
+  for (final l in lessonsContent)
+    for (final w in l)
+      if (w.isSentence) w.en,
+};
 
 /// Soru tipleri. Yeni tip eklenirse quiz_screen.dart içindeki switch'lere de eklenir.
 enum QType {
@@ -630,11 +762,14 @@ List<Word> pickReviewWords(List<Word> learned, Set<String> hard) {
 /// Cümle tamamlama için: örnek cümlede kelime TAM BİR kez geçiyorsa, o yer "_____" olur.
 /// Uygun değilse (kelime geçmiyor ya da birden çok geçiyor) null.
 String? blankSentence(Word w) {
-  final re = RegExp('(?<![A-Za-z])${RegExp.escape(w.en)}(?![A-Za-z])',
+  // Cümle dersinde cümlenin kendisi (en) içinden `blank` kelimesi gizlenir.
+  final target = w.isSentence ? w.blank : w.en;
+  final text = w.isSentence ? w.en : w.example;
+  final re = RegExp('(?<![A-Za-z])${RegExp.escape(target)}(?![A-Za-z])',
       caseSensitive: false);
-  final ms = re.allMatches(w.example).toList();
+  final ms = re.allMatches(text).toList();
   if (ms.length != 1) return null;
-  return w.example.replaceRange(ms.first.start, ms.first.end, '_____');
+  return text.replaceRange(ms.first.start, ms.first.end, '_____');
 }
 
 /// Günün kelimesi: tarihe göre listeden seçilir, gün içinde hep aynıdır.
@@ -676,6 +811,7 @@ List<String> _shuffleTiles(Word w, int seed) {
 /// Doğru cevabı seç döngüsü), 2) Eşleştirme, 3) HER kelime için Harf dizme, 4) 2. Eşleştirme.
 /// Eşleştirme: 5+ kelimede 1, 6+ kelimede 2 tane (ilk 5 ve son 5 kelime).
 List<QuizQuestion> buildQuiz(List<Word> words) {
+  if (words.isNotEmpty && words.first.isSentence) return _buildSentenceQuiz(words);
   final n = words.length;
   final single = <QuizQuestion>[];
   for (var i = 0; i < n; i++) {
@@ -757,5 +893,47 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
   out.addAll(scrambles);
   out.addAll(typings);
   if (matches.length > 1) out.add(matches.last);
+  return out;
+}
+
+/// Cümle dersinin soruları (Bölüm 13). Her cümle için 1 tanıma sorusu (Dinle ve seç = Türkçesini seç,
+/// Boşluğu doldur, Doğru cevabı seç döngüsü), sonra HER cümle için Cümleyi oluştur (parça dizme).
+/// 10 cümle = 20 soru. Görselli, eşleştirme ve yazma sorusu yok. Sabit tohum, her seferinde aynı sonuç.
+List<QuizQuestion> _buildSentenceQuiz(List<Word> words) {
+  final n = words.length;
+  final out = <QuizQuestion>[];
+  for (var i = 0; i < n; i++) {
+    final w = words[i];
+    var kind = const [QType.listen, QType.sentence, QType.text][i % 3];
+    if (kind == QType.sentence && blankSentence(w) == null) kind = QType.text;
+    switch (kind) {
+      case QType.listen:
+        final lpos = i % 3;
+        final lopts = [words[(i + 1) % n].tr, words[(i + 3) % n].tr]..insert(lpos, w.tr);
+        out.add(QuizQuestion(type: QType.listen, word: w, options: lopts, correct: lpos));
+      case QType.sentence:
+        final spos = (i + 2) % 3;
+        final sopts = [words[(i + 1) % n].blank, words[(i + 3) % n].blank]
+          ..insert(spos, w.blank);
+        out.add(QuizQuestion(
+          type: QType.sentence,
+          word: w,
+          options: sopts,
+          correct: spos,
+          sentence: blankSentence(w)!,
+        ));
+      default:
+        final dpos = i % 3;
+        final dopts = [words[(i + 1) % n].en, words[(i + 3) % n].en]..insert(dpos, w.en);
+        out.add(QuizQuestion(type: QType.text, word: w, options: dopts, correct: dpos));
+    }
+  }
+  for (var i = 0; i < n; i++) {
+    out.add(QuizQuestion(
+      type: QType.scramble,
+      word: words[i],
+      letters: _shuffleTiles(words[i], 7 + i),
+    ));
+  }
   return out;
 }

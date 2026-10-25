@@ -293,19 +293,19 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Bu derste ${words.length} kelime çalıştın.',
+            'Bu derste ${words.length} ${words.first.isSentence ? "cümle" : "kelime"} çalıştın.',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: kMuted),
           ),
           const SizedBox(height: 6),
           if (hard.isEmpty)
-            const Text(
-              'Hiç kelime kaçırmadın, harika!',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kGreen),
+            Text(
+              words.first.isSentence ? 'Hiç cümle kaçırmadın, harika!' : 'Hiç kelime kaçırmadın, harika!',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kGreen),
             )
           else ...[
-            const Text(
-              'Zorlandığın kelimeler:',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: kRed),
+            Text(
+              words.first.isSentence ? 'Zorlandığın cümleler:' : 'Zorlandığın kelimeler:',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: kRed),
             ),
             const SizedBox(height: 4),
             for (final w in hard)
@@ -313,11 +313,13 @@ class _SummaryCard extends StatelessWidget {
                 '${w.en} = ${w.tr}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: kInk),
               ),
-            const SizedBox(height: 4),
-            const Text(
-              'Bunlar Tekrar sekmesinde "Zor" listesine eklendi.',
-              style: TextStyle(fontSize: 12, color: kMuted),
-            ),
+            if (!words.first.isSentence) ...[
+              const SizedBox(height: 4),
+              const Text(
+                'Bunlar Tekrar sekmesinde "Zor" listesine eklendi.',
+                style: TextStyle(fontSize: 12, color: kMuted),
+              ),
+            ],
           ],
         ],
       ),

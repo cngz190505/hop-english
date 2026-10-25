@@ -106,6 +106,7 @@ class AppState extends ChangeNotifier {
   /// (doğru - yanlış) -1..+2 ile sınırlanır: bir ders tek başına kelimeyi öğrendirmez.
   void applyMastery(Map<String, int> delta) {
     delta.forEach((en, d) {
+      if (sentenceKeys.contains(en)) return; // cümleler hakimiyete girmez
       mastery[en] = (masteryOf(en) + d.clamp(-1, 2)).clamp(0, maxMastery);
     });
   }
@@ -113,7 +114,7 @@ class AppState extends ChangeNotifier {
   /// Tamamlanan derslerdeki kelimeler.
   List<Word> get learnedWords => [
         for (var i = 0; i < completedLessons && i < lessonsContent.length; i++)
-          ...lessonsContent[i],
+          ...lessonsContent[i].where((w) => !w.isSentence),
       ];
 
   int get level => xp ~/ xpPerLevel + 1;
@@ -207,7 +208,7 @@ class AppState extends ChangeNotifier {
     List<String> missed = const [],
     List<String> correct = const [],
   }) {
-    hardWords.addAll(missed);
+    hardWords.addAll(missed.where((e) => !sentenceKeys.contains(e)));
     hardWords.removeAll(correct);
     xp += reviewXp;
     gems += reviewGems;
@@ -237,7 +238,7 @@ class AppState extends ChangeNotifier {
     if (completedLessons <= index) completedLessons = index + 1;
     resume = null; // ders bitti, kaldığı yer silinir
     _persistResume();
-    hardWords.addAll(missed);
+    hardWords.addAll(missed.where((e) => !sentenceKeys.contains(e)));
     hardWords.removeAll(correct);
     xp += xpReward;
     gems += gemReward;

@@ -34,6 +34,7 @@ final List<_Item> _allItems = () {
   final out = <_Item>[];
   for (final l in lessonsContent) {
     for (final w in l) {
+      if (w.isSentence) continue; // cümle dersleri kelime listesinde yok
       out.add(_Item(w, out.length));
     }
   }
@@ -41,7 +42,8 @@ final List<_Item> _allItems = () {
 }();
 final Map<String, int> _lessonOf = {
   for (var l = 0; l < lessonsContent.length; l++)
-    for (final w in lessonsContent[l]) w.en: l,
+    for (final w in lessonsContent[l])
+      if (!w.isSentence) w.en: l,
 };
 
 /// Kelime Listem: özet kartı, arama, filtre sekmeleri ve derse göre gruplu liste.

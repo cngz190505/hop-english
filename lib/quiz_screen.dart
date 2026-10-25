@@ -596,6 +596,7 @@ class _QuizScreenState extends State<QuizScreen> {
       case QType.match:
         return 'Eşleştir';
       case QType.scramble:
+        if (_q.word.isSentence) return 'Cümleyi oluştur';
         return _q.word.en.contains(' ') ? 'İfadeyi oluştur' : 'Kelimeyi oluştur';
       case QType.sentence:
         return 'Boşluğu doldur';

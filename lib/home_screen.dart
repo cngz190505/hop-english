@@ -539,7 +539,7 @@ String? _resumeText(int idx) {
     final total = (r['total'] is int) ? (r['total'] as int) : 0;
     return total > 0 ? 'Kaldığın yer: Soru ${i + 1}/$total' : 'Kaldığın yerden devam';
   }
-  return 'Kaldığın yer: Kelime ${i + 1}/${lessonsContent[idx].length}';
+  return 'Kaldığın yer: ${lessonsContent[idx].first.isSentence ? "Cümle" : "Kelime"} ${i + 1}/${lessonsContent[idx].length}';
 }
 
 /// Haftalık seri satırı (Pzt-Paz). Seri sayısından hesaplanır.
