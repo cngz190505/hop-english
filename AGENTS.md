@@ -334,7 +334,7 @@ Durum (tamamlanınca [x] yap):
 6. [~] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kod eklendi, kullanıcı testi bekleniyor.
 7. [~] Cümle Kurma 1 (kod eklendi, kullanıcı testi bekleniyor; yeni kelime YOK; Ders 3-6 kelimeleriyle "I have ___", "I like ___", "The ___ is ___" kalıpları, Bölüm 13)
 8. [ ] Araçlar
-9. [ ] Aile
+9. [~] Aile (10 kelime: mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl; görseller hazır, kod 7. derste, kullanıcı testi bekleniyor)
 10. [ ] Vücut
 11. [ ] Cümle Kurma 2 (Ders 7-10 kelimeleriyle, Bölüm 13)
 12. [ ] Günlük İfadeler
@@ -437,3 +437,5 @@ Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sade
 
 - **7. ders (Cümle Kurma 1) silindi** (`lesson_data.dart`, `lesson_map_screen.dart`): Kullanıcı önce kelime öğretmek istedi; cümle kurma, kalıplar iyi planlanınca sonra eklenecek. Harita 6 ders (`_lessonsCount = 6`). Cümle dersi altyapısı (`isSentence`, `blank`, `_buildSentenceQuiz`) kodda duruyor, zararsız.
 - **7. ders Aile eklendi** (`lesson_data.dart`, `lesson_map_screen.dart`): 10 kelime (mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl). Kelime görselleri (`assets/words/<kelime>.png`) henüz yok, quizde emoji görünür. Harita 7 ders.
+
+- **Ders Aile görselleri eklendi** (`assets/words/` mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl; kullanıcı gönderdi, saydam PNG, 420 px yükseklik, arka plan koddan silindi). Eşleşme: boy=yeşil tişörtlü el sallayan erkek çocuk, brother=aynı çocuk ayakta (el sallamıyor), girl=pembe tişörtlü atkuyruklu kız, sister=sarı elbiseli örgülü kız, mother=pembe elbiseli anne, father=sakallı mavi tişörtlü baba, family=beş kişilik aile resmi (410x420). Bu dersin karakterleri önceki derslerden farklı (kullanıcı onayıyla). Derlenip denenmedi.
