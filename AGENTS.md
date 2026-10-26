@@ -3,6 +3,15 @@
 Bu dosyayı kodda herhangi bir değişiklik yapmadan ÖNCE oku.
 Buradaki kurallar proje sahibinin kesin isteğidir. İzin almadan çiftleme, esnetme veya kaldırma.
 
+## 0. KESİN KURAL: Yanlış cevap, doğrusu bilinene kadar tekrar eder
+
+Proje sahibinin kesin isteği, TÜM derslerde ve TÜM soru tiplerinde geçerlidir (kelime, cümle, tekrar dersi, ileride eklenecek yeni ders ve yeni soru tipleri dahil).
+
+- Kullanıcı bir soruda yanlış seçim/cevap yaparsa o kelime sınavın sonuna tekrar sorusu olarak eklenir.
+- Tekrar sorusu da yanlışsa yeniden sona eklenir. Kelime doğru bilinene kadar bu devam eder (`quiz_screen.dart` `_queueRetry`).
+- Yeni soru tipi eklenirse yanlış cevabı da `_queueRetry`'a bağlanmalı. Bağlanmayan soru tipi eklenmez.
+- Tekrar soruları puana ve zor/hakimiyet kaydına sayılmaz.
+
 ## 1. Performans (en önemli kural)
 
 Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
