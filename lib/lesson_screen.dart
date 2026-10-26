@@ -137,13 +137,13 @@ class _LessonScreenState extends State<LessonScreen> {
                 children: [
                   if (_i > 0) ...[
                     SizedBox(
-                      width: 72,
+                      width: 110,
                       child: ChunkyButton(
-                        text: '←',
+                        text: '←  Geri',
                         onPressed: _prev,
-                        color: Colors.white,
-                        shadowColor: const Color(0xFFD5DCE6),
-                        textColor: kMuted,
+                        color: kYellow,
+                        shadowColor: kYellowDark,
+                        textColor: Colors.white,
                       ),
                     ),
                     const SizedBox(width: 12),

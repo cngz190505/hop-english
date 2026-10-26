@@ -236,7 +236,7 @@ const lesson3Words = [
     en: 'watermelon',
     tr: 'karpuz',
     phonetic: '/ˈwɔːtərˌmɛlən/',
-    say: 'wotırmelın',
+    say: 'wodırmelın',
     example: 'The watermelon is big.',
     exampleTr: 'Karpuz büyük.',
     emoji: '🍉',
