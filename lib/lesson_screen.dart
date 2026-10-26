@@ -77,6 +77,15 @@ class _LessonScreenState extends State<LessonScreen> {
     }
   }
 
+  /// Bir önceki kelimeye döner (kullanıcı tekrar bakmak isteyebilir).
+  void _prev() {
+    if (_i == 0) return;
+    _timer.tap();
+    Speech.stop();
+    setState(() => _i--);
+    _saveResume();
+  }
+
   @override
   void dispose() {
     _timer.finish();
@@ -124,7 +133,26 @@ class _LessonScreenState extends State<LessonScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              child: ChunkyButton(text: 'Devam Et  →', onPressed: _next),
+              child: Row(
+                children: [
+                  if (_i > 0) ...[
+                    SizedBox(
+                      width: 72,
+                      child: ChunkyButton(
+                        text: '←',
+                        onPressed: _prev,
+                        color: Colors.white,
+                        shadowColor: const Color(0xFFD5DCE6),
+                        textColor: kMuted,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: ChunkyButton(text: 'Devam Et  →', onPressed: _next),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

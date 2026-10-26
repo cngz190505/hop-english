@@ -159,9 +159,10 @@ class _QuizScreenState extends State<QuizScreen> {
     _streak = ok ? _streak + 1 : 0;
   }
 
-  /// Yanlış yapılan kelime sorunun sonuna bir kez daha eklenir.
+  /// Yanlış yapılan kelime sınavın sonuna eklenir. Tekrar sorusu da yanlış yapılırsa
+  /// (farklı tipte) yeniden sona eklenir: kelime doğru bilinene kadar tekrar gelir.
   void _queueRetry(Word w, QType failed) {
-    if (_q.retry || !_retried.add(w.en)) return;
+    if (!_q.retry && !_retried.add(w.en)) return;
     _qs.add(retryQuestion(widget.words, w, failed));
     _retryLog.add('${w.en}|${failed.index}');
   }
