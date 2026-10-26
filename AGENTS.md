@@ -433,3 +433,7 @@ Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sade
 - **İçerik:** Cümleler `lesson_data.dart`'a yeni bir ders olarak eklenir (`lessonsContent` ve `lessonTitles` aynı sırada), ders haritasında kendi kartı olur (`_lessons` ve `_lessonsCount` elle güncellenir, Bölüm 6.1 kontrol notu).
 - **Başlamadan önce:** Claude cümle listesini ve soru akışını kullanıcıya gösterir, onay alır, sonra koda ekler. Onaysız kod yazma.
 - Ders sayısı arttıkça kullanıcıya "Tekrar dersi yapalım mı?" hatırlatması da yapılır (Bölüm 11-C9).
+
+
+- **7. ders (Cümle Kurma 1) silindi** (`lesson_data.dart`, `lesson_map_screen.dart`): Kullanıcı önce kelime öğretmek istedi; cümle kurma, kalıplar iyi planlanınca sonra eklenecek. Harita 6 ders (`_lessonsCount = 6`). Cümle dersi altyapısı (`isSentence`, `blank`, `_buildSentenceQuiz`) kodda duruyor, zararsız.
+- **7. ders Aile eklendi** (`lesson_data.dart`, `lesson_map_screen.dart`): 10 kelime (mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl). Kelime görselleri (`assets/words/<kelime>.png`) henüz yok, quizde emoji görünür. Harita 7 ders.
