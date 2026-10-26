@@ -449,6 +449,17 @@ Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sade
 
 - **Ders Aile görselleri eklendi** (`assets/words/` mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl; kullanıcı gönderdi, saydam PNG, 420 px yükseklik, arka plan koddan silindi). Eşleşme: boy=yeşil tişörtlü el sallayan erkek çocuk, brother=aynı çocuk ayakta (el sallamıyor), girl=pembe tişörtlü atkuyruklu kız, sister=sarı elbiseli örgülü kız, mother=pembe elbiseli anne, father=sakallı mavi tişörtlü baba, family=beş kişilik aile resmi (410x420). Bu dersin karakterleri önceki derslerden farklı (kullanıcı onayıyla). Derlenip denenmedi.
 
-- **Ders ekranında geri tuşu** (`lesson_screen.dart`, kullanıcı istedi): 2. kelimeden itibaren "Devam Et"in solunda beyaz "←" tuşu çıkar, bir önceki kelimeye döner (`_prev`, kaldığı yer kaydı güncellenir). İlk kelimede görünmez. Animasyon yok. Derlenip denenmedi.
+- **Ders ekranında geri tuşu** (`lesson_screen.dart`, kullanıcı istedi): 2. kelimeden itibaren "Devam Et"in solunda sarı "← Geri" tuşu çıkar, bir önceki kelimeye döner (`_prev`, kaldığı yer kaydı güncellenir). İlk kelimede görünmez. Animasyon yok. Derlenip denenmedi.
 
 - **Yanlış cevaplar doğru bilinene kadar sonda tekrar eder** (`quiz_screen.dart` `_queueRetry`, kullanıcı istedi): Eskiden yanlış kelime sona 1 kez eklenirdi, tekrarı da yanlışsa bırakılırdı. Şimdi tekrar sorusu da yanlışsa yeniden sona eklenir (tip dönüşümlü: yazılı <-> dinle ve seç, `retryQuestion`). İlk yanlışta kelime başına 1 tekrar kuralı (`_retried`) aynen duruyor. Tekrarlar puana ve zor/hakimiyet kaydına sayılmaz. Kaldığı yer kaydı `_retryLog` ile aynı çalışır. Derlenip denenmedi.
+
+## 14. Okunuş (`say`) kuralı: Amerikan İngilizcesi (KESİN KURAL, kullanıcı istedi)
+
+Ekranda gösterilen Türkçe okunuş (`Word.say`), uygulamanın sesiyle AYNI olmalı. Ses `en-US` (Amerikan) okuduğu için (`speech.dart`) okunuş da Amerikan telaffuzuna göre yazılır. Yazı bir şey, ses başka bir şey söylerse çocuğun kafası karışır.
+
+- Yeni kelime eklerken `say` alanı Amerikan telaffuzuna göre yazılır, İngiliz telaffuzuna göre DEĞİL.
+- Ünlü kural: iki ünlü arasında, vurgusuz hecenin başındaki **t**, Amerikan'da yumuşak "d" gibi okunur: `water`, `better`, `watermelon` -> `wodırmelın` (`wotırmelın` DEĞİL). t'nin sert kaldığı yerlerde (s'den sonra `sistır`, kelime sonu `rebit`, vurgulu hece) olduğu gibi `t` yazılır.
+- `r` sesi okunur (Amerikan rotik): `for`, `horse`, `börd`, `pörpıl`.
+- Emin olunmayan kelimeyi telefonda "Dinle" ile dinleyip yazıyla karşılaştır.
+- IPA (`phonetic`) alanı bu kuraldan etkilenmez, sözlükteki gibi kalabilir.
+- Son kontrol: tüm kelimeler tarandı, düzelen tek kelime `watermelon` oldu.
