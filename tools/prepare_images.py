@@ -22,6 +22,7 @@ FILES = [
     ("1792804016054.jpg", "icon_gift", True, 75),
     ("1792804048362.jpg", "app_icon", False, 0),
     ("1792804091042.jpg", "mascot_wave", True, 75),
+    ("bg_map2_src.jpg", "bg_map2", False, 0),  # Ünite 2 haritası
 ]
 
 os.makedirs(OUT, exist_ok=True)
