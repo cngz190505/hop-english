@@ -59,7 +59,7 @@ const _mapAspect = 1504 / 704;
 _Status _statusOf(int i, int completed) {
   if (i < completed) return _Status.done;
   if (i == completed && i < _playableLessons) return _Status.current;
-  if (kUnlockAll && i < _playableLessons) return _Status.current; // TEST: hepsi açık
+  if (kUnlockAll) return _Status.current; // TEST: içeriği olmayanlar dahil hepsi açık görünür
   return _Status.locked;
 }
 
@@ -201,7 +201,16 @@ class _LessonMapTabState extends State<LessonMapTab> {
                   Fx.tap();
                   openLesson(context, i);
                 }
-              : null,
+              : kUnlockAll
+                  // TEST: içeriği olmayan ders açık görünür ama dokununca uyarır.
+                  ? () {
+                      ScaffoldMessenger.maybeOf(context)
+                        ?..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          const SnackBar(content: Text('Bu dersin içeriği henüz hazır değil.')),
+                        );
+                    }
+                  : null,
         ),
       ),
     ];
