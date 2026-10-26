@@ -27,10 +27,28 @@ const _lessons = [
   _LessonInfo('Renkler', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
   _LessonInfo('Sayılar', 0.64, 0.24, Color(0xFF14B8A6), Color(0xFF0F9488)),
   _LessonInfo('Aile', 0.40, 0.12, Color(0xFFFFC800), Color(0xFFE0A800)),
+  // ÜNİTE 2 (bg_map2.png, yol altta sol başlar, köprüden geçip limana çıkar).
+  // İçerikleri henüz yok: kilitli görünür. İçerik gelince lessonsContent/lessonTitles'a eklenir.
+  _LessonInfo('Araçlar', 0.32, 0.86, Color(0xFFEF5350), Color(0xFFC62828)),
+  _LessonInfo('Vücut', 0.64, 0.70, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
+  _LessonInfo('Cümle Kurma', 0.36, 0.54, Color(0xFF58CC02), Color(0xFF46A302)),
+  _LessonInfo('Günlük İfadeler', 0.62, 0.38, Color(0xFF1CB0F6), Color(0xFF1288C9)),
+  _LessonInfo('Alışveriş', 0.38, 0.22, Color(0xFFFF6FA8), Color(0xFFE04F89)),
 ];
 
-/// Toplam ders sayısı (_lessons listesiyle aynı olmalı).
-const _lessonsCount = 7;
+/// Ünite: kendi arka plan resmi ve _lessons içindeki ders aralığı (hepsi aynı 704x1504 oranında).
+class _Unit {
+  final String name;
+  final String bg;
+  final int start; // _lessons içinde ilk dersin sırası
+  final int count;
+  const _Unit(this.name, this.bg, this.start, this.count);
+}
+
+const _units = [
+  _Unit('Ünite 1', 'assets/ready/bg_map.png', 0, 7),
+  _Unit('Ünite 2', 'assets/ready/bg_map2.png', 7, 5),
+];
 
 /// İçeriği hazır ders sayısı (lessonsContent ile aynı).
 final _playableLessons = lessonsContent.length;
@@ -45,8 +63,15 @@ _Status _statusOf(int i, int completed) {
   return _Status.locked;
 }
 
-class LessonMapTab extends StatelessWidget {
+class LessonMapTab extends StatefulWidget {
   const LessonMapTab({super.key});
+
+  @override
+  State<LessonMapTab> createState() => _LessonMapTabState();
+}
+
+class _LessonMapTabState extends State<LessonMapTab> {
+  int _unit = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +83,7 @@ class LessonMapTab extends StatelessWidget {
   }
 
   Widget _content(BuildContext context, double top) {
+    final unit = _units[_unit];
     return Stack(
       children: [
         // Haritanın üstündeki boşluk gökyüzü, altındaki ve esneme payı orman rengiyle dolsun.
@@ -75,10 +101,11 @@ class LessonMapTab extends StatelessWidget {
               final w = c.maxWidth;
               final h = w * _mapAspect;
               return SingleChildScrollView(
+                key: ValueKey(_unit), // ünite değişince en alttan başlasın
                 // Harita en alttan (1. dersten) başlar, yukarı doğru ilerler.
                 reverse: true,
                 // Üstte başlık kartı (Header) kadar boşluk: en üstteki kart başlığın altında kalmasın.
-                padding: EdgeInsets.only(top: top + 100, bottom: 96),
+                padding: EdgeInsets.only(top: top + 128, bottom: 96),
                 // Tüm harita (resim + kartlar) tek katman: kaydırırken sadece kayar,
                 // kartlar ve gölgeleri her karede yeniden çizilmez.
                 child: RepaintBoundary(
@@ -87,14 +114,14 @@ class LessonMapTab extends StatelessWidget {
                     height: h,
                     child: Stack(
                       children: [
-                        const Positioned.fill(
+                        Positioned.fill(
                           child: Image(
-                            image: AssetImage('assets/ready/bg_map.png'),
+                            image: AssetImage(unit.bg),
                             fit: BoxFit.fill,
                             gaplessPlayback: true,
                           ),
                         ),
-                        for (var i = 0; i < _lessons.length; i++)
+                        for (var i = unit.start; i < unit.start + unit.count; i++)
                           ..._buildLesson(context, i, w, h),
                       ],
                     ),
@@ -110,7 +137,29 @@ class LessonMapTab extends StatelessWidget {
           right: 16,
           child: const _Header(),
         ),
-        const Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard()),
+        // Ünite seçici: Ünite 1 / Ünite 2
+        Positioned(
+          top: top + 82,
+          left: 16,
+          right: 16,
+          child: Row(
+            children: [
+              for (var u = 0; u < _units.length; u++) ...[
+                if (u > 0) const SizedBox(width: 8),
+                _UnitChip(
+                  label: _units[u].name,
+                  selected: u == _unit,
+                  onTap: () {
+                    if (u == _unit) return;
+                    Fx.tap();
+                    setState(() => _unit = u);
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+        Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard(unit: unit)),
       ],
     );
   }
@@ -319,15 +368,56 @@ class _Header extends StatelessWidget {
   }
 }
 
+class _UnitChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _UnitChip({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? kBlue : const Color(0xF2FFFFFF),
+          borderRadius: BorderRadius.circular(17),
+          boxShadow: [
+            BoxShadow(
+              color: selected ? kBlueDark : const Color(0x261C6BA8),
+              offset: Offset(0, selected ? 3 : 2),
+              blurRadius: selected ? 0 : 6,
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            color: selected ? Colors.white : kMuted,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _TotalCard extends StatelessWidget {
-  const _TotalCard();
+  final _Unit unit;
+  const _TotalCard({required this.unit});
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: AppState.instance,
       builder: (context, _) {
-        final done = AppState.instance.completedLessons.clamp(0, _lessonsCount);
+        final n = unit.count;
+        final done = (AppState.instance.completedLessons - unit.start).clamp(0, n);
         return Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
           decoration: cardDecoration(),
@@ -336,7 +426,7 @@ class _TotalCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Toplam $_lessonsCount ders  •  $done/$_lessonsCount tamamlandı',
+                '${unit.name}: $n ders  •  $done/$n tamamlandı',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -344,7 +434,7 @@ class _TotalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ProgressBar(value: done / _lessonsCount, height: 10),
+              ProgressBar(value: done / n, height: 10),
             ],
           ),
         );
