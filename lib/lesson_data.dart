@@ -655,11 +655,105 @@ const lesson7Words = [
   ),
 ];
 
+/// 8. ders: Araçlar (10 kelime, görseller çocuksuz araç çizimi)
+const lesson8Words = [
+  Word(
+    en: 'car',
+    tr: 'araba',
+    phonetic: '/kɑːr/',
+    say: 'kar',
+    example: 'The car is red.',
+    exampleTr: 'Araba kırmızı.',
+    emoji: '🚗',
+  ),
+  Word(
+    en: 'bus',
+    tr: 'otobüs',
+    phonetic: '/bʌs/',
+    say: 'bas',
+    example: 'The bus is big.',
+    exampleTr: 'Otobüs büyük.',
+    emoji: '🚌',
+  ),
+  Word(
+    en: 'train',
+    tr: 'tren',
+    phonetic: '/treɪn/',
+    say: 'treyn',
+    example: 'The train is fast.',
+    exampleTr: 'Tren hızlı.',
+    emoji: '🚆',
+  ),
+  Word(
+    en: 'plane',
+    tr: 'uçak',
+    phonetic: '/pleɪn/',
+    say: 'pleyn',
+    example: 'I see a plane.',
+    exampleTr: 'Bir uçak görüyorum.',
+    emoji: '✈️',
+  ),
+  Word(
+    en: 'boat',
+    tr: 'tekne',
+    phonetic: '/boʊt/',
+    say: 'bowt',
+    example: 'The boat is blue.',
+    exampleTr: 'Tekne mavi.',
+    emoji: '⛵',
+  ),
+  Word(
+    en: 'bicycle',
+    tr: 'bisiklet',
+    phonetic: '/ˈbaɪsɪkəl/',
+    say: 'baysıkıl',
+    example: 'I have a bicycle.',
+    exampleTr: 'Bir bisikletim var.',
+    emoji: '🚲',
+  ),
+  Word(
+    en: 'truck',
+    tr: 'kamyon',
+    phonetic: '/trʌk/',
+    say: 'trak',
+    example: 'The truck is yellow.',
+    exampleTr: 'Kamyon sarı.',
+    emoji: '🚚',
+  ),
+  Word(
+    en: 'helicopter',
+    tr: 'helikopter',
+    phonetic: '/ˈhɛlɪˌkɑːptər/',
+    say: 'helikaptır',
+    example: 'The helicopter is green.',
+    exampleTr: 'Helikopter yeşil.',
+    emoji: '🚁',
+  ),
+  Word(
+    en: 'motorcycle',
+    tr: 'motosiklet',
+    phonetic: '/ˈmoʊtərˌsaɪkəl/',
+    say: 'mowdırsaykıl',
+    example: 'The motorcycle is black.',
+    exampleTr: 'Motosiklet siyah.',
+    emoji: '🏍️',
+  ),
+  Word(
+    en: 'taxi',
+    tr: 'taksi',
+    phonetic: '/ˈtæksi/',
+    say: 'teksi',
+    example: 'The taxi is here.',
+    exampleTr: 'Taksi burada.',
+    emoji: '🚕',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
