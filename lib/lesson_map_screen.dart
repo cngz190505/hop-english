@@ -21,35 +21,37 @@ class _LessonInfo {
 }
 
 const _lessons = [
-  _LessonInfo('Selamlaşma', 0.63, 0.91, Color(0xFF58CC02), Color(0xFF46A302)),
-  _LessonInfo('Kendini Tanıtma', 0.45, 0.77, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
-  _LessonInfo('Meyveler', 0.42, 0.63, Color(0xFF1CB0F6), Color(0xFF1288C9)),
-  _LessonInfo('Hayvanlar', 0.64, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
-  _LessonInfo('Renkler', 0.40, 0.37, Color(0xFFFF6FA8), Color(0xFFE04F89)),
-  _LessonInfo('Sayılar', 0.64, 0.24, Color(0xFF14B8A6), Color(0xFF0F9488)),
-  _LessonInfo('Aile', 0.40, 0.12, Color(0xFFFFC800), Color(0xFFE0A800)),
-  // ÜNİTE 2 (bg_map2.png, yol altta sol başlar, köprüden geçip limana çıkar).
+  _LessonInfo('Selamlaşma', 0.64, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
+  _LessonInfo('Kendini Tanıtma', 0.36, 0.50, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
+  _LessonInfo('Meyveler', 0.64, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
+  _LessonInfo('Hayvanlar', 0.36, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
+  _LessonInfo('Renkler', 0.64, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('Sayılar', 0.36, 0.50, Color(0xFF14B8A6), Color(0xFF0F9488)),
+  // ÜNİTE 2 (ders 7-12). fy artık kullanılmıyor (kartlar ekrana eşit yayılır), fx sağ/sol dönüşümlü.
   // İçerikleri henüz yok: kilitli görünür. İçerik gelince lessonsContent/lessonTitles'a eklenir.
-  _LessonInfo('Araçlar', 0.32, 0.86, Color(0xFFEF5350), Color(0xFFC62828)),
-  _LessonInfo('Vücut', 0.64, 0.70, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
-  _LessonInfo('Cümle Kurma', 0.36, 0.54, Color(0xFF58CC02), Color(0xFF46A302)),
-  _LessonInfo('Günlük İfadeler', 0.62, 0.38, Color(0xFF1CB0F6), Color(0xFF1288C9)),
-  _LessonInfo('Alışveriş', 0.38, 0.22, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('Aile', 0.64, 0.50, Color(0xFFFFC800), Color(0xFFE0A800)),
+  _LessonInfo('Araçlar', 0.36, 0.50, Color(0xFFEF5350), Color(0xFFC62828)),
+  _LessonInfo('Vücut', 0.64, 0.50, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
+  _LessonInfo('Cümle Kurma', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
+  _LessonInfo('Günlük İfadeler', 0.64, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
+  _LessonInfo('Alışveriş', 0.36, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
 ];
 
-/// Ünite: kendi arka plan resmi ve _lessons içindeki ders aralığı (hepsi aynı 704x1504 oranında).
+/// Ünite: adı ve _lessons içindeki ders aralığı (arka plan kodla çizilir, resim yok).
 class _Unit {
   final String name;
-  final String bg;
   final int start; // _lessons içinde ilk dersin sırası
   final int count;
-  const _Unit(this.name, this.bg, this.start, this.count);
+  const _Unit(this.name, this.start, this.count);
 }
 
 const _units = [
-  _Unit('Ünite 1', 'assets/ready/bg_map.png', 0, 7),
-  _Unit('Ünite 2', 'assets/ready/bg_map2.png', 7, 5),
+  _Unit('Ünite 1', 0, 6),
+  _Unit('Ünite 2', 6, 6),
 ];
+
+/// Harita kartının yüksekliği (yerleşim bu sayıyla hesaplanır).
+const double _cardH = 58;
 
 /// İçeriği hazır ders sayısı (lessonsContent ile aynı).
 final _playableLessons = lessonsContent.length;
@@ -87,23 +89,19 @@ class _LessonMapTabState extends State<LessonMapTab> {
         final w = c.maxWidth;
         final h = c.maxHeight;
         // Kartların ortası bu iki çizgi arasına sığar: üstte ünite çubuğu, altta ilerleme kartı.
-        final yTop = top + 10 + 52 + 14 + 32;
-        final yBottom = h - 12 - 66 - 14 - 32;
+        final yTop = top + 10 + 48 + 14 + _cardH / 2;
+        final yBottom = h - 12 - 66 - 14 - _cardH / 2;
         final usable = yBottom - yTop;
         final n = unit.count;
         // Kartlar aralarında eşit boşlukla dizilir, çok seyrek olmasın diye üst sınır var.
-        final step = n > 1 ? (usable / (n - 1)).clamp(0.0, 112.0) : 0.0;
+        final step = n > 1 ? (usable / (n - 1)).clamp(0.0, 104.0) : 0.0;
         final y0 = yBottom - (usable - step * (n - 1)) / 2; // ilk dersin (en alttaki) ortası
         return Stack(
           children: [
-            // Tam ekran harita: resim ekranı kaplar (oran bozulmaz, fazlalık kırpılır).
+            // Tam ekran arka plan: resim yok, kodla çizilir (gökyüzü, bulut, tepe/dalga). Ünite başına renk teması.
             Positioned.fill(
               child: RepaintBoundary(
-                child: Image(
-                  image: AssetImage(unit.bg),
-                  fit: BoxFit.cover,
-                  gaplessPlayback: true,
-                ),
+                child: CustomPaint(painter: _MapBgPainter(_unit)),
               ),
             ),
             // Kartları birbirine bağlayan beyaz yol çizgisi (kartların altında kalır).
@@ -139,7 +137,7 @@ class _LessonMapTabState extends State<LessonMapTab> {
 
   /// Kartın yatay ortası (_buildLesson ile aynı hesap: ekrandan taşmaz).
   double _centerX(int i, double w) {
-    final pillW = (w - 24).clamp(0.0, 236.0);
+    final pillW = (w - 24).clamp(0.0, 232.0);
     final left = (_lessons[i].fx * w - pillW / 2).clamp(12.0, w - pillW - 12).toDouble();
     return left + pillW / 2;
   }
@@ -148,7 +146,7 @@ class _LessonMapTabState extends State<LessonMapTab> {
     final l = _lessons[i];
     final status = _statusOf(i, AppState.instance.completedLessons);
     final x = l.fx * w;
-    final pillW = (w - 24).clamp(0.0, 236.0);
+    final pillW = (w - 24).clamp(0.0, 232.0);
     final left = (x - pillW / 2).clamp(12.0, w - pillW - 12);
     // Maskot, kartın yanında boş yeri daha geniş olan tarafta durur.
     final roomLeft = left;
@@ -168,7 +166,7 @@ class _LessonMapTabState extends State<LessonMapTab> {
         ),
       Positioned(
         left: left,
-        top: y - 32,
+        top: y - _cardH / 2,
         width: pillW,
         child: _LessonCard(
           number: i + 1,
@@ -196,6 +194,135 @@ class _LessonMapTabState extends State<LessonMapTab> {
   }
 }
 
+/// Arka plan: resim yerine kodla çizilen sahne. Ünite 0 = çayır (gökyüzü, tepeler, ağaçlar),
+/// ünite 1 = kıyı (gökyüzü, dalgalar, yelkenli). Hepsi düz renk ve yol, blur yok, ucuz; sadece ünite değişince yeniden çizilir.
+class _MapBgPainter extends CustomPainter {
+  final int unit;
+  const _MapBgPainter(this.unit);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rect = Offset.zero & size;
+    final meadow = unit == 0;
+
+    // Gökyüzü degradesi
+    final sky = meadow
+        ? const [Color(0xFF4FB6F5), Color(0xFFBFEAFF), Color(0xFFDDF6C4)]
+        : const [Color(0xFF3CC4D8), Color(0xFFCFF3F7), Color(0xFFFFEFC2)];
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: sky,
+          stops: const [0.0, 0.55, 1.0],
+        ).createShader(rect),
+    );
+
+    // Büyük yumuşak daireler (derinlik hissi)
+    final blob = Paint()..color = const Color(0x2EFFFFFF);
+    canvas.drawCircle(Offset(w * 0.95, h * 0.16), w * 0.40, blob);
+    canvas.drawCircle(Offset(w * 0.02, h * 0.46), w * 0.30, blob);
+    canvas.drawCircle(Offset(w * 0.92, h * 0.70), w * 0.34, blob);
+
+    // Bulutlar
+    _cloud(canvas, Offset(w * 0.20, h * 0.15), w * 0.075);
+    _cloud(canvas, Offset(w * 0.78, h * 0.33), w * 0.06);
+    _cloud(canvas, Offset(w * 0.30, h * 0.52), w * 0.05);
+
+    // Küçük parıltılar
+    final spark = Paint()..color = const Color(0x99FFFFFF);
+    for (final f in const [
+      Offset(0.08, 0.26),
+      Offset(0.55, 0.20),
+      Offset(0.90, 0.48),
+      Offset(0.12, 0.64),
+      Offset(0.70, 0.60),
+      Offset(0.46, 0.40),
+    ]) {
+      canvas.drawCircle(Offset(w * f.dx, h * f.dy), 3, spark);
+    }
+
+    if (meadow) {
+      _hill(canvas, size, h * 0.72, h * 0.05, 1, const Color(0xFFC6EDA3)); // uzak tepe
+      _hill(canvas, size, h * 0.80, h * 0.05, -1, const Color(0xFF9EDD6C));
+      for (final t in const [Offset(0.10, 0.80), Offset(0.88, 0.77), Offset(0.50, 0.83), Offset(0.28, 0.84)]) {
+        _tree(canvas, Offset(w * t.dx, h * t.dy), w * 0.05);
+      }
+      _hill(canvas, size, h * 0.87, h * 0.04, 1, const Color(0xFF7BCB48));
+      _hill(canvas, size, h * 0.93, h * 0.03, -1, const Color(0xFF5DB835));
+    } else {
+      _hill(canvas, size, h * 0.74, h * 0.03, 1, const Color(0xFF9BE3F0)); // uzak deniz
+      _boat(canvas, Offset(w * 0.80, h * 0.745), w * 0.06);
+      _boat(canvas, Offset(w * 0.18, h * 0.80), w * 0.045);
+      _hill(canvas, size, h * 0.82, h * 0.03, -1, const Color(0xFF63CFE6));
+      _hill(canvas, size, h * 0.88, h * 0.03, 1, const Color(0xFF3DB9DA));
+      _hill(canvas, size, h * 0.94, h * 0.025, -1, const Color(0xFFFFE3A3)); // kum
+    }
+  }
+
+  /// Yumuşak dalgalı bir şerit: y çizgisinden aşağısı dolu. phase 1 / -1 dalganın yönünü çevirir.
+  void _hill(Canvas canvas, Size s, double y, double amp, int phase, Color color) {
+    final w = s.width;
+    final path = Path()
+      ..moveTo(0, s.height)
+      ..lineTo(0, y + amp * phase)
+      ..cubicTo(w * 0.30, y - amp * phase, w * 0.60, y + amp * 1.2 * phase, w, y - amp * phase)
+      ..lineTo(w, s.height)
+      ..close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  void _cloud(Canvas canvas, Offset c, double r) {
+    final p = Paint()..color = const Color(0xD9FFFFFF);
+    canvas.drawCircle(c, r, p);
+    canvas.drawCircle(c.translate(r * 1.0, r * 0.25), r * 0.8, p);
+    canvas.drawCircle(c.translate(-r * 1.0, r * 0.3), r * 0.7, p);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: c.translate(0, r * 0.5), width: r * 3.2, height: r * 0.9),
+        Radius.circular(r * 0.45),
+      ),
+      p,
+    );
+  }
+
+  void _tree(Canvas canvas, Offset base, double r) {
+    canvas.drawRect(
+      Rect.fromCenter(center: base.translate(0, -r * 0.4), width: r * 0.35, height: r * 0.9),
+      Paint()..color = const Color(0xFF8D6E4A),
+    );
+    canvas.drawCircle(base.translate(0, -r * 1.3), r, Paint()..color = const Color(0xFF4DAA2E));
+    canvas.drawCircle(base.translate(-r * 0.35, -r * 1.5), r * 0.45, Paint()..color = const Color(0xFF6CC84A));
+  }
+
+  void _boat(Canvas canvas, Offset base, double r) {
+    canvas.drawPath(
+      Path()
+        ..moveTo(base.dx - r, base.dy)
+        ..lineTo(base.dx + r, base.dy)
+        ..lineTo(base.dx + r * 0.6, base.dy + r * 0.45)
+        ..lineTo(base.dx - r * 0.6, base.dy + r * 0.45)
+        ..close(),
+      Paint()..color = const Color(0xFFE5574B),
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(base.dx, base.dy - r * 1.6)
+        ..lineTo(base.dx + r * 0.8, base.dy - r * 0.1)
+        ..lineTo(base.dx, base.dy - r * 0.1)
+        ..close(),
+      Paint()..color = Colors.white,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MapBgPainter old) => old.unit != unit;
+}
+
 /// Kartların ortalarından geçen yumuşak "S" şeklinde beyaz yol çizgisi.
 /// Altında hafif bir gölge çizgisi vardır (blur yok, ucuz). Sadece nokta değişince yeniden çizilir.
 class _PathPainter extends CustomPainter {
@@ -212,6 +339,12 @@ class _PathPainter extends CustomPainter {
       final midY = (a.dy + b.dy) / 2;
       path.cubicTo(a.dx, midY, b.dx, midY, b.dx, b.dy);
     }
+    final band = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 18
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0x40FFFFFF);
+    canvas.drawPath(path, band);
     final shadow = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 9
@@ -302,16 +435,16 @@ class _LessonCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 64,
-        padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
+        height: _cardH,
+        padding: const EdgeInsets.fromLTRB(5, 0, 14, 0),
         // Uçları köşeli (altıgen) kart: ince renkli çerçeve, sıradaki derste kalın.
         decoration: ShapeDecoration(
           color: const Color(0xF2FFFFFF),
           shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(22),
             side: BorderSide(
               color: locked ? kLocked : info.color,
-              width: current ? 3 : 1.5,
+              width: current ? 2.5 : 1.5,
             ),
           ),
           shadows: const [
@@ -322,8 +455,8 @@ class _LessonCard extends StatelessWidget {
           children: [
             // Numara dairesi ve çevresinde ders ilerleme halkası (bitti: tam, yarıda: kısmen).
             SizedBox(
-              width: 54,
-              height: 54,
+              width: 48,
+              height: 48,
               child: CustomPaint(
                 painter: _RingPainter(
                   locked ? kLocked : info.color,
@@ -331,8 +464,8 @@ class _LessonCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: 34,
+                    height: 34,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: circle,
@@ -342,7 +475,7 @@ class _LessonCard extends StatelessWidget {
                     child: Text(
                       '$number',
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
@@ -351,7 +484,7 @@ class _LessonCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 info.title,
@@ -394,11 +527,11 @@ class _UnitBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 52,
-      padding: const EdgeInsets.all(6),
+      height: 48,
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: const Color(0xE6FFFFFF),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 3)),
         ],
@@ -462,7 +595,7 @@ class _UnitChip extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 40,
+        height: 38,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
