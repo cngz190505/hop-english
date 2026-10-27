@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'fx.dart';
 import 'app_state.dart';
@@ -235,6 +236,48 @@ class _PathPainter extends CustomPainter {
   }
 }
 
+/// Dersin ilerlemesi 0..1: bitti = 1, yarıda kaldıysa kelime/soru sırasına göre (ilk yarı ders, ikinci yarı quiz).
+double _progressOf(int index, bool done) {
+  if (done) return 1;
+  final r = AppState.instance.resumeFor(index);
+  if (r == null) return 0;
+  final i = (r['i'] as num?) ?? 0;
+  if (r['stage'] == 'quiz') {
+    final t = (r['total'] as num?) ?? 0;
+    return t > 0 ? 0.5 + 0.5 * (i / t).clamp(0.0, 1.0).toDouble() : 0.5;
+  }
+  final n = (r['n'] as num?) ?? 1;
+  return 0.5 * (i / n).clamp(0.0, 1.0).toDouble();
+}
+
+/// Numara dairesinin çevresindeki halka: soluk iz + ilerleme yayı (üstten saat yönünde).
+class _RingPainter extends CustomPainter {
+  final Color color;
+  final double progress;
+  const _RingPainter(this.color, this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = (Offset.zero & size).deflate(2.5);
+    final track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..color = color.withAlpha(60);
+    canvas.drawArc(rect, 0, math.pi * 2, false, track);
+    if (progress > 0) {
+      final arc = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round
+        ..color = color;
+      canvas.drawArc(rect, -math.pi / 2, math.pi * 2 * progress, false, arc);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.color != color || old.progress != progress;
+}
+
 /// Haritadaki ders kartı: solda renkli numara dairesi, ortada ders adı, sağda durum simgesi
 /// (tamam: yeşil tik, sıradaki: oynat, kilitli: kilit).
 class _LessonCard extends StatelessWidget {
@@ -260,34 +303,51 @@ class _LessonCard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 64,
-        padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.fromLTRB(6, 0, 16, 0),
+        // Uçları köşeli (altıgen) kart: ince renkli çerçeve, sıradaki derste kalın.
+        decoration: ShapeDecoration(
           color: const Color(0xF2FFFFFF),
-          borderRadius: BorderRadius.circular(32),
-          // Sıradaki ders: kendi renginde kalın çerçeve.
-          border: current ? Border.all(color: info.color, width: 3) : null,
-          boxShadow: const [
+          shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+            side: BorderSide(
+              color: locked ? kLocked : info.color,
+              width: current ? 3 : 1.5,
+            ),
+          ),
+          shadows: const [
             BoxShadow(color: Color(0x261C6BA8), blurRadius: 8, offset: Offset(0, 3)),
           ],
         ),
         child: Row(
           children: [
-            Container(
-              width: 46,
-              height: 46,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: circle,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 3),
-                boxShadow: [BoxShadow(color: circleShadow, offset: const Offset(0, 3))],
-              ),
-              child: Text(
-                '$number',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+            // Numara dairesi ve çevresinde ders ilerleme halkası (bitti: tam, yarıda: kısmen).
+            SizedBox(
+              width: 54,
+              height: 54,
+              child: CustomPaint(
+                painter: _RingPainter(
+                  locked ? kLocked : info.color,
+                  locked ? 0 : _progressOf(number - 1, status == _Status.done),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: circle,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: circleShadow, offset: const Offset(0, 3))],
+                    ),
+                    child: Text(
+                      '$number',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
