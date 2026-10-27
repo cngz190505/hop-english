@@ -16,12 +16,14 @@ Proje sahibinin kesin isteği, TÜM derslerde ve TÜM soru tiplerinde geçerlidi
 
 Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 
-- **ANİMASYON YOK.** Hiçbir yerde animasyon kullanma:
-  - `AnimationController`, `AnimatedContainer`, `AnimatedOpacity`, `AnimatedBuilder`, `Hero`, `TweenAnimationBuilder`, `Lottie`, `Rive`, `.repeat()` vb. yasak.
-  - Sayfa geçişleri anında olur (`NoTransitionsBuilder`, `theme.dart` içinde).
-  - Dokunma dalgası (ripple/splash) kapalıdır (`NoSplash`).
-  - Alt menüde `animationDuration: Duration.zero` kalmalı.
-  - Kendi kendine hareket eden, titreyen, süzülen, dönen hiçbir öğe olmasın (maskot dahil).
+- **ANİMASYON SERBEST (kullanıcı istedi: eklemek için sormaya gerek yok).** Eskiden yasaktı. Artık
+  `AnimationController`, `Animated*`, `TweenAnimationBuilder` kullanılabilir. Performans yine önemli, bu yüzden:
+  - Kısa ve olay tetiklemeli olsun (dokunma, ders bitişi, ödül). Sürekli `.repeat()` ile dönen/süzülen öğe ekleme.
+  - Tek kontrolcüyle çok parça oynat. Sadece değişen küçük parçayı yeniden çizdir (`AnimatedBuilder` küçük widget'ta, gerekirse `RepaintBoundary`).
+  - Ekran kapanırken kontrolcüyü `dispose` et. Animasyon sırasında ağır blur/`Opacity` katmanı yığma.
+  - Şu ayarlar AYNEN kalır (kullanıcı değiştirmek isterse söyler): sayfa geçişleri anında (`NoTransitionsBuilder`, `theme.dart`),
+    dokunma dalgası kapalı (`NoSplash`), alt menüde `animationDuration: Duration.zero`.
+  - Animasyon eklenen yerler: ders haritasındaki kristal toplama + ejderha yürüyüşü (`map_effects.dart`, `lesson_map_screen.dart`).
 - **İSTİSNA – Yaylanarak kaydırma AÇIK kalmalı.** Listeler başa/sona gelince iOS gibi
   yaylanıp geri gelir (`BouncyScrollBehavior`, `theme.dart` içinde, `main.dart`'ta bağlı).
   Proje sahibi bunu özellikle istedi: `ClampingScrollPhysics` ile değiştirme, kapatma.
@@ -60,7 +62,7 @@ Uygulama donmamalı, kasmamalı. Hiçbir şey gereksiz yere tekrar çizilmemeli.
 
 ```
 lib/
-  main.dart            -> uygulama girişi, tema ve yaylanmalı kaydırma ayarı
+  main.dart            -> uygulama girişi, tema ve yaylanmalı kaydırma ayarı, `navigatorObservers: [mapRouteObserver]`
   theme.dart           -> renkler, tema, ortak widget'lar (tek stil kaynağı)
   welcome_screen.dart  -> açılış ekranı
   home_screen.dart     -> ana sayfa + alt menü (IndexedStack)
@@ -75,9 +77,10 @@ lib/
   speech.dart          -> İngilizce seslendirme (Dinle butonları, flutter_tts)
   debug_tools.dart     -> performans ölçeri (showPerfOverlay, Profilde isme uzun basınca) ve ana sayfa gökyüzü deneyi (heroTest, "Hop" yazısına uzun basınca)
   fx.dart              -> titreşim + ses efektleri (vibration, HapticFeedback yedek, audioplayers)
-  lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır)
+  lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır); ders bitince kristal toplama + ejderha yürüyüşü
+  map_effects.dart     -> `flyGems` (kristalleri uçurur, OverlayEntry) ve `mapRouteObserver` (haritaya dönüşü yakalar)
 assets/images/         -> ham görseller (elleme)
-assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav (küçük, elle üretildi)
+assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav, gem0.wav ... gem4.wav (kristal "ding", Fx.gem; küçük, elle üretildi)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
                           (`bg_hero.png` = `bg_london`un ana sayfada görünen üst kısmı, 704x760 opak; script üretir)
 tools/patch_android.py -> flutter create'ten sonra çalışır: uygulama simgesi, açılış rengi, uygulama adı (build.yml çağırır)
@@ -91,7 +94,7 @@ tools/patch_android.py -> flutter create'ten sonra çalışır: uygulama simgesi
 
 1. Önce bu kuralları oku.
 2. Sadece istenen şeyi değiştir, çalışan yerlere dokunma.
-3. Kural ihlali gerektiren bir istek gelirse (örn. "animasyon ekle") yapma, kullanıcıya
+3. Kural ihlali gerektiren bir istek gelirse (örn. "ek paket ekle") yapma, kullanıcıya
    bu dosyadaki kuralı hatırlat ve onay iste.
 4. Kodun sonunda, yukarıdaki performans listesini kontrol et.
 
@@ -292,6 +295,14 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 7 (Cümle Kurma 1) eklendi** (kullanıcı cümle listesini ve akışı onayladı): 10 cümle, yeni kelime ve yeni görsel yok (Ders 3-6 kelimeleri, mevcut `assets/words/` görselleri): I like apples. / I have two ducks. / The lion is yellow. / I see three fish. / I like red cherries. / The rabbit is white. / I have four lemons. / I see a green pear. / The horse is black. / I eat six grapes. Teknik tasarım: cümle dersi de `lessonsContent` içinde bir `Word` listesidir (`lesson7Words`), böylece ders haritası, ilerleme ve kaldığı yer kaydı aynen çalışır. `Word`a iki isteğe bağlı alan eklendi: `blank` (Boşluğu doldur'da gizlenen kelime, dolu olması dersin cümle dersi olduğunu gösterir: `Word.isSentence`) ve `image` (görsel dosya adı). Cümlede `en` = cümle, `tr` = Türkçesi, `example` = cümlenin kendisi. Sorular (`_buildSentenceQuiz`, 20 soru): her cümle için 1 tanıma sorusu (Dinle ve seç = Türkçesini seç / Boşluğu doldur / Doğru cevabı seç döngüsü) + her cümle için Cümleyi oluştur (parça dizme). Görselli, eşleştirme ve yazma sorusu yok. Cümleler `sentenceKeys` ile ayrılır ve şuralara GİRMEZ: Kelime Listem (`word_list_screen.dart`), zor listesi ve hakimiyet yıldızı (`app_state.dart`), tekrar dersi havuzu ve günün kelimesi (`learnedWords`). Ders ekranında cümle kartında yazı 30 punto ve alttaki örnek cümle kutusu gösterilmez. Ders sonu özetinde "cümle" yazar. Değişen dosyalar: lesson_data, app_state, lesson_screen, quiz_screen, result_screen, word_list_screen, home_screen, lesson_map_screen. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi ve veri tutarlılığı elle kontrol edildi), APK ile test edilmeli.
 - **[ÇÖZÜLDÜ: Ünite 2 haritası, aşağıdaki kayda bak] UYARI, ders haritası kapasitesi**: `bg_map.png` tek ekranlık sabit bir resim, yol ve kasaba yaklaşık 6 kartlık yer sunuyor. 7. kart (fx 0.40 / fy 0.12) yolun bittiği gökyüzü bölgesine düşer. Ders 8'den itibaren harita uzatılmalı ya da kartlar liste görünümüne alınmalı. Bu büyük bir değişiklik, kullanıcıyla konuşmadan yapılmaz.
+
+- **Ders haritasında kristal toplama + ejderha yürüyüşü** (`lesson_map_screen.dart`, `map_effects.dart` yeni, `fx.dart`, `main.dart`, `home_screen.dart`, `assets/sounds/gem0-4.wav` yeni, kullanıcı istedi; HTML demo `kristal-demo-4.html` onaylandı):
+  - Ders bitince `AppState.completedLessons` hemen artar ama harita `_shown` sayısıyla eski durumu gösterir. Haritaya dönünce (`RouteAware.didPopNext`, Dersler sekmesine geçince `active`, ya da harita zaten açıksa) sırayla: 1) kristaller (`AppState.gemReward` = 5, en çok 8 görsel) biten dersin kartından üst çubuktaki elmasa uçar (`flyGems`), her varışta `Fx.gem(k)` sesi (nota yukarı çıkar) ve elmas kısa büyür; "+5" yazısı süzülür. 2) `_shown` güncellenir: kart "tamam", çubuk dolar. 3) Ejderha yol eğrisini izleyip zıplayarak sıradaki kartın yanına yürür (`_walkingDragon`, `_walk` kontrolcüsü).
+  - Animasyon yalnızca ders ilk kez bitince oynar. Üstte ders/quiz/sonuç ekranı varken (`route.isCurrent` false) başlamaz. Animasyon kuralı için Bölüm 1'e bak (artık serbest).
+  - Sıradaki kart başka üniteyse ejderha yürümez, sadece kristaller uçar. Ünite açık değilse animasyonsuz güncellenir.
+  - `home_screen.dart`: `LessonMapTab(active: _index == 1)`. `main.dart`: `navigatorObservers: [mapRouteObserver]`.
+  - Ders içi yıldız ve ünite sonu hazine sandığı (demoda vardı) EKLENMEDİ; istenirse ayrıca konuşulur.
+  - Derlenip denenmedi (Dart sözdizimi `dart format` ile denetlendi), APK ile test edilmeli.
 
 ## 7. Durum yönetimi kuralı
 
