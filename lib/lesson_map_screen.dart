@@ -82,7 +82,7 @@ class LessonMapTab extends StatefulWidget {
   State<LessonMapTab> createState() => _LessonMapTabState();
 }
 
-class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderStateMixin, RouteAware {
+class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMixin, RouteAware {
   // Açılışta sıradaki dersin (ya da açılmayı bekleyen hazinenin) bulunduğu ünite görünür.
   late int _unit = _initialUnit();
 
@@ -105,6 +105,9 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   int _walkSteps = 1;
   late final AnimationController _walk =
       AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  // Ejderhanın bekleme animasyonu: 1 sn'de hafif yukarı çıkıp iner (demodaki "idle"). Sekme/ekran görünmüyorken durur.
+  late final AnimationController _idle =
+      AnimationController(vsync: this, duration: const Duration(seconds: 1));
   final ValueNotifier<bool> _pulse = ValueNotifier<bool>(false);
   final ValueNotifier<_StarFx> _starFx = ValueNotifier<_StarFx>(const _StarFx(-1, 0));
   final GlobalKey _gemKey = GlobalKey();
@@ -126,6 +129,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   void initState() {
     super.initState();
     AppState.instance.addListener(_maybePlay);
+    if (widget.active) _idle.repeat();
   }
 
   @override
@@ -142,6 +146,13 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   @override
   void didUpdateWidget(LessonMapTab old) {
     super.didUpdateWidget(old);
+    if (widget.active != old.active) {
+      if (widget.active) {
+        _idle.repeat();
+      } else {
+        _idle.stop();
+      }
+    }
     if (widget.active && !old.active) _maybePlay();
   }
 
@@ -150,6 +161,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
     AppState.instance.removeListener(_maybePlay);
     mapRouteObserver.unsubscribe(this);
     _walk.dispose();
+    _idle.dispose();
     _pulse.dispose();
     _starFx.dispose();
     _scroll.dispose();
@@ -158,7 +170,14 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
 
   /// Ders/quiz/sonuç ekranı kapanıp harita yeniden görününce çağrılır.
   @override
-  void didPopNext() => _maybePlay();
+  void didPopNext() {
+    if (widget.active && !_idle.isAnimating) _idle.repeat();
+    _maybePlay();
+  }
+
+  /// Üstte ders/quiz/sonuç ekranı açılınca ejderha animasyonu durur.
+  @override
+  void didPushNext() => _idle.stop();
 
   /// Yeni bitmiş bir ders varsa ve harita ekranda görünüyorsa animasyonu başlatır.
   void _maybePlay() {
@@ -287,7 +306,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
       });
       _starFx.value = const _StarFx(-1, 0);
       if (canWalk) {
-        _walk.duration = Duration(milliseconds: (_walkSteps * 700).clamp(700, 1600).toInt());
+        _walk.duration = Duration(milliseconds: (_walkSteps * 1300).clamp(1300, 3200).toInt());
         await _walk.forward(from: 0);
         if (mounted) setState(() => _walking = false);
         if (mounted) _focusCurrent();
@@ -301,32 +320,73 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   /// Ünite içindeki k. sıranın yatay ortası (k == unit.count: hazine sandığı).
   double _slotCx(_Unit u, int k, double w) => k >= u.count ? _chestFx * w : (k.isEven ? 0.28 : 0.72) * w;
 
-  double _slotHalfW(_Unit u, int k, double w) =>
-      k >= u.count ? _chestHalfW : _LessonNode.d / 2;
+  /// Ejderha demodaki gibi düğümün üstünde durur: ayakları düğümün üst kenarına biner (merkezden 30 yukarı).
+  static const double _dragonW = 74;
+  static const double _dragonH = 79;
 
-  /// Maskotun kartın (ya da sandığın) yanındaki durağan yeri (sol-üst köşe). Boş yeri geniş olan tarafta durur.
-  Offset _mascotSpot(_Unit u, int k, double w, double y) {
-    final cx = _slotCx(u, k, w);
-    final hw = _slotHalfW(u, k, w);
-    final left = cx - hw;
-    final right = cx + hw;
-    final mx = left >= w - right ? left - 74.0 : right + 4;
-    return Offset(mx, y - 44);
-  }
+  Offset _dragonPos(_Unit u, int k, double w, double y) => Offset(_slotCx(u, k, w) - _dragonW / 2, y - 30 - _dragonH);
 
-  Widget _dragonImage() => Image.asset(
-        'assets/ready/mascot_wave.png',
-        height: 88,
-        cacheHeight: 264,
-        gaplessPlayback: true,
+  /// Maskot görseli (mascot_main, bayraklı): kenarlardaki boş şeffaflık kırpılır, genişlik 74 olur; ayağın altında gölge.
+  Widget _dragonSprite() => SizedBox(
+        width: _dragonW,
+        height: _dragonH,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: -3,
+              height: 9,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0x38000000),
+                  borderRadius: BorderRadius.all(Radius.elliptical(27, 4.5)),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: const Alignment(0.026, 0.005),
+                widthFactor: 0.753,
+                heightFactor: 0.804,
+                child: Image.asset(
+                  'assets/ready/mascot_main.png',
+                  width: 98.3,
+                  height: 98.3,
+                  cacheWidth: 300,
+                  gaplessPlayback: true,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 
+  /// Duran ejderha: yukarı-aşağı hafif nefes alır (demodaki idle: 5 px yukarı, boy %4 uzar).
   Widget _staticDragon(_Unit u, int k, double y, double w) {
-    final s = _mascotSpot(u, k, w, y);
-    return Positioned(left: s.dx, top: s.dy, child: _dragonImage());
+    final s = _dragonPos(u, k, w, y);
+    return Positioned(
+      left: s.dx,
+      top: s.dy,
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: _idle,
+          child: _dragonSprite(),
+          builder: (context, child) {
+            final t = math.sin(_idle.value * math.pi);
+            return Transform.translate(
+              offset: Offset(0, -5 * t),
+              child: Transform.scale(scaleY: 1 + 0.04 * t, alignment: Alignment.bottomCenter, child: child),
+            );
+          },
+        ),
+      ),
+    );
   }
 
-  /// Ejderha yol çizgisini izleyerek zıplaya zıplaya sıradaki derse (ya da hazineye) gider.
+  /// Ejderha yol çizgisini izleyerek zıplaya zıplaya sıradaki derse (ya da hazineye) gider
+  /// (demodaki hop: 0,3 sn'de bir zıplar, 14 px yükselir, 8 derece yatar).
   Widget _walkingDragon(_Unit unit, double w) {
     return AnimatedBuilder(
       animation: _walk,
@@ -346,11 +406,18 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
         final u = 1 - lt;
         // Yolun eğrisi (_PathPainter ile aynı): a -> b
         final road = a * (u * u * u) + p1 * (3 * u * u * lt) + p2 * (3 * u * lt * lt) + b * (lt * lt * lt);
-        final oa = _mascotSpot(unit, ka, w, ya) - a;
-        final ob = _mascotSpot(unit, kb, w, yb) - b;
-        final hop = -(math.sin(lt * math.pi * 4)).abs() * 12;
-        final pos = road + Offset.lerp(oa, ob, lt)! + Offset(0, hop);
-        return Positioned(left: pos.dx, top: pos.dy, child: _dragonImage());
+        final ms = _walk.value * (_walk.duration?.inMilliseconds ?? 1300);
+        final hopT = math.sin(math.pi * ((ms / 300) % 1.0));
+        return Positioned(
+          left: road.dx - _dragonW / 2,
+          top: road.dy - 30 - _dragonH,
+          child: IgnorePointer(
+            child: Transform.translate(
+              offset: Offset(0, -14 * hopT),
+              child: Transform.rotate(angle: 0.14 * hopT, child: _dragonSprite()),
+            ),
+          ),
+        );
       },
     );
   }
