@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'fx.dart';
 import 'app_state.dart';
 import 'debug_tools.dart';
@@ -109,6 +110,8 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
   late final AnimationController _idle =
       AnimationController(vsync: this, duration: const Duration(seconds: 1));
   final ValueNotifier<bool> _pulse = ValueNotifier<bool>(false);
+  // Animasyon bitene kadar sayaçta henüz gösterilmeyen kristal sayısı (kristaller varınca azalır).
+  final ValueNotifier<int> _held = ValueNotifier<int>(0);
   final ValueNotifier<_StarFx> _starFx = ValueNotifier<_StarFx>(const _StarFx(-1, 0));
   final GlobalKey _gemKey = GlobalKey();
   final GlobalKey _chestKey = GlobalKey();
@@ -163,6 +166,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
     _walk.dispose();
     _idle.dispose();
     _pulse.dispose();
+    _held.dispose();
     _starFx.dispose();
     _scroll.dispose();
     super.dispose();
@@ -191,7 +195,15 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
       return;
     }
     _playing = true;
+    _held.value = (c - _shown) * AppState.gemReward; // sayaç kristaller varınca artar
     WidgetsBinding.instance.addPostFrameCallback((_) => _play());
+  }
+
+  /// k. kristal varınca sayaç artar: toplam [total], [count] kristale bölünür (son kristal kalanı alır).
+  void _release(int k, int count, int total) {
+    final share = total ~/ count;
+    final add = k == count - 1 ? total - share * (count - 1) : share;
+    _held.value = math.max(0, _held.value - add);
   }
 
   /// Bir kristal elmasa varınca: ding sesi, elmas kısa büyür.
@@ -221,7 +233,11 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
     final gemBox = _gemKey.currentContext?.findRenderObject() as RenderBox?;
     _chestBusy = true;
     try {
-      if (!AppState.instance.openChest(u)) return;
+      _held.value = AppState.chestGems; // sayaç kristaller varınca artar
+      if (!AppState.instance.openChest(u)) {
+        _held.value = 0;
+        return;
+      }
       Fx.reward();
       if (chestBox != null && gemBox != null && chestBox.hasSize && gemBox.hasSize) {
         await flyGems(
@@ -232,7 +248,10 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
           label: AppState.chestGems,
           sparks: 20,
           stagger: 90,
-          onLand: _onGemLand,
+          onLand: (k) {
+            _release(k, AppState.chestGems.clamp(1, 8).toInt(), AppState.chestGems);
+            _onGemLand(k);
+          },
         );
       }
       if (!mounted) return;
@@ -241,6 +260,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
       await showUnitToast(context, title: '🎉 ${unit.name} tamamlandı!', subtitle: 'Hazine açıldı');
     } finally {
       _chestBusy = false;
+      _held.value = 0;
     }
   }
 
@@ -293,7 +313,10 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
         to: end,
         count: earned.clamp(1, 8).toInt(),
         label: earned,
-        onLand: _onGemLand,
+        onLand: (k) {
+          _release(k, earned.clamp(1, 8).toInt(), earned);
+          _onGemLand(k);
+        },
       );
       if (!mounted) return;
       // 3) Ders "tamam" olur, ejderha sıradaki derse (ünite bittiyse hazineye) yürür.
@@ -313,6 +336,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
       }
     } finally {
       _playing = false;
+      _held.value = 0;
       if (mounted) _maybePlay(); // animasyon sürerken başka ders bittiyse devam et
     }
   }
@@ -440,10 +464,14 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
         final n = unit.count;
         final slots = n + 1; // dersler + en üstte ünite hazinesi
         final unitEnd = unit.start + n;
-        const step = 132.0; // iki ders arası dikey boşluk (harita kaydırılır)
-        final topPad = top + 10 + 48 + 14 + _chestImg / 2 + 8; // ünite çubuğunun altında hazine
-        const bottomPad = 12 + 66 + 14 + 96.0; // alt kart + dersin yarı boyu + etiketi
+        // Harita ekrana SIĞAR: ders aralığı boş yüksekliğe göre hesaplanır (kaydırma yok).
+        // Ekran çok kısaysa aralık en az 96 olur ve harita kaydırılabilir kalır.
+        final headerH = top + _MapHeader.h;
+        final topPad = headerH + 14 + _chestImg / 2; // başlığın altında hazine
+        const bottomPad = 92.0; // dersin yarı boyu + ad etiketi + boşluk
+        final step = ((h - topPad - bottomPad) / n).clamp(96.0, 140.0).toDouble();
         final fullH = math.max(h, topPad + n * step + bottomPad);
+        final fits = fullH <= h + 0.5;
         final y0 = fullH - bottomPad; // ilk dersin (en alttaki) ortası
         _w = w;
         _y0 = y0;
@@ -454,12 +482,15 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
           _needFocus = false;
           WidgetsBinding.instance.addPostFrameCallback((_) => _focusCurrent(jump: true));
         }
-        return Stack(
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent),
+          child: Stack(
           children: [
             // Kaydırılan harita: arka plan, süsler, yol, düğümler, hazine, ejderha.
             Positioned.fill(
               child: SingleChildScrollView(
                 controller: _scroll,
+                physics: fits ? const NeverScrollableScrollPhysics() : null,
                 child: SizedBox(
                   width: w,
                   height: fullH,
@@ -507,32 +538,35 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
               ),
             ),
             Positioned(
-              top: top + 10,
-              left: 16,
-              right: 16,
-              child: _UnitBar(
-                selected: _unit,
-                completed: _shown,
+              top: 0,
+              left: 0,
+              right: 0,
+              child: _MapHeader(
+                top: top,
+                title: unit.name,
+                done: (_shown - unit.start).clamp(0, n).toInt(),
+                total: n,
+                hasPrev: _unit > 0,
+                hasNext: _unit < _units.length - 1,
                 gemKey: _gemKey,
                 pulse: _pulse,
-                onSelect: (u) {
-                  if (u == _unit) return;
-                  Fx.tap();
-                  _needFocus = true;
-                  setState(() => _unit = u);
-                },
+                held: _held,
+                onPrev: () => _selectUnit(_unit - 1),
+                onNext: () => _selectUnit(_unit + 1),
               ),
             ),
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 12,
-              child: _TotalCard(unit: unit, completed: _shown, chestOpened: _chestDone.contains(_unit)),
-            ),
           ],
+          ),
         );
       },
     );
+  }
+
+  void _selectUnit(int u) {
+    if (u < 0 || u >= _units.length || u == _unit) return;
+    Fx.tap();
+    _needFocus = true;
+    setState(() => _unit = u);
   }
 
   /// Haritayı sıradaki dersin (ünite bittiyse hazinenin) görüneceği yere kaydırır.
@@ -1013,186 +1047,109 @@ class _LessonNode extends StatelessWidget {
   }
 }
 
-/// Üst çubuk: [Ünite 1] ---(toplam ilerleme, elmas işaretli)--- [Ünite 2].
-/// Ünite adına dokununca o ünitenin haritası açılır.
-class _UnitBar extends StatelessWidget {
-  final int selected;
-  final ValueChanged<int> onSelect;
-  final int completed; // ekranda gösterilen tamamlanan ders sayısı
-  final GlobalKey gemKey; // kristallerin uçacağı elmasın konumu
-  final ValueNotifier<bool> pulse; // kristal varınca elmas büyüyüp küçülür
-  const _UnitBar({
-    required this.selected,
-    required this.onSelect,
-    required this.completed,
+/// Üst başlık (demodaki gibi): mor zemin, solda ünite adı + "x/6 ders", sağda kristal sayacı.
+/// Kristaller buradaki sayaca uçar; varınca sayaç büyür ve sayı artar. Ünite okları ile ünite değişir.
+class _MapHeader extends StatelessWidget {
+  static const double h = 64;
+  final double top;
+  final String title;
+  final int done;
+  final int total;
+  final bool hasPrev;
+  final bool hasNext;
+  final GlobalKey gemKey;
+  final ValueNotifier<bool> pulse;
+  final ValueNotifier<int> held;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  const _MapHeader({
+    required this.top,
+    required this.title,
+    required this.done,
+    required this.total,
+    required this.hasPrev,
+    required this.hasNext,
     required this.gemKey,
     required this.pulse,
+    required this.held,
+    required this.onPrev,
+    required this.onNext,
   });
+
+  Widget _arrow(IconData icon, bool on, VoidCallback onTap) => GestureDetector(
+        onTap: on ? onTap : null,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 34,
+          height: 44,
+          child: Icon(icon, size: 28, color: on ? Colors.white : const Color(0x33FFFFFF)),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: const Color(0xE6FFFFFF),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 3)),
-        ],
+      height: top + h,
+      padding: EdgeInsets.fromLTRB(8, top, 16, 0),
+      decoration: const BoxDecoration(
+        color: Color(0xFF5B3BBE),
+        boxShadow: [BoxShadow(color: Color(0x59000000), offset: Offset(0, 3), blurRadius: 8)],
       ),
       child: Row(
         children: [
-          _UnitChip(label: _units[0].name, selected: selected == 0, onTap: () => onSelect(0)),
-          Expanded(child: _UnitTrack(completed: completed, gemKey: gemKey, pulse: pulse)),
-          _UnitChip(label: _units[1].name, selected: selected == 1, onTap: () => onSelect(1)),
-        ],
-      ),
-    );
-  }
-}
-
-/// İki ünite arasındaki çizgi: tamamlanan ders oranı kadar mavi, elmas ilerlemeyi gösterir.
-class _UnitTrack extends StatelessWidget {
-  final int completed;
-  final GlobalKey gemKey;
-  final ValueNotifier<bool> pulse;
-  const _UnitTrack({required this.completed, required this.gemKey, required this.pulse});
-
-  @override
-  Widget build(BuildContext context) {
-    final total = _units.fold<int>(0, (a, u) => a + u.count);
-    final done = completed.clamp(0, total);
-    final a = (done * 100 / total).round();
-    final b = 100 - a;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          if (a > 0) Expanded(flex: a, child: const _TrackBar(color: kBlue)),
+          _arrow(Icons.chevron_left_rounded, hasPrev, onPrev),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, height: 1.05),
+                ),
+                Text(
+                  '$done/$total ders',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xCCFFFFFF), height: 1.2),
+                ),
+              ],
+            ),
+          ),
+          _arrow(Icons.chevron_right_rounded, hasNext, onNext),
+          const SizedBox(width: 6),
           ValueListenableBuilder<bool>(
             valueListenable: pulse,
             builder: (context, on, child) => AnimatedScale(
-              scale: on ? 1.5 : 1.0,
+              scale: on ? 1.2 : 1.0,
               duration: const Duration(milliseconds: 120),
               child: child,
             ),
-            child: Image.asset('assets/ready/icon_gem.png', key: gemKey, height: 22, cacheHeight: 66),
-          ),
-          if (b > 0) Expanded(flex: b, child: const _TrackBar(color: Color(0xFFDDE5EE))),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrackBar extends StatelessWidget {
-  final Color color;
-  const _TrackBar({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 6,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
-    );
-  }
-}
-
-class _UnitChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _UnitChip({required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 38,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? kBlue : const Color(0x00FFFFFF),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: selected
-              ? const [BoxShadow(color: kBlueDark, offset: Offset(0, 3))]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w900,
-            color: selected ? Colors.white : kMuted,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Alt kart: ünite adı, tamamlanan/toplam ders ve ders başına bir parça olan ilerleme çubuğu.
-class _TotalCard extends StatelessWidget {
-  final _Unit unit;
-  final int completed;
-  final bool chestOpened; // ünite hazinesi açıldı mı (son, altın renkli parça)
-  const _TotalCard({required this.unit, required this.completed, required this.chestOpened});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: AppState.instance,
-      builder: (context, _) {
-        final n = unit.count;
-        final done = (completed - unit.start).clamp(0, n);
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-          decoration: cardDecoration(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${unit.name}: $n ders  •  $done/$n tamamlandı',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: kInk,
-                ),
+            child: Container(
+              height: 46,
+              padding: const EdgeInsets.fromLTRB(10, 0, 18, 0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1B1760),
+                borderRadius: BorderRadius.circular(23),
+                boxShadow: const [BoxShadow(color: Color(0x40000000), offset: Offset(0, 3))],
               ),
-              const SizedBox(height: 8),
-              Row(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  for (var k = 0; k < n; k++) ...[
-                    if (k > 0) const SizedBox(width: 4),
-                    Expanded(
-                      child: Container(
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: k < done ? kGreen : const Color(0xFFDDE5EE),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 4),
-                  Container(
-                    width: 26,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: chestOpened ? kYellow : const Color(0xFFDDE5EE),
-                      borderRadius: BorderRadius.circular(5),
+                  Image.asset('assets/ready/icon_gem.png', key: gemKey, height: 34, cacheHeight: 102),
+                  const SizedBox(width: 8),
+                  ListenableBuilder(
+                    listenable: Listenable.merge([AppState.instance, held]),
+                    builder: (context, _) => Text(
+                      '${math.max(0, AppState.instance.gems - held.value)}',
+                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
