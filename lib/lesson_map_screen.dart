@@ -51,13 +51,10 @@ const _units = [
   _Unit('Ünite 2', 6, 6),
 ];
 
-/// Harita kartının yüksekliği (yerleşim bu sayıyla hesaplanır).
-const double _cardH = 58;
-
 /// Hazine sandığı: yatay yeri (genişliğe oran), görsel boyu ve yarım genişliği (ejderha yeri için).
-const double _chestFx = 0.64;
-const double _chestImg = 60;
-const double _chestHalfW = 40;
+const double _chestFx = 0.5;
+const double _chestImg = 78;
+const double _chestHalfW = 44;
 
 /// Ders bitince kartın yıldızları sırayla yanar: hangi ders ve kaç yıldız yanık (lesson -1 = yok).
 class _StarFx {
@@ -115,6 +112,10 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   // Ekranda açık gösterilen hazineler (AppState'ten kopya: patlama bitene kadar sandık kapalı görünür).
   late final Set<int> _chestDone = {...AppState.instance.chestsOpened};
   bool _chestBusy = false;
+  final ScrollController _scroll = ScrollController();
+  bool _needFocus = true; // ilk çizimde ve ünite değişince sıradaki derse kaydır
+  double _viewH = 0;
+  double _fullH = 0;
   ModalRoute<void>? _route;
   // Son çizimdeki yerleşim (kristal ve ejderha nereden nereye gidecek bilmek için).
   double _w = 0;
@@ -151,6 +152,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
     _walk.dispose();
     _pulse.dispose();
     _starFx.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -245,6 +247,12 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
         setState(() => _shown = c); // animasyonsuz güncelle
         return;
       }
+      // 0) Biten dersin düğümü görünür olsun.
+      final target = _offsetFor(from - unit.start);
+      if (_scroll.hasClients && (target - _scroll.offset).abs() > 4) {
+        await _scroll.animateTo(target, duration: const Duration(milliseconds: 350), curve: Curves.easeOut);
+        if (!mounted) return;
+      }
       // 1) Biten dersin 3 yıldızı sırayla yanar (her yıldızda yükselen nota).
       for (var k = 0; k < 3; k++) {
         await Future.delayed(const Duration(milliseconds: 260));
@@ -255,7 +263,9 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
       await Future.delayed(const Duration(milliseconds: 350));
       if (!mounted) return;
       // 2) Kristaller elmasa uçar.
-      final start = box.localToGlobal(Offset(_centerX(from, _w), _y0 - (from - unit.start) * _step));
+      final start = box.localToGlobal(
+        Offset(_slotCx(unit, from - unit.start, _w), _y0 - (from - unit.start) * _step - _scroll.offset),
+      );
       final end = gemBox.localToGlobal(gemBox.size.center(Offset.zero));
       final earned = (c - from) * AppState.gemReward;
       await flyGems(
@@ -280,6 +290,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
         _walk.duration = Duration(milliseconds: (_walkSteps * 700).clamp(700, 1600).toInt());
         await _walk.forward(from: 0);
         if (mounted) setState(() => _walking = false);
+        if (mounted) _focusCurrent();
       }
     } finally {
       _playing = false;
@@ -288,10 +299,10 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   }
 
   /// Ünite içindeki k. sıranın yatay ortası (k == unit.count: hazine sandığı).
-  double _slotCx(_Unit u, int k, double w) => k >= u.count ? _chestFx * w : _centerX(u.start + k, w);
+  double _slotCx(_Unit u, int k, double w) => k >= u.count ? _chestFx * w : (k.isEven ? 0.28 : 0.72) * w;
 
   double _slotHalfW(_Unit u, int k, double w) =>
-      k >= u.count ? _chestHalfW : (w - 24).clamp(0.0, 232.0).toDouble() / 2;
+      k >= u.count ? _chestHalfW : _LessonNode.d / 2;
 
   /// Maskotun kartın (ya da sandığın) yanındaki durağan yeri (sol-üst köşe). Boş yeri geniş olan tarafta durur.
   Offset _mascotSpot(_Unit u, int k, double w, double y) {
@@ -359,49 +370,75 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
       builder: (context, c) {
         final w = c.maxWidth;
         final h = c.maxHeight;
-        // Kartların ortası bu iki çizgi arasına sığar: üstte ünite çubuğu, altta ilerleme kartı.
-        final yTop = top + 10 + 48 + 14 + _cardH / 2;
-        final yBottom = h - 12 - 66 - 14 - _cardH / 2;
-        final usable = yBottom - yTop;
         final n = unit.count;
         final slots = n + 1; // dersler + en üstte ünite hazinesi
         final unitEnd = unit.start + n;
-        // Kartlar aralarında eşit boşlukla dizilir, çok seyrek olmasın diye üst sınır var.
-        final step = slots > 1 ? (usable / (slots - 1)).clamp(0.0, 104.0) : 0.0;
-        final y0 = yBottom - (usable - step * (slots - 1)) / 2; // ilk dersin (en alttaki) ortası
+        const step = 132.0; // iki ders arası dikey boşluk (harita kaydırılır)
+        final topPad = top + 10 + 48 + 14 + _chestImg / 2 + 8; // ünite çubuğunun altında hazine
+        const bottomPad = 12 + 66 + 14 + 96.0; // alt kart + dersin yarı boyu + etiketi
+        final fullH = math.max(h, topPad + n * step + bottomPad);
+        final y0 = fullH - bottomPad; // ilk dersin (en alttaki) ortası
         _w = w;
         _y0 = y0;
         _step = step;
+        _viewH = h;
+        _fullH = fullH;
+        if (_needFocus) {
+          _needFocus = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) => _focusCurrent(jump: true));
+        }
         return Stack(
           children: [
-            // Tam ekran arka plan: resim yok, kodla çizilir (gökyüzü, bulut, tepe/dalga). Ünite başına renk teması.
+            // Kaydırılan harita: arka plan, süsler, yol, düğümler, hazine, ejderha.
             Positioned.fill(
-              child: RepaintBoundary(
-                child: CustomPaint(painter: _MapBgPainter(_unit)),
-              ),
-            ),
-            // Kartları birbirine bağlayan beyaz yol çizgisi (kartların altında kalır).
-            Positioned.fill(
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  painter: _PathPainter([
-                    for (var k = 0; k < slots; k++) Offset(_slotCx(unit, k, w), y0 - k * step),
-                  ]),
+              child: SingleChildScrollView(
+                controller: _scroll,
+                child: SizedBox(
+                  width: w,
+                  height: fullH,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: Stack(
+                            children: [
+                              Positioned.fill(child: CustomPaint(painter: _MapBgPainter(_unit))),
+                              for (final d in _decor[_unit])
+                                Positioned(
+                                  left: d.fx * w,
+                                  top: d.fy * fullH,
+                                  child: FractionalTranslation(
+                                    translation: const Offset(-0.5, -1),
+                                    child: Text(d.emoji, style: TextStyle(fontSize: d.size, height: 1)),
+                                  ),
+                                ),
+                              CustomPaint(
+                                size: Size(w, fullH),
+                                painter: _PathPainter([
+                                  for (var k = 0; k < slots; k++) Offset(_slotCx(unit, k, w), y0 - k * step),
+                                ]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      for (var k = 0; k < n; k++) ..._buildLesson(context, unit.start + k, y0 - k * step, w),
+                      _buildChest(unit, y0 - n * step, w),
+                      // Ejderha: yürürken animasyonlu, değilken sıradaki düğümün (ünite bittiyse hazinenin) yanında durur.
+                      if (_walking)
+                        _walkingDragon(unit, w)
+                      else if (_chestPending(_unit))
+                        _staticDragon(unit, n, y0 - n * step, w)
+                      else if (_shown >= unit.start &&
+                          _shown < unitEnd &&
+                          _statusOf(_shown, _shown) == _Status.current &&
+                          !(_unit > 0 && _chestPending(_unit - 1)))
+                        _staticDragon(unit, _shown - unit.start, y0 - (_shown - unit.start) * step, w),
+                    ],
+                  ),
                 ),
               ),
             ),
-            for (var k = 0; k < n; k++) ..._buildLesson(context, unit.start + k, y0 - k * step, w),
-            _buildChest(unit, y0 - n * step, w),
-            // Ejderha: yürürken animasyonlu, değilken sıradaki kartın (ünite bittiyse hazinenin) yanında durur.
-            if (_walking)
-              _walkingDragon(unit, w)
-            else if (_chestPending(_unit))
-              _staticDragon(unit, n, y0 - n * step, w)
-            else if (_shown >= unit.start &&
-                _shown < unitEnd &&
-                _statusOf(_shown, _shown) == _Status.current &&
-                !(_unit > 0 && _chestPending(_unit - 1)))
-              _staticDragon(unit, _shown - unit.start, y0 - (_shown - unit.start) * step, w),
             Positioned(
               top: top + 10,
               left: 16,
@@ -414,6 +451,7 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
                 onSelect: (u) {
                   if (u == _unit) return;
                   Fx.tap();
+                  _needFocus = true;
                   setState(() => _unit = u);
                 },
               ),
@@ -430,11 +468,24 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
     );
   }
 
-  /// Kartın yatay ortası (_buildLesson ile aynı hesap: ekrandan taşmaz).
-  double _centerX(int i, double w) {
-    final pillW = (w - 24).clamp(0.0, 232.0);
-    final left = (_lessons[i].fx * w - pillW / 2).clamp(12.0, w - pillW - 12).toDouble();
-    return left + pillW / 2;
+  /// Haritayı sıradaki dersin (ünite bittiyse hazinenin) görüneceği yere kaydırır.
+  void _focusCurrent({bool jump = false}) {
+    if (!_scroll.hasClients) return;
+    final unit = _units[_unit];
+    final k = (_shown - unit.start).clamp(0, unit.count).toInt();
+    final o = _offsetFor(k);
+    if (jump) {
+      _scroll.jumpTo(o);
+    } else {
+      _scroll.animateTo(o, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    }
+  }
+
+  /// k. sıra ekranın ortasının biraz altında görünsün diye gereken kaydırma miktarı.
+  double _offsetFor(int k) {
+    final y = _y0 - k * _step;
+    final maxO = math.max(0.0, _fullH - _viewH);
+    return (y - _viewH * 0.55).clamp(0.0, maxO).toDouble();
   }
 
   /// Ünitenin tüm dersleri bitti ama hazine henüz açılmadı mı? (ejderha sandığın yanında bekler)
@@ -461,21 +512,22 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   List<Widget> _buildLesson(BuildContext context, int i, double y, double w) {
     final l = _lessons[i];
     final status = _statusOf(i, _shown);
-    final x = l.fx * w;
-    final pillW = (w - 24).clamp(0.0, 232.0);
-    final left = (x - pillW / 2).clamp(12.0, w - pillW - 12);
+    final cx = _slotCx(_units[_unit], i - _units[_unit].start, w);
     return [
       Positioned(
-        left: left,
-        top: y - _cardH / 2,
-        width: pillW,
-        child: _LessonCard(
+        left: cx - _LessonNode.d / 2,
+        top: y - _LessonNode.d / 2,
+        width: _LessonNode.d,
+        height: _LessonNode.d,
+        child: _LessonNode(
           number: i + 1,
           info: l,
           status: status,
           starFx: _starFx,
           // İçeriği hazır olan her ders (bitmiş de olsa) istenen yerden açılır.
-          onTap: i < _playableLessons
+          onTap: status == _Status.locked
+              ? null // kilitli ders geçilene kadar açılmaz
+              : i < _playableLessons
               ? () {
                   Fx.tap();
                   openLesson(context, i);
@@ -496,6 +548,32 @@ class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderSt
   }
 }
 
+/// Haritadaki süs (emoji): yatay/dikey yeri harita boyuna oran, boyutu punto.
+class _Deco {
+  final double fx;
+  final double fy;
+  final String emoji;
+  final double size;
+  const _Deco(this.fx, this.fy, this.emoji, this.size);
+}
+
+const _decor = [
+  [
+    _Deco(0.10, 0.93, '🌳', 54), _Deco(0.90, 0.96, '🌲', 60), _Deco(0.525, 0.985, '🌿', 30),
+    _Deco(0.15, 0.82, '🌲', 56), _Deco(0.90, 0.70, '🌳', 52), _Deco(0.10, 0.56, '🌳', 60),
+    _Deco(0.875, 0.61, '🌸', 30), _Deco(0.15, 0.33, '🌲', 56), _Deco(0.875, 0.40, '🌳', 54),
+    _Deco(0.11, 0.21, '🌲', 62), _Deco(0.89, 0.17, '🌳', 50), _Deco(0.50, 0.945, '🍄', 30),
+    _Deco(0.20, 0.085, '🏔️', 90), _Deco(0.80, 0.095, '🏔️', 110), _Deco(0.825, 0.86, '🌸', 28),
+    _Deco(0.475, 0.44, '🍄', 28), _Deco(0.075, 0.74, '🌼', 26), _Deco(0.94, 0.33, '🌼', 26),
+  ],
+  [
+    _Deco(0.12, 0.92, '🌴', 60), _Deco(0.88, 0.94, '🌴', 56), _Deco(0.50, 0.975, '🐚', 28),
+    _Deco(0.10, 0.72, '🌴', 54), _Deco(0.90, 0.62, '⛵', 40), _Deco(0.10, 0.46, '🐚', 26),
+    _Deco(0.90, 0.36, '🌊', 34), _Deco(0.12, 0.24, '⛵', 38), _Deco(0.88, 0.17, '🌴', 50),
+    _Deco(0.50, 0.46, '🦀', 28), _Deco(0.85, 0.83, '🐚', 26),
+  ],
+];
+
 /// Arka plan: resim yerine kodla çizilen sahne. Ünite 0 = çayır (gökyüzü, tepeler, ağaçlar),
 /// ünite 1 = kıyı (gökyüzü, dalgalar, yelkenli). Hepsi düz renk ve yol, blur yok, ucuz; sadece ünite değişince yeniden çizilir.
 class _MapBgPainter extends CustomPainter {
@@ -511,7 +589,14 @@ class _MapBgPainter extends CustomPainter {
 
     // Gökyüzü degradesi
     final sky = meadow
-        ? const [Color(0xFF4FB6F5), Color(0xFFBFEAFF), Color(0xFFDDF6C4)]
+        ? const [
+            Color(0xFF52B4F5),
+            Color(0xFF9FDCFB),
+            Color(0xFFD6F2E6),
+            Color(0xFFC1EA9A),
+            Color(0xFF93D768),
+            Color(0xFF6CBB48),
+          ]
         : const [Color(0xFF3CC4D8), Color(0xFFCFF3F7), Color(0xFFFFEFC2)];
     canvas.drawRect(
       rect,
@@ -520,7 +605,7 @@ class _MapBgPainter extends CustomPainter {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: sky,
-          stops: const [0.0, 0.55, 1.0],
+          stops: meadow ? const [0.0, 0.22, 0.45, 0.62, 0.85, 1.0] : const [0.0, 0.55, 1.0],
         ).createShader(rect),
     );
 
@@ -551,9 +636,6 @@ class _MapBgPainter extends CustomPainter {
     if (meadow) {
       _hill(canvas, size, h * 0.72, h * 0.05, 1, const Color(0xFFC6EDA3)); // uzak tepe
       _hill(canvas, size, h * 0.80, h * 0.05, -1, const Color(0xFF9EDD6C));
-      for (final t in const [Offset(0.10, 0.80), Offset(0.88, 0.77), Offset(0.50, 0.83), Offset(0.28, 0.84)]) {
-        _tree(canvas, Offset(w * t.dx, h * t.dy), w * 0.05);
-      }
       _hill(canvas, size, h * 0.87, h * 0.04, 1, const Color(0xFF7BCB48));
       _hill(canvas, size, h * 0.93, h * 0.03, -1, const Color(0xFF5DB835));
     } else {
@@ -625,8 +707,8 @@ class _MapBgPainter extends CustomPainter {
   bool shouldRepaint(_MapBgPainter old) => old.unit != unit;
 }
 
-/// Kartların ortalarından geçen yumuşak "S" şeklinde beyaz yol çizgisi.
-/// Altında hafif bir gölge çizgisi vardır (blur yok, ucuz). Sadece nokta değişince yeniden çizilir.
+/// Düğümlerin ortalarından geçen kum rengi yol (demodaki gibi): gölge, dış şerit, iç şerit, kesik çizgi.
+/// Blur yok, ucuz; sadece nokta değişince yeniden çizilir.
 class _PathPainter extends CustomPainter {
   final List<Offset> pts; // en alttaki (1.) dersten yukarı doğru
   const _PathPainter(this.pts);
@@ -641,24 +723,22 @@ class _PathPainter extends CustomPainter {
       final midY = (a.dy + b.dy) / 2;
       path.cubicTo(a.dx, midY, b.dx, midY, b.dx, b.dy);
     }
-    final band = Paint()
+    Paint stroke(double wd, Color c) => Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 18
+      ..strokeWidth = wd
       ..strokeCap = StrokeCap.round
-      ..color = const Color(0x40FFFFFF);
-    canvas.drawPath(path, band);
-    final shadow = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 9
-      ..strokeCap = StrokeCap.round
-      ..color = const Color(0x26000000);
-    final line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round
-      ..color = const Color(0xE6FFFFFF);
-    canvas.drawPath(path.shift(const Offset(0, 2)), shadow);
-    canvas.drawPath(path, line);
+      ..color = c;
+    canvas.drawPath(path.shift(const Offset(0, 7)), stroke(30, const Color(0x2E0B3A2A)));
+    canvas.drawPath(path, stroke(26, const Color(0xFFF3D89A)));
+    canvas.drawPath(path, stroke(18, const Color(0xFFFFEEC2)));
+    final dash = stroke(3, const Color(0xFFE0B868));
+    for (final m in path.computeMetrics()) {
+      var d = 0.0;
+      while (d < m.length) {
+        canvas.drawPath(m.extractPath(d, math.min(d + 3, m.length)), dash);
+        d += 17;
+      }
+    }
   }
 
   @override
@@ -713,15 +793,16 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.color != color || old.progress != progress;
 }
 
-/// Haritadaki ders kartı: solda renkli numara dairesi, ortada ders adı, sağda durum simgesi
-/// (tamam: yeşil tik, sıradaki: oynat, kilitli: kilit).
-class _LessonCard extends StatelessWidget {
+/// Haritadaki ders düğümü (demodaki gibi): yuvarlak numara düğmesi, üstünde 3 yıldız, köşede kazanılacak
+/// kristal, altında ders adı. Bitti: tik, sıradaki: numara + hale, kilitli: gri + kilit.
+class _LessonNode extends StatelessWidget {
+  static const double d = 78;
   final int number;
   final _LessonInfo info;
   final _Status status;
   final ValueNotifier<_StarFx> starFx; // ders bitince yıldızların sırayla yanması
   final VoidCallback? onTap;
-  const _LessonCard({
+  const _LessonNode({
     required this.number,
     required this.info,
     required this.status,
@@ -729,114 +810,137 @@ class _LessonCard extends StatelessWidget {
     this.onTap,
   });
 
-  /// Ders adının altı: yanan yıldızlar (bitti / yıldızlar yanarken) ya da kazanılacak kristal.
-  Widget _sub(bool locked) {
-    final index = number - 1;
-    return ValueListenableBuilder<_StarFx>(
-      valueListenable: starFx,
-      builder: (context, v, _) {
-        if (v.lesson == index) return _StarsRow(lit: v.lit, animate: true);
-        if (status == _Status.done) return const _StarsRow(lit: 3, animate: false);
-        return _RewardTag(muted: locked);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final locked = status == _Status.locked;
+    final done = status == _Status.done;
     final current = status == _Status.current;
-    final circle = locked ? kLocked : info.color;
-    final circleShadow = locked ? kLockedDark : info.shadow;
+    final base = locked ? const Color(0xFF8E98A8) : info.color;
+    final light = locked ? const Color(0xFFC9D0DB) : Color.lerp(info.color, Colors.white, 0.4)!;
+    final dark = locked ? const Color(0xFF6B7586) : info.shadow;
+    final progress = (locked || done) ? 0.0 : _progressOf(number - 1, false);
+    final Widget face;
+    if (locked) {
+      face = const Icon(Icons.lock_rounded, size: 32, color: Color(0xFFFFC107));
+    } else if (done) {
+      face = const Icon(Icons.check_rounded, size: 46, color: Colors.white);
+    } else {
+      face = Text(
+        '$number',
+        style: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w900,
+          color: Colors.white,
+          shadows: [Shadow(color: dark, offset: const Offset(0, 3))],
+        ),
+      );
+    }
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: _cardH,
-        padding: const EdgeInsets.fromLTRB(5, 0, 14, 0),
-        // Uçları köşeli (altıgen) kart: ince renkli çerçeve, sıradaki derste kalın.
-        decoration: ShapeDecoration(
-          color: const Color(0xF2FFFFFF),
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-            side: BorderSide(
-              color: locked ? kLocked : info.color,
-              width: current ? 2.5 : 1.5,
-            ),
-          ),
-          shadows: const [
-            BoxShadow(color: Color(0x261C6BA8), blurRadius: 8, offset: Offset(0, 3)),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Numara dairesi ve çevresinde ders ilerleme halkası (bitti: tam, yarıda: kısmen).
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: CustomPaint(
-                painter: _RingPainter(
-                  locked ? kLocked : info.color,
-                  locked ? 0 : _progressOf(number - 1, status == _Status.done),
-                ),
-                child: Center(
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: circle,
-                      shape: BoxShape.circle,
-                      boxShadow: [BoxShadow(color: circleShadow, offset: const Offset(0, 3))],
-                    ),
-                    child: Text(
-                      '$number',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Sıradaki derste arkasında beyaz hale (sabit).
+          if (current)
+            const Positioned(
+              left: -14,
+              top: -14,
+              right: -14,
+              bottom: -14,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [Color(0xE6FFFFFF), Color(0x00FFFFFF)],
+                    stops: [0.2, 0.7],
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    info.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.15,
-                      fontWeight: FontWeight.w900,
-                      color: locked ? kMuted : kInk,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  _sub(locked),
+          Positioned.fill(
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 5),
+                gradient: RadialGradient(center: const Alignment(-0.3, -0.5), radius: 1, colors: [light, base]),
+                boxShadow: [
+                  BoxShadow(color: dark, offset: const Offset(0, 8)),
+                  const BoxShadow(color: Color(0x44000000), blurRadius: 10, offset: Offset(0, 12)),
                 ],
               ),
+              child: face,
             ),
-            const SizedBox(width: 6),
-            if (status == _Status.done)
-              const Icon(Icons.check_circle_rounded, size: 26, color: kGreen)
-            else if (current)
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(color: info.color, shape: BoxShape.circle),
-                child: const Icon(Icons.play_arrow_rounded, size: 20, color: Colors.white),
-              )
-            else
-              const Icon(Icons.lock_rounded, size: 22, color: kLockedDark),
-          ],
-        ),
+          ),
+          // Parlama (düğmenin üstündeki beyaz leke).
+          Positioned(
+            left: 16,
+            top: 10,
+            width: 26,
+            height: 12,
+            child: Transform.rotate(
+              angle: -0.44,
+              child: const DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color(0x66FFFFFF),
+                  borderRadius: BorderRadius.all(Radius.elliptical(13, 6)),
+                ),
+              ),
+            ),
+          ),
+          // Yarıda kalan dersin ilerleme halkası.
+          if (progress > 0)
+            Positioned(
+              left: -7,
+              top: -7,
+              right: -7,
+              bottom: -7,
+              child: CustomPaint(painter: _RingPainter(info.color, progress)),
+            ),
+          // Üstteki 3 yıldız: bitmiş derste yanık, yeni biterken sırayla yanar, diğerlerinde gri.
+          Positioned(
+            left: -30,
+            right: -30,
+            top: -34,
+            child: Center(
+              child: ValueListenableBuilder<_StarFx>(
+                valueListenable: starFx,
+                builder: (context, v, _) {
+                  if (v.lesson == number - 1) return _StarsRow(lit: v.lit, animate: true);
+                  return _StarsRow(lit: done ? 3 : 0, animate: false);
+                },
+              ),
+            ),
+          ),
+          // Ders adı
+          Positioned(
+            left: -70,
+            right: -70,
+            top: d + 10,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [BoxShadow(color: Color(0x33000000), offset: Offset(0, 4))],
+                ),
+                child: Text(
+                  info.title,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: locked ? const Color(0xB32A2F4A) : const Color(0xFF2A2F4A),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Kazanılacak kristal
+          if (!done) const Positioned(right: -26, top: -8, child: _RewardTag()),
+        ],
       ),
     );
   }
@@ -1026,8 +1130,8 @@ class _TotalCard extends StatelessWidget {
   }
 }
 
-/// Kartın altındaki yıldız sırası. [animate] true iken yanan yıldızlar "pop" ile belirir
-/// (ders yeni bitti), false iken sabit çizilir (önceden bitmiş dersler).
+/// Düğmenin üstündeki yıldız sırası (ortadaki biraz yukarıda). [animate] true iken yanan yıldızlar
+/// "pop" ile belirir (ders yeni bitti), false iken sabit çizilir.
 class _StarsRow extends StatelessWidget {
   final int lit;
   final bool animate;
@@ -1039,8 +1143,8 @@ class _StarsRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var k = 0; k < 3; k++)
-          Padding(
-            padding: const EdgeInsets.only(right: 2),
+          Transform.translate(
+            offset: Offset(0, k == 1 ? -8 : 0),
             child: _StarIcon(on: k < lit, animate: animate),
           ),
       ],
@@ -1053,7 +1157,7 @@ class _StarIcon extends StatelessWidget {
   final bool animate;
   const _StarIcon({required this.on, required this.animate});
 
-  static const double _size = 15;
+  static const double _size = 30;
 
   @override
   Widget build(BuildContext context) {
@@ -1061,12 +1165,11 @@ class _StarIcon extends StatelessWidget {
       'assets/ready/icon_star.png',
       width: _size,
       height: _size,
-      cacheWidth: 48,
-      // Yanmayan yıldız: düz gri silüet.
-      color: on ? null : const Color(0xFFC3CCD6),
-      colorBlendMode: on ? null : BlendMode.srcIn,
+      cacheWidth: 90,
     );
-    if (!(on && animate)) return img;
+    // Yanmayan yıldız: gri ve soluk.
+    if (!on) return Opacity(opacity: 0.7, child: ColorFiltered(colorFilter: _grayFilter, child: img));
+    if (!animate) return img;
     // Yanış: önce 1.7 kata büyür ve hafif döner, sonra yerine oturur (kısa, tek seferlik).
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: 1),
@@ -1083,28 +1186,34 @@ class _StarIcon extends StatelessWidget {
   }
 }
 
-/// Tamamlanmamış kartın altında: dersi bitirince kazanılacak kristal ("+5").
+const _grayFilter = ColorFilter.matrix(<double>[
+  0.33, 0.33, 0.33, 0, 0, //
+  0.33, 0.33, 0.33, 0, 0,
+  0.33, 0.33, 0.33, 0, 0,
+  0, 0, 0, 1, 0,
+]);
+
+/// Düğmenin köşesinde: dersi bitirince kazanılacak kristal ("+5").
 class _RewardTag extends StatelessWidget {
-  final bool muted;
-  const _RewardTag({required this.muted});
+  const _RewardTag();
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: muted ? 0.55 : 1,
+    return Container(
+      padding: const EdgeInsets.fromLTRB(3, 1, 8, 1),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [BoxShadow(color: Color(0x4D000000), offset: Offset(0, 3))],
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/ready/icon_gem.png', height: 15, cacheHeight: 45),
-          const SizedBox(width: 3),
+          Image.asset('assets/ready/icon_gem.png', height: 20, cacheHeight: 60),
+          const SizedBox(width: 2),
           Text(
             '+${AppState.gemReward}',
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.1,
-              fontWeight: FontWeight.w900,
-              color: muted ? kLockedDark : kBlue,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF2F3A9A)),
           ),
         ],
       ),
