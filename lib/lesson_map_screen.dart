@@ -53,9 +53,6 @@ const _units = [
 /// İçeriği hazır ders sayısı (lessonsContent ile aynı).
 final _playableLessons = lessonsContent.length;
 
-// bg_map.png oranı (704 x 1504)
-const _mapAspect = 1504 / 704;
-
 _Status _statusOf(int i, int completed) {
   if (i < completed) return _Status.done;
   if (i == completed && i < _playableLessons) return _Status.current;
@@ -84,91 +81,72 @@ class _LessonMapTabState extends State<LessonMapTab> {
 
   Widget _content(BuildContext context, double top) {
     final unit = _units[_unit];
-    return Stack(
-      children: [
-        // Haritanın üstündeki boşluk gökyüzü, altındaki ve esneme payı orman rengiyle dolsun.
-        const Positioned.fill(
-          child: Column(
-            children: [
-              Expanded(child: ColoredBox(color: Color(0xFF3BA4EB))),
-              Expanded(child: ColoredBox(color: Color(0xFF365529))),
-            ],
-          ),
-        ),
-        Positioned.fill(
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final w = c.maxWidth;
-              final h = w * _mapAspect;
-              return SingleChildScrollView(
-                key: ValueKey(_unit), // ünite değişince en alttan başlasın
-                // Harita en alttan (1. dersten) başlar, yukarı doğru ilerler.
-                reverse: true,
-                // Üstte başlık kartı (Header) kadar boşluk: en üstteki kart başlığın altında kalmasın.
-                padding: EdgeInsets.only(top: top + 128, bottom: 96),
-                // Tüm harita (resim + kartlar) tek katman: kaydırırken sadece kayar,
-                // kartlar ve gölgeleri her karede yeniden çizilmez.
-                child: RepaintBoundary(
-                  child: SizedBox(
-                    width: w,
-                    height: h,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image(
-                            image: AssetImage(unit.bg),
-                            fit: BoxFit.fill,
-                            gaplessPlayback: true,
-                          ),
-                        ),
-                        for (var i = unit.start; i < unit.start + unit.count; i++)
-                          ..._buildLesson(context, i, w, h),
-                      ],
-                    ),
-                  ),
+    return LayoutBuilder(
+      builder: (context, c) {
+        final w = c.maxWidth;
+        final h = c.maxHeight;
+        // Kartların ortası bu iki çizgi arasına sığar: üstte ünite çubuğu, altta ilerleme kartı.
+        final yTop = top + 10 + 52 + 14 + 32;
+        final yBottom = h - 12 - 66 - 14 - 32;
+        final usable = yBottom - yTop;
+        final n = unit.count;
+        // Kartlar aralarında eşit boşlukla dizilir, çok seyrek olmasın diye üst sınır var.
+        final step = n > 1 ? (usable / (n - 1)).clamp(0.0, 112.0) : 0.0;
+        final y0 = yBottom - (usable - step * (n - 1)) / 2; // ilk dersin (en alttaki) ortası
+        return Stack(
+          children: [
+            // Tam ekran harita: resim ekranı kaplar (oran bozulmaz, fazlalık kırpılır).
+            Positioned.fill(
+              child: RepaintBoundary(
+                child: Image(
+                  image: AssetImage(unit.bg),
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
                 ),
-              );
-            },
-          ),
-        ),
-        Positioned(
-          top: top + 10,
-          left: 16,
-          right: 16,
-          child: const _Header(),
-        ),
-        // Ünite seçici: Ünite 1 / Ünite 2
-        Positioned(
-          top: top + 82,
-          left: 16,
-          right: 16,
-          child: Row(
-            children: [
-              for (var u = 0; u < _units.length; u++) ...[
-                if (u > 0) const SizedBox(width: 8),
-                _UnitChip(
-                  label: _units[u].name,
-                  selected: u == _unit,
-                  onTap: () {
-                    if (u == _unit) return;
-                    Fx.tap();
-                    setState(() => _unit = u);
-                  },
+              ),
+            ),
+            // Kartları birbirine bağlayan beyaz yol çizgisi (kartların altında kalır).
+            Positioned.fill(
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _PathPainter([
+                    for (var k = 0; k < n; k++) Offset(_centerX(unit.start + k, w), y0 - k * step),
+                  ]),
                 ),
-              ],
-            ],
-          ),
-        ),
-        Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard(unit: unit)),
-      ],
+              ),
+            ),
+            for (var k = 0; k < n; k++) ..._buildLesson(context, unit.start + k, y0 - k * step, w),
+            Positioned(
+              top: top + 10,
+              left: 16,
+              right: 16,
+              child: _UnitBar(
+                selected: _unit,
+                onSelect: (u) {
+                  if (u == _unit) return;
+                  Fx.tap();
+                  setState(() => _unit = u);
+                },
+              ),
+            ),
+            Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard(unit: unit)),
+          ],
+        );
+      },
     );
   }
 
-  List<Widget> _buildLesson(BuildContext context, int i, double w, double h) {
+  /// Kartın yatay ortası (_buildLesson ile aynı hesap: ekrandan taşmaz).
+  double _centerX(int i, double w) {
+    final pillW = (w - 24).clamp(0.0, 236.0);
+    final left = (_lessons[i].fx * w - pillW / 2).clamp(12.0, w - pillW - 12).toDouble();
+    return left + pillW / 2;
+  }
+
+  List<Widget> _buildLesson(BuildContext context, int i, double y, double w) {
     final l = _lessons[i];
     final status = _statusOf(i, AppState.instance.completedLessons);
     final x = l.fx * w;
-    final y = l.fy * h;
     final pillW = (w - 24).clamp(0.0, 236.0);
     final left = (x - pillW / 2).clamp(12.0, w - pillW - 12);
     // Maskot, kartın yanında boş yeri daha geniş olan tarafta durur.
@@ -214,6 +192,46 @@ class _LessonMapTabState extends State<LessonMapTab> {
         ),
       ),
     ];
+  }
+}
+
+/// Kartların ortalarından geçen yumuşak "S" şeklinde beyaz yol çizgisi.
+/// Altında hafif bir gölge çizgisi vardır (blur yok, ucuz). Sadece nokta değişince yeniden çizilir.
+class _PathPainter extends CustomPainter {
+  final List<Offset> pts; // en alttaki (1.) dersten yukarı doğru
+  const _PathPainter(this.pts);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (pts.length < 2) return;
+    final path = Path()..moveTo(pts[0].dx, pts[0].dy);
+    for (var k = 1; k < pts.length; k++) {
+      final a = pts[k - 1];
+      final b = pts[k];
+      final midY = (a.dy + b.dy) / 2;
+      path.cubicTo(a.dx, midY, b.dx, midY, b.dx, b.dy);
+    }
+    final shadow = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 9
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0x26000000);
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round
+      ..color = const Color(0xE6FFFFFF);
+    canvas.drawPath(path.shift(const Offset(0, 2)), shadow);
+    canvas.drawPath(path, line);
+  }
+
+  @override
+  bool shouldRepaint(_PathPainter old) {
+    if (old.pts.length != pts.length) return true;
+    for (var k = 0; k < pts.length; k++) {
+      if (old.pts[k] != pts[k]) return true;
+    }
+    return false;
   }
 }
 
@@ -306,73 +324,68 @@ class _LessonCard extends StatelessWidget {
   }
 }
 
-/// Üst başlık: "Ders Haritası", alt yazı ve elmas sayısı.
-class _Header extends StatelessWidget {
-  const _Header();
+/// Üst çubuk: [Ünite 1] ---(toplam ilerleme, elmas işaretli)--- [Ünite 2].
+/// Ünite adına dokununca o ünitenin haritası açılır.
+class _UnitBar extends StatelessWidget {
+  final int selected;
+  final ValueChanged<int> onSelect;
+  const _UnitBar({required this.selected, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 10, 12, 10),
+      height: 52,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: const Color(0xF2FFFFFF),
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xE6FFFFFF),
+        borderRadius: BorderRadius.circular(26),
         boxShadow: const [
           BoxShadow(color: Color(0x261C6BA8), blurRadius: 10, offset: Offset(0, 3)),
         ],
       ),
       child: Row(
         children: [
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ders Haritası',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w900,
-                    color: kInk,
-                  ),
-                ),
-                Text(
-                  'İngilizce yolculuğunda ilerle!',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: kMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListenableBuilder(
-            listenable: AppState.instance,
-            builder: (context, _) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE6F5FF),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset('assets/ready/icon_gem.png', height: 22, cacheHeight: 66),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${AppState.instance.gems}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: kBlueDark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _UnitChip(label: _units[0].name, selected: selected == 0, onTap: () => onSelect(0)),
+          const Expanded(child: _UnitTrack()),
+          _UnitChip(label: _units[1].name, selected: selected == 1, onTap: () => onSelect(1)),
         ],
       ),
+    );
+  }
+}
+
+/// İki ünite arasındaki çizgi: tamamlanan ders oranı kadar mavi, elmas ilerlemeyi gösterir.
+class _UnitTrack extends StatelessWidget {
+  const _UnitTrack();
+
+  @override
+  Widget build(BuildContext context) {
+    final total = _units.fold<int>(0, (a, u) => a + u.count);
+    final done = AppState.instance.completedLessons.clamp(0, total);
+    final a = (done * 100 / total).round();
+    final b = 100 - a;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          if (a > 0) Expanded(flex: a, child: const _TrackBar(color: kBlue)),
+          Image.asset('assets/ready/icon_gem.png', height: 22, cacheHeight: 66),
+          if (b > 0) Expanded(flex: b, child: const _TrackBar(color: Color(0xFFDDE5EE))),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrackBar extends StatelessWidget {
+  final Color color;
+  const _TrackBar({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
     );
   }
 }
@@ -389,24 +402,20 @@ class _UnitChip extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 34,
+        height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? kBlue : const Color(0xF2FFFFFF),
-          borderRadius: BorderRadius.circular(17),
-          boxShadow: [
-            BoxShadow(
-              color: selected ? kBlueDark : const Color(0x261C6BA8),
-              offset: Offset(0, selected ? 3 : 2),
-              blurRadius: selected ? 0 : 6,
-            ),
-          ],
+          color: selected ? kBlue : const Color(0x00FFFFFF),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: selected
+              ? const [BoxShadow(color: kBlueDark, offset: Offset(0, 3))]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w900,
             color: selected ? Colors.white : kMuted,
           ),
@@ -416,6 +425,7 @@ class _UnitChip extends StatelessWidget {
   }
 }
 
+/// Alt kart: ünite adı, tamamlanan/toplam ders ve ders başına bir parça olan ilerleme çubuğu.
 class _TotalCard extends StatelessWidget {
   final _Unit unit;
   const _TotalCard({required this.unit});
@@ -443,7 +453,22 @@ class _TotalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ProgressBar(value: done / n, height: 10),
+              Row(
+                children: [
+                  for (var k = 0; k < n; k++) ...[
+                    if (k > 0) const SizedBox(width: 4),
+                    Expanded(
+                      child: Container(
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: k < done ? kGreen : const Color(0xFFDDE5EE),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         );
