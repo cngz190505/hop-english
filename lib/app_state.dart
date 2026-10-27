@@ -34,6 +34,7 @@ class AppState extends ChangeNotifier {
   static const reviewGems = 2;
   static const goalSeconds = 300; // günlük hedef: 5 dakika
   static const giftGems = 10; // hedef tamamlanınca hediye
+  static const chestGems = 10; // ünite sonu hazinesi
 
   int xp = 45;
   int gems = 120;
@@ -46,6 +47,10 @@ class AppState extends ChangeNotifier {
   final Map<String, int> mastery = {};
   static const maxMastery = 3;
   String? _day;
+
+  /// Açılmış ünite hazineleri (ünite sırası: 0 = Ünite 1). Kalıcı.
+  final Set<int> chestsOpened = {};
+  bool chestOpened(int unit) => chestsOpened.contains(unit);
 
   /// Kaldığı yer: ders/quiz yarıda bırakılınca burada tutulur, telefona kaydedilir.
   /// Alanlar: lesson, stage ('lesson' | 'quiz'), n (kelime sayısı), i (kelime/soru sırası),
@@ -136,6 +141,10 @@ class AppState extends ChangeNotifier {
         final k = e.lastIndexOf('|');
         if (k > 0) mastery[e.substring(0, k)] = int.tryParse(e.substring(k + 1)) ?? 0;
       }
+      for (final e in p.getStringList('chests') ?? const <String>[]) {
+        final u = int.tryParse(e);
+        if (u != null) chestsOpened.add(u);
+      }
       final rs = p.getString('resume');
       if (rs != null) {
         final d = jsonDecode(rs);
@@ -167,6 +176,7 @@ class AppState extends ChangeNotifier {
         'mastery',
         [for (final e in mastery.entries) '${e.key}|${e.value}'],
       );
+      await p.setStringList('chests', [for (final u in chestsOpened) '$u']);
       if (_studyDay != null) await p.setString('studyDay', _studyDay!);
       await p.setInt('studySeconds', _studySeconds);
       await p.setBool('giftClaimed', _giftClaimed);
@@ -200,6 +210,15 @@ class AppState extends ChangeNotifier {
     gems += giftGems;
     notifyListeners();
     _save();
+  }
+
+  /// Ünite hazinesini açar (sadece tıklamadan çağır). Zaten açıldıysa false döner.
+  bool openChest(int unit) {
+    if (!chestsOpened.add(unit)) return false;
+    gems += chestGems;
+    notifyListeners();
+    _save();
+    return true;
   }
 
   /// Tekrar dersi bittiğinde çağrılır (sadece olay/tıklama içinden). Ders sayısını ve seriyi

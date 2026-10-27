@@ -105,6 +105,18 @@ class Fx {
     _short(15, 120);
   }
 
+  /// Ders bitince haritada yıldız yanarken: her yıldızda nota bir basamak yükselir (s = 0, 1, 2).
+  static void star(int s) {
+    _play('star${s.clamp(0, 2)}.wav', volume: 0.7);
+    _short(20, 150);
+  }
+
+  /// Ünite bitip hazine açılınca: fanfar sesi + kısa titreşim deseni.
+  static Future<void> unitDone() {
+    _play('celebrate.wav', volume: 1.0);
+    return _pattern(const [200, 90, 200, 90, 500]);
+  }
+
   /// Hediye alma: yükselen ses + uzun güçlü titreşim.
   static void reward() {
     _play('gift.wav');
