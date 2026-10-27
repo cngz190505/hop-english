@@ -80,7 +80,7 @@ lib/
   lesson_map_screen.dart -> Dersler sekmesi: ders haritası (düğüm konumları fx/fy ile ayarlanır); ders bitince kristal toplama + ejderha yürüyüşü
   map_effects.dart     -> `flyGems` (kristalleri uçurur, OverlayEntry) ve `mapRouteObserver` (haritaya dönüşü yakalar)
 assets/images/         -> ham görseller (elleme)
-assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav, gem0.wav ... gem4.wav (kristal "ding", Fx.gem; küçük, elle üretildi)
+assets/sounds/         -> ses efektleri: correct.wav, wrong.wav, gift.wav, celebrate.wav, gem0.wav ... gem4.wav (kristal "ding", Fx.gem; küçük, elle üretildi), star0.wav ... star2.wav (harita yıldızı, Fx.star)
 assets/ready/          -> işlenmiş görseller (tools/prepare_images.py üretir)
                           (`bg_hero.png` = `bg_london`un ana sayfada görünen üst kısmı, 704x760 opak; script üretir)
 tools/patch_android.py -> flutter create'ten sonra çalışır: uygulama simgesi, açılış rengi, uygulama adı (build.yml çağırır)
@@ -301,8 +301,22 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
   - Animasyon yalnızca ders ilk kez bitince oynar. Üstte ders/quiz/sonuç ekranı varken (`route.isCurrent` false) başlamaz. Animasyon kuralı için Bölüm 1'e bak (artık serbest).
   - Sıradaki kart başka üniteyse ejderha yürümez, sadece kristaller uçar. Ünite açık değilse animasyonsuz güncellenir.
   - `home_screen.dart`: `LessonMapTab(active: _index == 1)`. `main.dart`: `navigatorObservers: [mapRouteObserver]`.
-  - Ders içi yıldız ve ünite sonu hazine sandığı (demoda vardı) EKLENMEDİ; istenirse ayrıca konuşulur.
+  - Ders içi yıldız ve ünite sonu hazine sandığı ilk sürümde eklenmemişti, sonradan eklendi (aşağıdaki "Demo'nun kalan parçaları" kaydına bak).
   - Derlenip denenmedi (Dart sözdizimi `dart format` ile denetlendi), APK ile test edilmeli.
+
+- **Demo'nun kalan parçaları haritaya eklendi** (`lesson_map_screen.dart`, `map_effects.dart`, `app_state.dart`, `fx.dart`, `assets/sounds/star0-2.wav`; `kristal-demo-4.html` ile eşitlendi, kullanıcı istedi):
+  - **Ders yıldızları**: Kartta ders adının altında 3 yıldız (`_StarsRow`, `assets/ready/icon_star.png`). Biten derslerde 3 yıldız sabit yanık. Ders yeni bitince haritaya dönünce yıldızlar sırayla yanar (260 ms arayla, "pop" büyüme, `Fx.star(0..2)` yükselen nota), SONRA kristaller uçar, sonra ejderha yürür. Yıldız animasyonu `_starFx` (`ValueNotifier<_StarFx>`) ile sadece o kartın yıldız satırını yeniler. Yıldız sayısı şimdilik her zaman 3 (demodaki gibi); quizdeki hataya göre 1-3 yıldız istenirse ayrıca konuşulur (`AppState`'e ders başına yıldız kaydı gerekir).
+  - **Ders ödül rozeti**: Bitmemiş kartın altında kristal simgesi + "+5" (`_RewardTag`, `AppState.gemReward`). Kilitli kartta soluk.
+  - **Ünite sonu hazine sandığı** (`_ChestNode`): Her ünitenin en üstünde (6 dersten sonra 7. sıra) `icon_gift.png` sandığı. Kilitli (gri + kilit) -> tüm dersler bitince hazır (beyaz hale) -> açılınca altın kupa + "Hazine açıldı". Dokununca: `AppState.openChest(unit)` (+`chestGems` = 10 elmas, bir kez, kalıcı: `chests` anahtarı, `load()` ve `_save()` güncellendi), `Fx.reward()`, 20 parıltı saçılır, 8 kristal elmasa uçar (`flyGems(sparks: 20, stagger: 90)`), sonra "Ünite N tamamlandı! Hazine açıldı" kartı (`showUnitToast`, `Fx.unitDone()` = celebrate.wav). Hazine kilitliyken dokununca uyarı çıkar. Hazine bir sonraki üniteyi KİLİTLEMEZ (açmak isteğe bağlı).
+  - **Yerleşim**: Kart sıraları artık `n + 1` (dersler + hazine). Yol çizgisi hazineye kadar uzar (`_slotCx`). Ejderha son dersten sonra hazineye yürür ve sandık açılana kadar yanında bekler (`_chestPending`). Ejderha yardımcıları artık ünite içi sıra (`k`) ile çalışır; `k == unit.count` hazinedir.
+  - **Açılışta doğru ünite**: Harita artık her zaman Ünite 1 ile değil, sıradaki dersin (ya da açılmayı bekleyen hazinenin) ünitesiyle açılır (`_initialUnit`).
+  - `_TotalCard` çubuğuna sonda altın renkli hazine parçası eklendi.
+  - `flyGems`'e `sparks` ve `stagger` parametreleri eklendi (varsayılanlar eski davranışı korur). Animasyonlar kısa ve olay tetiklemelidir, sürekli dönen yok (Bölüm 1). Demodaki sürekli nabız atan "sıradaki ders" ve sandık animasyonu bilerek alınmadı (Bölüm 1 yasağı).
+  - Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi elle kontrol edildi), APK ile test edilmeli. Küçük ekranda 7 sıra sıkışırsa `_cardH` ya da `_chestImg` küçültülür.
+
+- **Harita demodaki görünüme çevrildi** (`lesson_map_screen.dart`, kullanıcı ekran görüntüleriyle istedi; bu, önceki "tam ekran, kaydırma yok, altıgen kart, beyaz yol" kararlarının YERİNE geçer): Yuvarlak numara düğmeleri (`_LessonNode`: renkli degrade, beyaz çerçeve, parlama, üstte 3 yıldız, köşede "+5" kristal rozeti, altında ders adı etiketi; kilitli gri + kilit; bitti tik; sıradaki beyaz halo), kum rengi kesik çizgili yol (`_PathPainter`), emoji süsler (`_decor`: ağaç, mantar, dağ; Ünite 2'de palmiye, kabuk, yelkenli), uzun KAYDIRMALI harita (`SingleChildScrollView`, düğüm aralığı 132). Açılışta ve ünite değişince sıradaki derse kaydırır (`_focusCurrent`); ders bitince önce düğüme kaydırır, ejderha yürüyünce yeni derse kaydırır. Üst ünite çubuğu ve alt ilerleme kartı sabit kalır, harita altlarından kayar. Düğümler soldan sağa dönüşümlü (0.28 / 0.72), hazine ortada. Yarıda kalan ders düğümün çevresinde ilerleme halkası gösterir. Ödül hep `AppState.gemReward` (5), demodaki 3/4/5 farkı alınmadı. Derlenip denenmedi.
+
+- **Ejderha demodaki boyut ve hareketle eşitlendi** (`lesson_map_screen.dart`): Görsel artık `mascot_main` (bayraklı, demodaki ile aynı), şeffaf kenar boşlukları kırpılarak 74x79 gösterilir (eski `mascot_wave` boş kenarlı olduğu için minik kalıyordu). Düğümün ÜSTÜNDE durur (ayakları düğüm merkezinin 30 px üstünde), yanında değil. Beklerken demodaki "idle" gibi nefes alır (`_idle`, 1 sn, 5 px yukarı + boy %4); bu tek sürekli animasyondur, kullanıcı özellikle istedi, sadece ejderhayı yeniler, sekme kapalıyken ya da üstte ders ekranı varken durur (`didPushNext`, `didPopNext`, `widget.active`). Yürürken 0,3 sn'de bir zıplar (14 px yükselir, 8 derece yatar), segment başına 1300 ms. Ayağının altında yumuşak gölge var. `_mascotSpot`/`_slotHalfW` kaldırıldı, yerine `_dragonPos`.
 
 ## 7. Durum yönetimi kuralı
 
