@@ -514,7 +514,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
                                 size: Size(w, fullH),
                                 painter: _PathPainter([
                                   for (var k = 0; k < slots; k++) Offset(_slotCx(unit, k, w), y0 - k * step),
-                                ]),
+                                ], (_shown - unit.start).clamp(0, n).toInt()),
                               ),
                             ],
                           ),
@@ -808,31 +808,35 @@ class _MapBgPainter extends CustomPainter {
   bool shouldRepaint(_MapBgPainter old) => old.unit != unit;
 }
 
-/// Düğümlerin ortalarından geçen kum rengi yol (demodaki gibi): gölge, dış şerit, iç şerit, kesik çizgi.
-/// Blur yok, ucuz; sadece nokta değişince yeniden çizilir.
+/// Düğümlerin ortalarından geçen yol (demodaki gibi): gölge, dış şerit, iç şerit, kesik çizgi.
+/// Kum rengi yol, biten derslere kadar YEŞİL olur (`reached` = biten ders sayısı: 0. noktadan
+/// reached. noktaya kadar olan parça yeşil). Blur yok, ucuz; sadece nokta ya da `reached` değişince yeniden çizilir.
 class _PathPainter extends CustomPainter {
   final List<Offset> pts; // en alttaki (1.) dersten yukarı doğru
-  const _PathPainter(this.pts);
+  final int reached; // yeşil olan parça sayısı (biten ders sayısı, hazineye kadar en çok pts.length - 1)
+  const _PathPainter(this.pts, this.reached);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (pts.length < 2) return;
+  static Path _build(List<Offset> pts, int count) {
     final path = Path()..moveTo(pts[0].dx, pts[0].dy);
-    for (var k = 1; k < pts.length; k++) {
+    for (var k = 1; k <= count; k++) {
       final a = pts[k - 1];
       final b = pts[k];
       final midY = (a.dy + b.dy) / 2;
       path.cubicTo(a.dx, midY, b.dx, midY, b.dx, b.dy);
     }
-    Paint stroke(double wd, Color c) => Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = wd
-      ..strokeCap = StrokeCap.round
-      ..color = c;
-    canvas.drawPath(path.shift(const Offset(0, 7)), stroke(30, const Color(0x2E0B3A2A)));
-    canvas.drawPath(path, stroke(26, const Color(0xFFF3D89A)));
-    canvas.drawPath(path, stroke(18, const Color(0xFFFFEEC2)));
-    final dash = stroke(3, const Color(0xFFE0B868));
+    return path;
+  }
+
+  static Paint _stroke(double wd, Color c) => Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = wd
+    ..strokeCap = StrokeCap.round
+    ..color = c;
+
+  static void _draw(Canvas canvas, Path path, Color outer, Color inner, Color dashColor) {
+    canvas.drawPath(path, _stroke(26, outer));
+    canvas.drawPath(path, _stroke(18, inner));
+    final dash = _stroke(3, dashColor);
     for (final m in path.computeMetrics()) {
       var d = 0.0;
       while (d < m.length) {
@@ -843,8 +847,21 @@ class _PathPainter extends CustomPainter {
   }
 
   @override
+  void paint(Canvas canvas, Size size) {
+    if (pts.length < 2) return;
+    final full = _build(pts, pts.length - 1);
+    canvas.drawPath(full.shift(const Offset(0, 7)), _stroke(30, const Color(0x2E0B3A2A)));
+    _draw(canvas, full, const Color(0xFFF3D89A), const Color(0xFFFFEEC2), const Color(0xFFE0B868));
+    final g = reached.clamp(0, pts.length - 1).toInt();
+    if (g > 0) {
+      // Biten derslere kadar yeşil yol (kum yolun üstüne).
+      _draw(canvas, _build(pts, g), const Color(0xFF58CC02), const Color(0xFF9BE35F), const Color(0xFFD9F7B8));
+    }
+  }
+
+  @override
   bool shouldRepaint(_PathPainter old) {
-    if (old.pts.length != pts.length) return true;
+    if (old.reached != reached || old.pts.length != pts.length) return true;
     for (var k = 0; k < pts.length; k++) {
       if (old.pts[k] != pts[k]) return true;
     }
@@ -1047,10 +1064,12 @@ class _LessonNode extends StatelessWidget {
   }
 }
 
-/// Üst başlık (demodaki gibi): mor zemin, solda ünite adı + "x/6 ders", sağda kristal sayacı.
-/// Kristaller buradaki sayaca uçar; varınca sayaç büyür ve sayı artar. Ünite okları ile ünite değişir.
+/// Üst başlık (yüzen beyaz haplar, bar yok): solda oklu ünite seçici "Ünite 1 · 0/6", sağda kristal sayacı.
+/// Harita ekranın en üstüne kadar uzanır, haplar üstünde durur. Kristaller buradaki sayaca uçar
+/// (`gemKey` = kristal simgesi); varınca sayaç büyür ve sayı artar. Ünite okları ile ünite değişir.
 class _MapHeader extends StatelessWidget {
-  static const double h = 64;
+  static const double h = 52; // pil yüksekliği (40) + üst/alt boşluk
+  static const double _pillH = 40;
   final double top;
   final String title;
   final int done;
@@ -1076,79 +1095,86 @@ class _MapHeader extends StatelessWidget {
     required this.onNext,
   });
 
+  static const _pillDeco = BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.all(Radius.circular(_pillH / 2)),
+    boxShadow: [BoxShadow(color: Color(0xFFC9D6E3), offset: Offset(0, 3))], // sert gölge, blur yok
+  );
+
   Widget _arrow(IconData icon, bool on, VoidCallback onTap) => GestureDetector(
         onTap: on ? onTap : null,
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
-          width: 34,
-          height: 44,
-          child: Icon(icon, size: 28, color: on ? Colors.white : const Color(0x33FFFFFF)),
+          width: 32,
+          height: _pillH,
+          child: Icon(icon, size: 26, color: on ? kInk : kLocked),
         ),
       );
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: top + h,
-      padding: EdgeInsets.fromLTRB(8, top, 16, 0),
-      decoration: const BoxDecoration(
-        color: Color(0xFF5B3BBE),
-        boxShadow: [BoxShadow(color: Color(0x59000000), offset: Offset(0, 3), blurRadius: 8)],
-      ),
-      child: Row(
-        children: [
-          _arrow(Icons.chevron_left_rounded, hasPrev, onPrev),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, height: 1.05),
-                ),
-                Text(
-                  '$done/$total ders',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xCCFFFFFF), height: 1.2),
-                ),
-              ],
-            ),
-          ),
-          _arrow(Icons.chevron_right_rounded, hasNext, onNext),
-          const SizedBox(width: 6),
-          ValueListenableBuilder<bool>(
-            valueListenable: pulse,
-            builder: (context, on, child) => AnimatedScale(
-              scale: on ? 1.2 : 1.0,
-              duration: const Duration(milliseconds: 120),
-              child: child,
-            ),
-            child: Container(
-              height: 46,
-              padding: const EdgeInsets.fromLTRB(10, 0, 18, 0),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1B1760),
-                borderRadius: BorderRadius.circular(23),
-                boxShadow: const [BoxShadow(color: Color(0x40000000), offset: Offset(0, 3))],
-              ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(12, top + 6, 12, 0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              height: _pillH,
+              decoration: _pillDeco,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset('assets/ready/icon_gem.png', key: gemKey, height: 34, cacheHeight: 102),
+                  _arrow(Icons.chevron_left_rounded, hasPrev, onPrev),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: kInk),
+                  ),
                   const SizedBox(width: 8),
-                  ListenableBuilder(
-                    listenable: Listenable.merge([AppState.instance, held]),
-                    builder: (context, _) => Text(
-                      '${math.max(0, AppState.instance.gems - held.value)}',
-                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                    decoration: BoxDecoration(color: kBg, borderRadius: BorderRadius.circular(12)),
+                    child: Text(
+                      '$done/$total',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: kMuted),
                     ),
                   ),
+                  _arrow(Icons.chevron_right_rounded, hasNext, onNext),
                 ],
               ),
             ),
-          ),
-        ],
+            ValueListenableBuilder<bool>(
+              valueListenable: pulse,
+              builder: (context, on, child) => AnimatedScale(
+                scale: on ? 1.2 : 1.0,
+                duration: const Duration(milliseconds: 120),
+                child: child,
+              ),
+              child: Container(
+                height: _pillH,
+                padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
+                decoration: _pillDeco,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/ready/icon_gem.png', key: gemKey, height: 28, cacheHeight: 84),
+                    const SizedBox(width: 6),
+                    ListenableBuilder(
+                      listenable: Listenable.merge([AppState.instance, held]),
+                      builder: (context, _) => Text(
+                        '${math.max(0, AppState.instance.gems - held.value)}',
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: kInk),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
