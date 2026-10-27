@@ -99,6 +99,12 @@ class Fx {
     await _pattern(const [240, 90, 240, 90, 240, 90, 240, 140, 800]);
   }
 
+  /// Kristal elmasa varınca: kısa "ding". Her kristalde nota bir basamak yükselir (5 notada döner).
+  static void gem(int k) {
+    _play('gem${k % 5}.wav', volume: 0.7);
+    _short(15, 120);
+  }
+
   /// Hediye alma: yükselen ses + uzun güçlü titreşim.
   static void reward() {
     _play('gift.wav');

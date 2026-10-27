@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onReview: () => setState(() => _index = 2),
             onLessons: () => setState(() => _index = 1),
           ),
-          const LessonMapTab(), // kendi güvenli alanını yönetir (tam ekran harita)
+          LessonMapTab(active: _index == 1), // kendi güvenli alanını yönetir (tam ekran harita)
           const SafeArea(child: WordListTab()),
           const ProfileTab(), // lacivert üst bölüm durum çubuğunun altına uzanır, SafeArea yok
         ],

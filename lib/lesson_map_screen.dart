@@ -5,6 +5,7 @@ import 'app_state.dart';
 import 'debug_tools.dart';
 import 'lesson_data.dart';
 import 'lesson_screen.dart';
+import 'map_effects.dart';
 import 'theme.dart';
 
 enum _Status { done, current, locked }
@@ -64,14 +65,191 @@ _Status _statusOf(int i, int completed) {
 }
 
 class LessonMapTab extends StatefulWidget {
-  const LessonMapTab({super.key});
+  /// [active]: Dersler sekmesi şu an açık mı (sekmeye geçince animasyon başlasın diye).
+  const LessonMapTab({super.key, this.active = true});
+  final bool active;
 
   @override
   State<LessonMapTab> createState() => _LessonMapTabState();
 }
 
-class _LessonMapTabState extends State<LessonMapTab> {
+class _LessonMapTabState extends State<LessonMapTab> with SingleTickerProviderStateMixin, RouteAware {
   int _unit = 0;
+
+  // Ekranda gösterilen tamamlanan ders sayısı. Ders bitince AppState hemen artar; harita önce
+  // kristalleri toplatır, sonra ejderhayı yürütür, bu sayı en son güncellenir.
+  late int _shown = AppState.instance.completedLessons;
+  bool _playing = false;
+  bool _walking = false;
+  int _walkFrom = 0;
+  int _walkSteps = 1;
+  late final AnimationController _walk =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  final ValueNotifier<bool> _pulse = ValueNotifier<bool>(false);
+  final GlobalKey _gemKey = GlobalKey();
+  ModalRoute<void>? _route;
+  // Son çizimdeki yerleşim (kristal ve ejderha nereden nereye gidecek bilmek için).
+  double _w = 0;
+  double _y0 = 0;
+  double _step = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    AppState.instance.addListener(_maybePlay);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute<void>? r = ModalRoute.of<void>(context);
+    if (r != null && r != _route) {
+      mapRouteObserver.unsubscribe(this);
+      _route = r;
+      mapRouteObserver.subscribe(this, r);
+    }
+  }
+
+  @override
+  void didUpdateWidget(LessonMapTab old) {
+    super.didUpdateWidget(old);
+    if (widget.active && !old.active) _maybePlay();
+  }
+
+  @override
+  void dispose() {
+    AppState.instance.removeListener(_maybePlay);
+    mapRouteObserver.unsubscribe(this);
+    _walk.dispose();
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  /// Ders/quiz/sonuç ekranı kapanıp harita yeniden görününce çağrılır.
+  @override
+  void didPopNext() => _maybePlay();
+
+  /// Yeni bitmiş bir ders varsa ve harita ekranda görünüyorsa animasyonu başlatır.
+  void _maybePlay() {
+    if (!mounted || _playing || !widget.active) return;
+    final route = _route;
+    if (route != null && !route.isCurrent) return; // üstte ders/quiz/sonuç ekranı var
+    final c = AppState.instance.completedLessons;
+    if (c == _shown) return;
+    if (c < _shown) {
+      setState(() => _shown = c);
+      return;
+    }
+    _playing = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _play());
+  }
+
+  /// 1) Kristaller biten dersten üst çubuktaki elmasa uçar, 2) ders "tamam" olur, 3) ejderha sıradaki derse yürür.
+  Future<void> _play() async {
+    try {
+      if (!mounted) return;
+      final c = AppState.instance.completedLessons;
+      final unit = _units[_unit];
+      final from = _shown;
+      final unitEnd = unit.start + unit.count;
+      final inUnit = from >= unit.start && from < unitEnd;
+      final box = context.findRenderObject() as RenderBox?;
+      final gemBox = _gemKey.currentContext?.findRenderObject() as RenderBox?;
+      final route = _route;
+      if (!inUnit ||
+          box == null ||
+          gemBox == null ||
+          !box.hasSize ||
+          !gemBox.hasSize ||
+          (route != null && !route.isCurrent)) {
+        setState(() => _shown = c); // animasyonsuz güncelle
+        return;
+      }
+      final start = box.localToGlobal(Offset(_centerX(from, _w), _y0 - (from - unit.start) * _step));
+      final end = gemBox.localToGlobal(gemBox.size.center(Offset.zero));
+      final earned = (c - from) * AppState.gemReward;
+      await flyGems(
+        context: context,
+        from: start,
+        to: end,
+        count: earned.clamp(1, 8).toInt(),
+        label: earned,
+        onLand: (k) {
+          Fx.gem(k);
+          _pulse.value = true;
+          Future.delayed(const Duration(milliseconds: 140), () {
+            if (mounted) _pulse.value = false;
+          });
+        },
+      );
+      if (!mounted) return;
+      final canWalk = c < unitEnd; // sıradaki ders de bu ünitedeyse yürü
+      setState(() {
+        _shown = c;
+        _walkFrom = from;
+        _walkSteps = (c - from).clamp(1, unit.count).toInt();
+        _walking = canWalk;
+      });
+      if (canWalk) {
+        _walk.duration = Duration(milliseconds: (_walkSteps * 700).clamp(700, 1600).toInt());
+        await _walk.forward(from: 0);
+        if (mounted) setState(() => _walking = false);
+      }
+    } finally {
+      _playing = false;
+      if (mounted) _maybePlay(); // animasyon sürerken başka ders bittiyse devam et
+    }
+  }
+
+  /// Maskotun kartın yanındaki durağan yeri (sol-üst köşe). Boş yeri geniş olan tarafta durur.
+  Offset _mascotSpot(int i, double w, double y) {
+    final pillW = (w - 24).clamp(0.0, 232.0).toDouble();
+    final left = (_lessons[i].fx * w - pillW / 2).clamp(12.0, w - pillW - 12).toDouble();
+    final roomRight = w - (left + pillW);
+    final mx = left >= roomRight ? left - 74.0 : left + pillW + 4;
+    return Offset(mx, y - 44);
+  }
+
+  Widget _dragonImage() => Image.asset(
+        'assets/ready/mascot_wave.png',
+        height: 88,
+        cacheHeight: 264,
+        gaplessPlayback: true,
+      );
+
+  Widget _staticDragon(int i, double y, double w) {
+    final s = _mascotSpot(i, w, y);
+    return Positioned(left: s.dx, top: s.dy, child: _dragonImage());
+  }
+
+  /// Ejderha yol çizgisini izleyerek zıplaya zıplaya sıradaki derse gider.
+  Widget _walkingDragon(_Unit unit, double w) {
+    return AnimatedBuilder(
+      animation: _walk,
+      builder: (context, _) {
+        final t = _walk.value * _walkSteps;
+        final seg = t.floor().clamp(0, _walkSteps - 1).toInt();
+        final lt = (t - seg).clamp(0.0, 1.0).toDouble();
+        final ia = _walkFrom + seg;
+        final ib = ia + 1;
+        final ya = _y0 - (ia - unit.start) * _step;
+        final yb = _y0 - (ib - unit.start) * _step;
+        final a = Offset(_centerX(ia, w), ya);
+        final b = Offset(_centerX(ib, w), yb);
+        final m = (ya + yb) / 2;
+        final p1 = Offset(a.dx, m);
+        final p2 = Offset(b.dx, m);
+        final u = 1 - lt;
+        // Yolun eğrisi (_PathPainter ile aynı): a -> b
+        final road = a * (u * u * u) + p1 * (3 * u * u * lt) + p2 * (3 * u * lt * lt) + b * (lt * lt * lt);
+        final oa = _mascotSpot(ia, w, ya) - a;
+        final ob = _mascotSpot(ib, w, yb) - b;
+        final hop = -(math.sin(lt * math.pi * 4)).abs() * 12;
+        final pos = road + Offset.lerp(oa, ob, lt)! + Offset(0, hop);
+        return Positioned(left: pos.dx, top: pos.dy, child: _dragonImage());
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +274,9 @@ class _LessonMapTabState extends State<LessonMapTab> {
         // Kartlar aralarında eşit boşlukla dizilir, çok seyrek olmasın diye üst sınır var.
         final step = n > 1 ? (usable / (n - 1)).clamp(0.0, 104.0) : 0.0;
         final y0 = yBottom - (usable - step * (n - 1)) / 2; // ilk dersin (en alttaki) ortası
+        _w = w;
+        _y0 = y0;
+        _step = step;
         return Stack(
           children: [
             // Tam ekran arka plan: resim yok, kodla çizilir (gökyüzü, bulut, tepe/dalga). Ünite başına renk teması.
@@ -115,12 +296,22 @@ class _LessonMapTabState extends State<LessonMapTab> {
               ),
             ),
             for (var k = 0; k < n; k++) ..._buildLesson(context, unit.start + k, y0 - k * step, w),
+            // Ejderha: yürürken animasyonlu, değilken sıradaki kartın yanında durur.
+            if (_walking)
+              _walkingDragon(unit, w)
+            else if (_shown >= unit.start &&
+                _shown < unit.start + unit.count &&
+                _statusOf(_shown, _shown) == _Status.current)
+              _staticDragon(_shown, y0 - (_shown - unit.start) * step, w),
             Positioned(
               top: top + 10,
               left: 16,
               right: 16,
               child: _UnitBar(
                 selected: _unit,
+                completed: _shown,
+                gemKey: _gemKey,
+                pulse: _pulse,
                 onSelect: (u) {
                   if (u == _unit) return;
                   Fx.tap();
@@ -128,7 +319,7 @@ class _LessonMapTabState extends State<LessonMapTab> {
                 },
               ),
             ),
-            Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard(unit: unit)),
+            Positioned(left: 16, right: 16, bottom: 12, child: _TotalCard(unit: unit, completed: _shown)),
           ],
         );
       },
@@ -144,26 +335,11 @@ class _LessonMapTabState extends State<LessonMapTab> {
 
   List<Widget> _buildLesson(BuildContext context, int i, double y, double w) {
     final l = _lessons[i];
-    final status = _statusOf(i, AppState.instance.completedLessons);
+    final status = _statusOf(i, _shown);
     final x = l.fx * w;
     final pillW = (w - 24).clamp(0.0, 232.0);
     final left = (x - pillW / 2).clamp(12.0, w - pillW - 12);
-    // Maskot, kartın yanında boş yeri daha geniş olan tarafta durur.
-    final roomLeft = left;
-    final roomRight = w - (left + pillW);
-    final mascotLeft = roomLeft >= roomRight ? left - 74.0 : left + pillW + 4;
     return [
-      if (status == _Status.current && i == AppState.instance.completedLessons)
-        Positioned(
-          left: mascotLeft,
-          top: y - 44,
-          child: Image.asset(
-            'assets/ready/mascot_wave.png',
-            height: 88,
-            cacheHeight: 264,
-            gaplessPlayback: true,
-          ),
-        ),
       Positioned(
         left: left,
         top: y - _cardH / 2,
@@ -522,7 +698,16 @@ class _LessonCard extends StatelessWidget {
 class _UnitBar extends StatelessWidget {
   final int selected;
   final ValueChanged<int> onSelect;
-  const _UnitBar({required this.selected, required this.onSelect});
+  final int completed; // ekranda gösterilen tamamlanan ders sayısı
+  final GlobalKey gemKey; // kristallerin uçacağı elmasın konumu
+  final ValueNotifier<bool> pulse; // kristal varınca elmas büyüyüp küçülür
+  const _UnitBar({
+    required this.selected,
+    required this.onSelect,
+    required this.completed,
+    required this.gemKey,
+    required this.pulse,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +724,7 @@ class _UnitBar extends StatelessWidget {
       child: Row(
         children: [
           _UnitChip(label: _units[0].name, selected: selected == 0, onTap: () => onSelect(0)),
-          const Expanded(child: _UnitTrack()),
+          Expanded(child: _UnitTrack(completed: completed, gemKey: gemKey, pulse: pulse)),
           _UnitChip(label: _units[1].name, selected: selected == 1, onTap: () => onSelect(1)),
         ],
       ),
@@ -549,12 +734,15 @@ class _UnitBar extends StatelessWidget {
 
 /// İki ünite arasındaki çizgi: tamamlanan ders oranı kadar mavi, elmas ilerlemeyi gösterir.
 class _UnitTrack extends StatelessWidget {
-  const _UnitTrack();
+  final int completed;
+  final GlobalKey gemKey;
+  final ValueNotifier<bool> pulse;
+  const _UnitTrack({required this.completed, required this.gemKey, required this.pulse});
 
   @override
   Widget build(BuildContext context) {
     final total = _units.fold<int>(0, (a, u) => a + u.count);
-    final done = AppState.instance.completedLessons.clamp(0, total);
+    final done = completed.clamp(0, total);
     final a = (done * 100 / total).round();
     final b = 100 - a;
     return Padding(
@@ -562,7 +750,15 @@ class _UnitTrack extends StatelessWidget {
       child: Row(
         children: [
           if (a > 0) Expanded(flex: a, child: const _TrackBar(color: kBlue)),
-          Image.asset('assets/ready/icon_gem.png', height: 22, cacheHeight: 66),
+          ValueListenableBuilder<bool>(
+            valueListenable: pulse,
+            builder: (context, on, child) => AnimatedScale(
+              scale: on ? 1.5 : 1.0,
+              duration: const Duration(milliseconds: 120),
+              child: child,
+            ),
+            child: Image.asset('assets/ready/icon_gem.png', key: gemKey, height: 22, cacheHeight: 66),
+          ),
           if (b > 0) Expanded(flex: b, child: const _TrackBar(color: Color(0xFFDDE5EE))),
         ],
       ),
@@ -621,7 +817,8 @@ class _UnitChip extends StatelessWidget {
 /// Alt kart: ünite adı, tamamlanan/toplam ders ve ders başına bir parça olan ilerleme çubuğu.
 class _TotalCard extends StatelessWidget {
   final _Unit unit;
-  const _TotalCard({required this.unit});
+  final int completed;
+  const _TotalCard({required this.unit, required this.completed});
 
   @override
   Widget build(BuildContext context) {
@@ -629,7 +826,7 @@ class _TotalCard extends StatelessWidget {
       listenable: AppState.instance,
       builder: (context, _) {
         final n = unit.count;
-        final done = (AppState.instance.completedLessons - unit.start).clamp(0, n);
+        final done = (completed - unit.start).clamp(0, n);
         return Container(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
           decoration: cardDecoration(),
