@@ -1435,11 +1435,105 @@ const lesson14Words = [
   ),
 ];
 
+/// 15. ders: Yiyecekler (10 kelime, görseller çocuksuz yiyecek çizimi, kullanıcı getirdi)
+const lesson15Words = [
+  Word(
+    en: 'bread',
+    tr: 'ekmek',
+    phonetic: '/bred/',
+    say: 'bred',
+    example: 'The bread is fresh.',
+    exampleTr: 'Ekmek taze.',
+    emoji: '🍞',
+  ),
+  Word(
+    en: 'milk',
+    tr: 'süt',
+    phonetic: '/mɪlk/',
+    say: 'milk',
+    example: 'The milk is cold.',
+    exampleTr: 'Süt soğuk.',
+    emoji: '🥛',
+  ),
+  Word(
+    en: 'egg',
+    tr: 'yumurta',
+    phonetic: '/eɡ/',
+    say: 'eg',
+    example: 'The egg is white.',
+    exampleTr: 'Yumurta beyaz.',
+    emoji: '🥚',
+  ),
+  Word(
+    en: 'cheese',
+    tr: 'peynir',
+    phonetic: '/tʃiːz/',
+    say: 'çiiz',
+    example: 'The cheese is yellow.',
+    exampleTr: 'Peynir sarı.',
+    emoji: '🧀',
+  ),
+  Word(
+    en: 'water',
+    tr: 'su',
+    phonetic: '/ˈwɔːtər/',
+    say: 'wotır',
+    example: 'The water is clean.',
+    exampleTr: 'Su temiz.',
+    emoji: '💧',
+  ),
+  Word(
+    en: 'rice',
+    tr: 'pilav',
+    phonetic: '/raɪs/',
+    say: 'rays',
+    example: 'The rice is hot.',
+    exampleTr: 'Pilav sıcak.',
+    emoji: '🍚',
+  ),
+  Word(
+    en: 'soup',
+    tr: 'çorba',
+    phonetic: '/suːp/',
+    say: 'suup',
+    example: 'The soup is red.',
+    exampleTr: 'Çorba kırmızı.',
+    emoji: '🍲',
+  ),
+  Word(
+    en: 'cake',
+    tr: 'kek',
+    phonetic: '/keɪk/',
+    say: 'keyk',
+    example: 'The cake is sweet.',
+    exampleTr: 'Kek tatlı.',
+    emoji: '🍰',
+  ),
+  Word(
+    en: 'pizza',
+    tr: 'pizza',
+    phonetic: '/ˈpiːtsə/',
+    say: 'piitsı',
+    example: 'The pizza is round.',
+    exampleTr: 'Pizza yuvarlak.',
+    emoji: '🍕',
+  ),
+  Word(
+    en: 'cookie',
+    tr: 'kurabiye',
+    phonetic: '/ˈkʊki/',
+    say: 'kuki',
+    example: 'The cookie is big.',
+    exampleTr: 'Kurabiye büyük.',
+    emoji: '🍪',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words, lesson15Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev', 'Yiyecekler'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
