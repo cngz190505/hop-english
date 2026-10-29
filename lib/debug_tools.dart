@@ -12,4 +12,4 @@ final ValueNotifier<int> heroTest = ValueNotifier<int>(0);
 
 /// TEST: true ise içeriği hazır TÜM dersler kilitsiz açılır (harita ve ana sayfa).
 /// Test bitince false yap, kilitler normale döner.
-const bool kUnlockAll = false;
+const bool kUnlockAll = true;

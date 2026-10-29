@@ -34,9 +34,9 @@ const _lessons = [
   _LessonInfo('Aile', 0.64, 0.50, Color(0xFFFFC800), Color(0xFFE0A800)),
   _LessonInfo('Araçlar', 0.36, 0.50, Color(0xFFEF5350), Color(0xFFC62828)),
   _LessonInfo('Vücut', 0.64, 0.50, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
-  _LessonInfo('Cümle Kurma', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
-  _LessonInfo('Günlük İfadeler', 0.64, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
-  _LessonInfo('Alışveriş', 0.36, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('Küçük Kelimeler', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
+  _LessonInfo('Cümle Kurma', 0.64, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
+  _LessonInfo('Günlük İfadeler', 0.36, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
 ];
 
 /// Ünite: adı ve _lessons içindeki ders aralığı (arka plan kodla çizilir, resim yok).

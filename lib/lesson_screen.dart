@@ -234,6 +234,28 @@ class _WordCard extends StatelessWidget {
               ),
             ),
           ),
+          // 4b) Soyut kelimelerde (a, the, is...) Türkçe açıklama: ne işe yarar.
+          if (word.isAbstract) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF6D6),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                word.note,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  height: 1.3,
+                  fontWeight: FontWeight.w700,
+                  color: kInk,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           // 5) Tek büyük Dinle + küçük Yavaş butonu
           Row(
@@ -308,7 +330,10 @@ class _WordCard extends StatelessWidget {
             ],
           ),
           // 6) Örnek cümle: tek satır kutu, dokununca okunur (cümle derslerinde gösterilmez).
-          if (!word.isSentence) ...[
+          if (word.isAbstract) ...[
+            const SizedBox(height: 14),
+            for (final b in word.breakdown) _Breakdown(parts: b, target: word.en),
+          ] else if (!word.isSentence) ...[
             const SizedBox(height: 14),
             _Sentence(word: word),
           ],
@@ -381,6 +406,83 @@ class MascotBubble extends StatelessWidget {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Soyut kelime dersinde örnek cümle parça parça: üstte İngilizce, altında Türkçesi.
+/// Öğretilen kelime sarı kutuda. Dokununca cümlenin tamamı okunur.
+class _Breakdown extends StatelessWidget {
+  final String parts; // 'I=ben|have=sahibim|a duck=bir ördek'
+  final String target;
+  const _Breakdown({required this.parts, required this.target});
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [for (final p in parts.split('|')) p.split('=')];
+    final sentence = items.map((e) => e[0]).join(' ');
+    return GestureDetector(
+      onTap: () {
+        Fx.tap();
+        Speech.speak(sentence);
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F0FF),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 8,
+                children: [
+                  for (final e in items)
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: e[0].toLowerCase() == target.toLowerCase()
+                                ? const Color(0xFFFFE08A)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFD9CFFF), width: 2),
+                          ),
+                          child: Text(
+                            e[0],
+                            style: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w900,
+                              color: kInk,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          e[1],
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: _purple,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(Icons.volume_up_rounded, size: 26, color: kBlue),
           ],
         ),
       ),

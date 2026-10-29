@@ -10,7 +10,9 @@ class Word {
   final String exampleTr; // Örnek cümlenin Türkçesi
   final String emoji; // Kelime listesindeki simge
   final String blank; // Sadece cümle derslerinde: Boşluğu doldur sorusunda gizlenen kelime
-  final String image; // Sadece cümle derslerinde: görsel dosya adı (assets/words/<image>.png)
+  final String image; // Görsel dosya adı (assets/words/<image>.png). Cümle derslerinde ve soyut kelimelerde kullanılır
+  final List<String> breakdown; // Soyut kelimelerde 2 örnek, parça parça: 'I=ben|have=sahibim|a duck=bir ördek'
+  final String note; // Soyut kelimelerde (a, the, is...) ders kartında gösterilen Türkçe açıklama
   const Word({
     required this.en,
     required this.tr,
@@ -21,10 +23,16 @@ class Word {
     required this.emoji,
     this.blank = '',
     this.image = '',
+    this.note = '',
+    this.breakdown = const [],
   });
 
   /// Cümle dersindeki cümle mi? (kelime listesine, zor/hakimiyet kaydına girmez, Bölüm 13)
   bool get isSentence => blank.isNotEmpty;
+
+  /// Soyut küçük kelime mi (a, the, is...)? Kendi görseli yok, örnek cümle görseli kullanır:
+  /// quizde "Doğru görseli seç" sorusuna girmez.
+  bool get isAbstract => note.isNotEmpty;
 
   /// Kelimenin resmi: assets/words/<kelime>.png (boşluksuz, küçük harf), örn. thankyou.png.
   /// Resim dosyası yoksa quizde emoji gösterilir.
@@ -843,11 +851,137 @@ const lesson9Words = [
   ),
 ];
 
+/// 10. ders: Küçük Kelimeler (öğretici ders, Bölüm 15). Soyut kelimeler: kendi görseli yok,
+/// örnek cümle görseli kullanılır (`image`), Türkçe açıklama `note` ile gösterilir.
+/// Örnek cümleler sadece Ders 1-9'da öğrenilmiş kelimelerle kurulur.
+const lesson10Words = [
+  Word(
+    en: 'a',
+    tr: 'bir',
+    phonetic: '/eɪ/',
+    say: 'ey',
+    example: 'a cat',
+    exampleTr: 'bir kedi',
+    emoji: '1️⃣',
+    image: 'cat',
+    note: 'Tek bir şeyin önüne gelir. a cat = bir kedi.',
+    breakdown: ['a=bir|cat=kedi', 'a=bir|duck=ördek'],
+  ),
+  Word(
+    en: 'the',
+    tr: 'belirli olan',
+    phonetic: '/ðə/',
+    say: 'dı',
+    example: 'the dog',
+    exampleTr: 'o köpek',
+    emoji: '👉',
+    image: 'dog',
+    note: 'Bildiğimiz, belli şeyin önüne gelir. a cat = herhangi bir kedi, the cat = o kedi. Türkçede tam karşılığı yoktur.',
+    breakdown: ['the=o|dog=köpek', 'the=o|bird=kuş'],
+  ),
+  Word(
+    en: 'have',
+    tr: 'sahip olmak',
+    phonetic: '/hæv/',
+    say: 'hev',
+    example: 'I have a duck.',
+    exampleTr: 'Bir ördeğim var.',
+    emoji: '🤲',
+    image: 'duck',
+    note: 'Sahip olmak demek. I have = bende var.',
+    breakdown: ['I=ben|have=sahibim|a duck=bir ördek', 'I=ben|have=sahibim|two cats=iki kedi'],
+  ),
+  Word(
+    en: 'like',
+    tr: 'sevmek',
+    phonetic: '/laɪk/',
+    say: 'layk',
+    example: 'I like bananas.',
+    exampleTr: 'Muzları severim.',
+    emoji: '❤️',
+    image: 'banana',
+    note: 'Sevmek, hoşlanmak demek. I like = severim.',
+    breakdown: ['I=ben|like=severim|bananas=muzlar', 'I=ben|like=severim|red cherries=kırmızı kirazlar'],
+  ),
+  Word(
+    en: 'see',
+    tr: 'görmek',
+    phonetic: '/siː/',
+    say: 'sii',
+    example: 'I see a bird.',
+    exampleTr: 'Bir kuş görüyorum.',
+    emoji: '👀',
+    image: 'bird',
+    note: 'Görmek demek. I see = görüyorum.',
+    breakdown: ['I=ben|see=görüyorum|a bird=bir kuş', 'I=ben|see=görüyorum|three fish=üç balık'],
+  ),
+  Word(
+    en: 'want',
+    tr: 'istemek',
+    phonetic: '/wɑːnt/',
+    say: 'wont',
+    example: 'I want a pear.',
+    exampleTr: 'Bir armut istiyorum.',
+    emoji: '🙋',
+    image: 'pear',
+    note: 'İstemek demek. I want = istiyorum.',
+    breakdown: ['I=ben|want=istiyorum|a pear=bir armut', 'I=ben|want=istiyorum|two apples=iki elma'],
+  ),
+  Word(
+    en: 'is',
+    tr: '-dir',
+    phonetic: '/ɪz/',
+    say: 'iz',
+    example: 'The apple is red.',
+    exampleTr: 'Elma kırmızıdır.',
+    emoji: '🟰',
+    image: 'apple',
+    note: 'Bir şeyi anlatır, Türkçedeki -dir, -dır gibidir. The apple is red = Elma kırmızıdır.',
+    breakdown: ['The apple=elma|is=-dir|red=kırmızı', 'The lion=aslan|is=-dir|yellow=sarı'],
+  ),
+  Word(
+    en: 'this',
+    tr: 'bu',
+    phonetic: '/ðɪs/',
+    say: 'dis',
+    example: 'This is a car.',
+    exampleTr: 'Bu bir araba.',
+    emoji: '👇',
+    image: 'car',
+    note: 'Yakındaki şeyi gösterir. this = bu.',
+    breakdown: ['This=bu|is=-dir|a car=bir araba', 'This=bu|is=-dir|my eye=benim gözüm'],
+  ),
+  Word(
+    en: 'that',
+    tr: 'şu',
+    phonetic: '/ðæt/',
+    say: 'det',
+    example: 'That is a bus.',
+    exampleTr: 'Şu bir otobüs.',
+    emoji: '👉',
+    image: 'bus',
+    note: 'Uzaktaki şeyi gösterir. that = şu, o.',
+    breakdown: ['That=şu|is=-dir|a bus=bir otobüs', 'That=şu|is=-dir|a plane=bir uçak'],
+  ),
+  Word(
+    en: 'and',
+    tr: 've',
+    phonetic: '/ænd/',
+    say: 'end',
+    example: 'I see mother and father.',
+    exampleTr: 'Anneyi ve babayı görüyorum.',
+    emoji: '➕',
+    image: 'family',
+    note: 'İki şeyi birbirine bağlar. and = ve.',
+    breakdown: ['I see=ben görüyorum|mother=anne|and=ve|father=baba', 'I have=bende var|a cat=bir kedi|and=ve|a dog=bir köpek'],
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson10Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Küçük Kelimeler'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
@@ -988,7 +1122,7 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
       QType.sentence,
       QType.text,
     ][i % 4];
-    if (kind == QType.picture && n < 4) kind = QType.text;
+    if (kind == QType.picture && (n < 4 || w.isAbstract)) kind = QType.text;
     if (kind == QType.sentence && blankSentence(w) == null) kind = QType.text;
     switch (kind) {
       case QType.listen:
@@ -1000,11 +1134,15 @@ List<QuizQuestion> buildQuiz(List<Word> words) {
             type: QType.listen, word: w, options: lopts, correct: lpos));
       case QType.picture:
         final ppos = i % 4;
-        final pics = [
-          words[(i + 1) % n],
-          words[(i + 2) % n],
-          words[(i + 4) % n],
-        ]..insert(ppos, w);
+        // Soyut kelimelerin görseli başka kelimeyle aynı olabilir: şık olarak girmez.
+        final pool = [for (var k = 1; k < n; k++) if (!words[(i + k) % n].isAbstract) words[(i + k) % n]];
+        if (pool.length < 3) {
+          final dpos0 = i % 3;
+          final dopts0 = [words[(i + 1) % n].en, words[(i + 3) % n].en]..insert(dpos0, w.en);
+          single.add(QuizQuestion(type: QType.text, word: w, options: dopts0, correct: dpos0));
+          break;
+        }
+        final pics = [pool[0], pool[1], pool[2]]..insert(ppos, w);
         single.add(QuizQuestion(
           type: QType.picture,
           word: w,

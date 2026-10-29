@@ -566,6 +566,18 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       ],
                     ),
+                    if (!_isRight && _q.word.isAbstract && _q.type != QType.match)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          _q.word.note,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: kInk,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 12),
                   ],
                   if (!_checked && _maxHints > 0)
