@@ -346,6 +346,8 @@ Her ünite 6 ders. Sıra:
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
+- **Cümle dersleri KALDIRILDI (kullanıcı istedi)** (`lesson_data.dart`, `lesson_map_screen.dart`): Çocuğa cümle kalıbını kolay anlatamıyoruz, önce kelime öğretilecek. `lesson11Words` (Cümle Kurma 1) ve `lesson13Words` (Günlük İfade Cümleleri) `lessonsContent` ve `lessonTitles` listelerinden çıkarıldı, haritadan kartları silindi. Ünite 2 artık 5 ders (`_Unit('Ünite 2', 6, 5)`: Aile, Araçlar, Vücut, Küçük Kelimeler, Günlük İfadeler). Ders verileri dosyada duruyor (geri açmak için listeye eklemek yeter). Bu, Bölüm 13 ve 15'teki \"her konudan sonra cümle dersi gelir\" kuralını GEÇERSİZ kılar: kullanıcı tekrar istemedikçe cümle dersi ekleme. Derlenip denenmedi.
+
 ## 16. ANLATIM DİLİ KURALI (KESİN KURAL, kullanıcı istedi)
 
 Ders notları, açıklamalar ve ekran yazıları çocuğun anlayacağı kadar basit olur. Karışık ve zor anlatım yasak.
