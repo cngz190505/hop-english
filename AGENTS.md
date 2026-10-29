@@ -334,9 +334,10 @@ Soyut kelimelerin (a, the, is...) kendi görseli yoktur. Bunlar örnek cümle re
 
 Her ünite 6 ders. Sıra:
 - **Ünite 1 (bitti):** Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar
-- **Ünite 2:** Aile, Araçlar, Vücut, **Küçük Kelimeler** (a, the, is, have, like, see, this, that, and, want), **Cümle Kurma 1** (I have / I like / I see / The ___ is ___, kalıp başına öğretici kart), Günlük İfadeler
-- **Ünite 3:** Ev, Yiyecekler, Giysiler, **Cümle Kurma 2** (This is my ___ / I eat ___ / I wear ___), Okul, Alışveriş
-- **Ünite 4:** Günler, Mevsimler ve Hava, Eylemler (run, jump, eat, drink, sleep, read, write, walk, sing, play), **Cümle Kurma 3** (I can ___ / I am ___ / It is ___), Meslekler, Duygular
+- **Ünite 2 (7 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, **Küçük Kelimeler** (a, the, is, have, like, see, this, that, and, want), **Cümle Kurma 1** (I have / I like / I see / The ___ is ___, kalıp başına öğretici kart), Günlük İfadeler, **Günlük İfadeler Cümleleri** (Ders 13, Günlük İfadeler biter bitmez gelir)
+- **Ünite 3:** Ev, Ev Cümleleri, Yiyecekler, Yiyecekler Cümleleri, Giysiler, Giysiler Cümleleri
+- **Ünite 4:** Günler, Günler Cümleleri, Mevsimler ve Hava, Mevsimler Cümleleri, Eylemler, Eylemler Cümleleri
+- **YENİ KURAL (kullanıcı istedi): Günlük İfadeler'den (Ders 12) itibaren her konu dersinin HEMEN ARDINDAN o konunun kelimeleriyle kurulu cümle dersi gelir** (yeni kelime yok, kalıp öğretici kartıyla, Bölüm 13). Ünite 3 ve sonrası: ünite başına 6 ders (3 konu + 3 cümle). Ünite 2 istisna olarak 7 ders (Günlük İfadeler + cümleleri eklendi, `_units` aralığı (6,7) olur). Ünite 1 ve Ders 7-11 olduğu gibi kalır (Cümle Kurma 1 duruyor, geriye dönük cümle dersi eklenmez). Bölüm 13'teki "her 2-3 derste bir" sıklığı bu kuralla DEĞİŞTİ.
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
@@ -393,7 +394,8 @@ Durum (tamamlanınca [x] yap):
 9. [x] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı test etti, onayladı.
 10. [x] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, have, like, see, want, is, this, that, and. Kod eklendi, kullanıcı test etti.
 11. [~] Cümle Kurma 1 (öğretici kartlı, Bölüm 15): I have / I like / I see / The ___ is ___. 10 cümle, yeni kelime yok. Kod eklendi, kullanıcı testi bekleniyor.
-12. [ ] Günlük İfadeler
+12. [ ] Günlük İfadeler (10 ifade: good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday). Görseller kullanıcıdan bekleniyor (Gemini prompt'u verildi, 5x2 sayfa).
+13. [ ] Günlük İfadeler Cümleleri (öğretici kartlı, Ders 12'den hemen sonra, yeni kelime yok, kısa konuşmalar)
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
@@ -405,6 +407,8 @@ Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 10 (Küçük Kelimeler): kelimeler [x] görseller [x] (mevcut örnek görselleri) kod [x] test [x]
 Ders 11 (Cümle Kurma 1): cümleler [x] görseller [x] (mevcut) kod [x] test [ ]
+Ders 12 (Günlük İfadeler): kelimeler [x] görseller [ ] kod [ ] test [ ]
+Ders 13 (Günlük İfadeler Cümleleri): cümleler [ ] görseller [x] (mevcut) kod [ ] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
@@ -483,7 +487,7 @@ Proje sahibinin kesin isteği. İzin almadan değiştirme.
 
 Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sadece kelime veren uygulama olmayacağız.
 
-- **Sıklık:** Her 2-3 kelime dersinden sonra 1 cümle kurma dersi konur (müfredat sırası Bölüm 9'da). İlki Ders 6 (Sayılar) sonrası: "Cümle Kurma 1".
+- **Sıklık (Günlük İfadeler'den itibaren DEĞİŞTİ, Bölüm 15): her konu dersinden hemen sonra o konunun cümle dersi gelir. Eski kural:** Her 2-3 kelime dersinden sonra 1 cümle kurma dersi konur (müfredat sırası Bölüm 9'da). İlki Ders 6 (Sayılar) sonrası: "Cümle Kurma 1".
 - **Yeni kelime YOK.** Sadece önceki derslerde öğrenilmiş kelimeler kullanılır. Bu yüzden yeni kelime görseli gerekmez, mevcut `assets/words/` görselleri kullanılır (Bölüm 8 bozulmaz). "1 ders = 10 kelime" kuralı bu dersler için geçerli değildir.
 - **Kalıplar:** "I have ___", "I like ___", "I see ___", "The ___ is ___" (örn. "The cat is black.", "I have two cats."). Kalıp başına kısa, kolay cümleler, çok uzun cümle yok (en çok 5-6 kelime).
 - **Soru tipi:** Önce mevcut yapılar kullanılır: cümle tamamlama (`QType.sentence`) ve parça dizme (`scrambleTiles`, kelime parçalarıyla cümle kurma). Yeni soru tipi gerekirse önce kullanıcıya sor ve Bölüm 10'a ekle.
