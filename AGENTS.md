@@ -337,13 +337,17 @@ Amaç: önce kelime öğret, sonra sor. Cümle dersleri şu an YOK (Bölüm 13).
 
 Soyut kelimelerin (a, the, is...) kendi görseli yoktur ve çocuğa kolay anlatılamıyor. Bu yüzden soyut kelime dersi (Küçük Kelimeler) KALDIRILDI. Sadece resimli kelime dersleri eklenir: her kelimenin kendi resmi ve Türkçe anlamı olur.
 
-Ünite 1 = 6 ders. Ünite 2 = 4 ders. Sıra:
+Ünite 1 = 6 ders. Ünite 2 = 6 ders. Sıra:
 - **Ünite 1 (bitti):** Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar
-- **Ünite 2 (4 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, Günlük İfadeler. Küçük Kelimeler KALDIRILDI.
-- **Sonraki üniteler (plan, sadece kelime dersleri):** Ev, Yiyecekler, Giysiler, Günler, Mevsimler ve Hava, Eylemler. Cümle dersi YOK.
+- **Ünite 2 (6 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, Günlük İfadeler, Ev, **Yiyecekler**. Küçük Kelimeler KALDIRILDI.
+- **Ünite 3 (başladı):** Giysiler. Sonraki ders: Günler.
+- **Sonraki dersler (plan, sadece kelime dersleri):** Günler, Mevsimler ve Hava, Eylemler. Cümle dersi YOK.
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
+- **Ders 16: Giysiler eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson16Words` (shirt, pants, dress, skirt, shoes, socks, hat, coat, gloves, scarf), listelere ve haritaya eklendi. YENİ ÜNİTE 3 açıldı: `_Unit('Ünite 3', 12, 1)` (yeni ders gelince count artırılır, en çok 6), `_decor`'a 3. liste ve `_MapBgPainter`'a `lilac` (mor gökyüzü, tepeler) eklendi. Kelimeler [x] görseller [x] kod [x] test [ ].
+- **Ders 15: Yiyecekler eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson15Words` (bread, milk, egg, cheese, water, rice, soup, cake, pizza, cookie), listelere ve haritaya eklendi, Ünite 2 = `_Unit('Ünite 2', 6, 6)` (ünite doldu). Görseller tek fotoğraftan bölündü, arka plan silindi. Kelimeler [x] görseller [x] kod [x] test [ ].
+- **Ders 14: Ev eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson14Words` (house, door, window, bed, table, chair, kitchen, bathroom, garden, lamp), `lessonsContent` ve `lessonTitles` sonuna eklendi, harita kartı eklendi, Ünite 2 = `_Unit('Ünite 2', 6, 5)`. Görseller tek fotoğraftan 10 parçaya bölündü, arka plan silindi (saydam PNG). Kelimeler [x] görseller [x] kod [x] test [ ].
 - **Küçük Kelimeler dersi de KALDIRILDI (kullanıcı istedi):** `lesson10Words` listeden ve haritadan çıktı (veri dosyada duruyor). Eski sisteme dönüldü: sadece resimli kelime dersleri, resim + Türkçe anlam. Ünite 2 = 4 ders (`_Unit('Ünite 2', 6, 4)`). Soyut kelime (a, the, want...) ve cümle dersi ekleme.
 - **Cümle dersleri KALDIRILDI (kullanıcı istedi)** (`lesson_data.dart`, `lesson_map_screen.dart`): Çocuğa cümle kalıbını kolay anlatamıyoruz, önce kelime öğretilecek. `lesson11Words` (Cümle Kurma 1) ve `lesson13Words` (Günlük İfade Cümleleri) `lessonsContent` ve `lessonTitles` listelerinden çıkarıldı, haritadan kartları silindi. Ünite 2 artık 5 ders (`_Unit('Ünite 2', 6, 5)`: Aile, Araçlar, Vücut, Küçük Kelimeler, Günlük İfadeler). Ders verileri dosyada duruyor (geri açmak için listeye eklemek yeter). Bu, Bölüm 13 ve 15'teki "her konudan sonra cümle dersi gelir" kuralını GEÇERSİZ kılar: kullanıcı tekrar istemedikçe cümle dersi ekleme. Derlenip denenmedi.
 
@@ -367,6 +371,17 @@ Ders notları, açıklamalar ve ekran yazıları çocuğun anlayacağı kadar ba
 - İyi: "Good morning = Günaydın. Sonuna ismi ekle: Good morning, Ali."
 
 Yeni ders, yeni kelime veya yeni soru yazarken bu kural aynen uygulanır.
+
+## 17. YENİ DERS TESLİM DÜZENİ (KESİN KURAL, kullanıcı istedi: hep bu şekilde)
+
+Yeni resimli ders eklerken sıra ve teslim hep aynıdır:
+
+1. **Konu ve kelimeler:** Müfredattaki sıradaki konu için 10 kelime ver (İngilizce, Türkçe). Mevcut derslerle çakışma kontrol et (`en:` ve `assets/words/` dosya adı). Kısa yaz.
+2. **Tek fotoluk görsel prompt'u:** Kullanıcı resmi Gemini ile ÜRETİR. Prompt: 5 sütun x 2 satır, 10 eşit kare hücre, ince beyaz çizgiyle ayrılmış, hepsinde aynı düz açık mavi arka plan, hücre başına TEK nesne ortada ve tam görünür, kenara değmez; yazı, harf, insan, el, ekstra nesne yok. Stil: sevimli düz çizgi film, kalın yumuşak koyu kontur, parlak basit renkler, çocuk eğitim uygulaması, aynı boyut ve açı. Her hücre için nesneyi renk ve şekil vererek net tarif et (ör. "one whole loaf of golden brown bread"). Sıra: 1. satır soldan sağa 1-5, 2. satır 6-10.
+3. **Kullanıcı fotoyu yükleyince:** Claude bölüp keser (Python/PIL): ızgara aralıklarını bul, her hücreyi 6-8 px içeriden kırp, köşelerden `ImageDraw.floodfill` ile arka planı sil (thresh ~30), kapalı kalan arka plan boşluklarını (bardak içi, atkı halkası gibi) ayrıca temizle, içeriğin sınırına 6 px boşlukla kırp, `assets/words/<kelime>.png` (küçük harf, boşluksuz, saydam PNG) olarak kaydet. 10 resmin önizlemesine bak, bozuk olan varsa düzelt.
+4. **Koda ekle:** `lessonNWords` (10 `Word`, `say` Amerikan okunuşu, örnek cümle kelimeyi TAM BİR kez içerir, Bölüm 16 dili), `lessonsContent`, `lessonTitles`, `_lessons` kartı, gerekirse `_units` (ünite başına en çok 6 ders). `AGENTS.md` günlüğüne (6.1) ve plana yaz.
+5. **TESLİM (hep böyle):** Resimler ZIP olarak (`<konu>_resimleri.zip`, içinde sadece 10 PNG, klasör yok) + değişen dosyalar tek tek: `lesson_data.dart`, `lesson_map_screen.dart` (değiştiyse), `AGENTS.md`. Proje ZIP'i verilmez. Cevap sonunda şunu yaz: hangi dosya nereye gidecek (`.zip` içindekiler `assets/words/`, `.dart` dosyaları `lib/`, `AGENTS.md` ana klasör), derlenmediyse söyle, sıradaki konuyu söyle.
+6. **Önceki zip'ler:** Kullanıcı önceki dersin resimlerini yüklemiş olmayabilir. Önceki zip'i silme, cevapta hatırlat.
 
 ## 7. Durum yönetimi kuralı
 
@@ -399,7 +414,7 @@ Kurallar:
 - 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 - Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
 - Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
-- Ders haritası şu an 10 ders gösteriyor (Ünite 1: 6 ders, Ünite 2: Aile, Araçlar, Vücut, Günlük İfadeler).
+- Ders haritası şu an 13 ders gösteriyor (Ünite 1: 6 ders, Ünite 2: Aile, Araçlar, Vücut, Günlük İfadeler, Ev, Yiyecekler; Ünite 3: Giysiler).
   Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
 
 Her ders için 4 adım:
