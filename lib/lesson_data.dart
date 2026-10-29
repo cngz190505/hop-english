@@ -936,7 +936,7 @@ const lesson10Words = [
     exampleTr: 'Elma kırmızıdır.',
     emoji: '🟰',
     image: 'apple',
-    note: "is = "-dır" demek. The apple is red = Elma kırmızıdır.",
+    note: "is = -dır demek. The apple is red = Elma kırmızıdır.",
     breakdown: ['The apple=elma|is=-dir|red=kırmızı'],
   ),
   Word(
@@ -1081,7 +1081,7 @@ const lesson11Words = [
     emoji: '🦁',
     blank: 'yellow',
     image: 'lion',
-    note: "is = "-dır" demek. The lion is yellow = Aslan sarıdır.",
+    note: "is = -dır demek. The lion is yellow = Aslan sarıdır.",
     breakdown: ['The lion=aslan|is=-dır|yellow=sarı'],
   ),
   Word(
@@ -1094,7 +1094,7 @@ const lesson11Words = [
     emoji: '🚗',
     blank: 'blue',
     image: 'car',
-    note: "is = "-dır" demek.",
+    note: "is = -dır demek.",
     breakdown: ['The car=araba|is=-dır|blue=mavi'],
   ),
   Word(
@@ -1107,7 +1107,7 @@ const lesson11Words = [
     emoji: '🐴',
     blank: 'brown',
     image: 'horse',
-    note: "is = "-dır" demek.",
+    note: "is = -dır demek.",
     breakdown: ['The horse=at|is=-dır|brown=kahverengi'],
   ),
 ];
