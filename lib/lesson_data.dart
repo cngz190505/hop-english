@@ -1341,11 +1341,105 @@ const lesson13Words = [
   ),
 ];
 
+/// 14. ders: Ev (10 kelime, görseller çocuksuz ev eşyası çizimi, kullanıcı getirdi)
+const lesson14Words = [
+  Word(
+    en: 'house',
+    tr: 'ev',
+    phonetic: '/haʊs/',
+    say: 'haus',
+    example: 'The house is big.',
+    exampleTr: 'Ev büyük.',
+    emoji: '🏠',
+  ),
+  Word(
+    en: 'door',
+    tr: 'kapı',
+    phonetic: '/dɔːr/',
+    say: 'dor',
+    example: 'The door is brown.',
+    exampleTr: 'Kapı kahverengi.',
+    emoji: '🚪',
+  ),
+  Word(
+    en: 'window',
+    tr: 'pencere',
+    phonetic: '/ˈwɪndoʊ/',
+    say: 'windo',
+    example: 'The window is open.',
+    exampleTr: 'Pencere açık.',
+    emoji: '🪟',
+  ),
+  Word(
+    en: 'bed',
+    tr: 'yatak',
+    phonetic: '/bed/',
+    say: 'bed',
+    example: 'The bed is soft.',
+    exampleTr: 'Yatak yumuşak.',
+    emoji: '🛏️',
+  ),
+  Word(
+    en: 'table',
+    tr: 'masa',
+    phonetic: '/ˈteɪbəl/',
+    say: 'teybıl',
+    example: 'The table is small.',
+    exampleTr: 'Masa küçük.',
+    emoji: '🍽️',
+  ),
+  Word(
+    en: 'chair',
+    tr: 'sandalye',
+    phonetic: '/tʃer/',
+    say: 'çer',
+    example: 'The chair is brown.',
+    exampleTr: 'Sandalye kahverengi.',
+    emoji: '🪑',
+  ),
+  Word(
+    en: 'kitchen',
+    tr: 'mutfak',
+    phonetic: '/ˈkɪtʃɪn/',
+    say: 'kiçın',
+    example: 'The kitchen is clean.',
+    exampleTr: 'Mutfak temiz.',
+    emoji: '🍳',
+  ),
+  Word(
+    en: 'bathroom',
+    tr: 'banyo',
+    phonetic: '/ˈbæθruːm/',
+    say: 'bethrum',
+    example: 'The bathroom is white.',
+    exampleTr: 'Banyo beyaz.',
+    emoji: '🛁',
+  ),
+  Word(
+    en: 'garden',
+    tr: 'bahçe',
+    phonetic: '/ˈɡɑːrdn/',
+    say: 'gardın',
+    example: 'The garden is pretty.',
+    exampleTr: 'Bahçe güzel.',
+    emoji: '🌷',
+  ),
+  Word(
+    en: 'lamp',
+    tr: 'lamba',
+    phonetic: '/læmp/',
+    say: 'lemp',
+    example: 'The lamp is on.',
+    exampleTr: 'Lamba açık.',
+    emoji: '💡',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
