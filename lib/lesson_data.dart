@@ -1342,10 +1342,10 @@ const lesson13Words = [
 ];
 
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson10Words, lesson12Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Küçük Kelimeler', 'Günlük İfadeler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
