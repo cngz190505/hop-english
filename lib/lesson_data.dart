@@ -900,8 +900,8 @@ const lesson10Words = [
     exampleTr: 'Muzları severim.',
     emoji: '❤️',
     image: 'banana',
-    note: "I like = severim. I like bananas = Muzları severim.",
-    breakdown: ['I=ben|like=severim|bananas=muzlar'],
+    note: "I like = severim. I like apples = Elmaları severim.",
+    breakdown: ['I=ben|like=severim|apples=elmalar'],
   ),
   Word(
     en: 'see',
@@ -1029,8 +1029,8 @@ const lesson11Words = [
     emoji: '🍌',
     blank: 'bananas',
     image: 'banana',
-    note: "I like = severim. Sonuna sevdiğini ekle: I like bananas.",
-    breakdown: ['I=ben|like=severim|bananas=muzlar'],
+    note: "I like = severim. Sonuna sevdiğini ekle: I like apples.",
+    breakdown: ['I=ben|like=severim|apples=elmalar'],
   ),
   Word(
     en: 'I like my family.',
