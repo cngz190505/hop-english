@@ -37,6 +37,8 @@ const _lessons = [
   _LessonInfo('Günlük İfadeler', 0.36, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
   _LessonInfo('Ev', 0.64, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
   _LessonInfo('Yiyecekler', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
+  // ÜNİTE 3 (ders 13-)
+  _LessonInfo('Giysiler', 0.64, 0.50, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
 ];
 
 /// Ünite: adı ve _lessons içindeki ders aralığı (arka plan kodla çizilir, resim yok).
@@ -50,6 +52,7 @@ class _Unit {
 const _units = [
   _Unit('Ünite 1', 0, 6),
   _Unit('Ünite 2', 6, 6), // 6 ders: cümle dersleri ve Küçük Kelimeler kaldırıldı (kullanıcı istedi), Ev ve Yiyecekler eklendi
+  _Unit('Ünite 3', 12, 1), // Giysiler ile başladı, yeni ders gelince count artar (en çok 6)
 ];
 
 /// Hazine sandığı: yatay yeri (genişliğe oran), görsel boyu ve yarım genişliği (ejderha yeri için).
@@ -686,6 +689,11 @@ const _decor = [
     _Deco(0.90, 0.36, '🌊', 34), _Deco(0.12, 0.24, '⛵', 38), _Deco(0.88, 0.17, '🌴', 50),
     _Deco(0.50, 0.46, '🦀', 28), _Deco(0.85, 0.83, '🐚', 26),
   ],
+  [
+    _Deco(0.10, 0.93, '🌷', 44), _Deco(0.90, 0.95, '🌷', 40), _Deco(0.50, 0.975, '🌸', 28),
+    _Deco(0.12, 0.70, '🎈', 40), _Deco(0.88, 0.58, '🎈', 36), _Deco(0.10, 0.40, '🌷', 34),
+    _Deco(0.90, 0.30, '🌸', 30), _Deco(0.12, 0.20, '🎈', 38), _Deco(0.88, 0.14, '🌷', 40),
+  ],
 ];
 
 /// Arka plan: resim yerine kodla çizilen sahne. Ünite 0 = çayır (gökyüzü, tepeler, ağaçlar),
@@ -700,6 +708,7 @@ class _MapBgPainter extends CustomPainter {
     final h = size.height;
     final rect = Offset.zero & size;
     final meadow = unit == 0;
+    final lilac = unit >= 2;
 
     // Gökyüzü degradesi
     final sky = meadow
@@ -711,7 +720,9 @@ class _MapBgPainter extends CustomPainter {
             Color(0xFF93D768),
             Color(0xFF6CBB48),
           ]
-        : const [Color(0xFF3CC4D8), Color(0xFFCFF3F7), Color(0xFFFFEFC2)];
+        : lilac
+            ? const [Color(0xFFB794F6), Color(0xFFE9D8FD), Color(0xFFFFE8F1)]
+            : const [Color(0xFF3CC4D8), Color(0xFFCFF3F7), Color(0xFFFFEFC2)];
     canvas.drawRect(
       rect,
       Paint()
@@ -752,6 +763,11 @@ class _MapBgPainter extends CustomPainter {
       _hill(canvas, size, h * 0.80, h * 0.05, -1, const Color(0xFF9EDD6C));
       _hill(canvas, size, h * 0.87, h * 0.04, 1, const Color(0xFF7BCB48));
       _hill(canvas, size, h * 0.93, h * 0.03, -1, const Color(0xFF5DB835));
+    } else if (lilac) {
+      _hill(canvas, size, h * 0.74, h * 0.04, 1, const Color(0xFFEBDDFB)); // uzak tepe
+      _hill(canvas, size, h * 0.82, h * 0.04, -1, const Color(0xFFD6BEF5));
+      _hill(canvas, size, h * 0.89, h * 0.03, 1, const Color(0xFFC3A3EF));
+      _hill(canvas, size, h * 0.95, h * 0.025, -1, const Color(0xFFB28BE8));
     } else {
       _hill(canvas, size, h * 0.74, h * 0.03, 1, const Color(0xFF9BE3F0)); // uzak deniz
       _boat(canvas, Offset(w * 0.80, h * 0.745), w * 0.06);

@@ -1529,11 +1529,105 @@ const lesson15Words = [
   ),
 ];
 
+/// 16. ders: Giysiler (10 kelime, görseller çocuksuz giysi çizimi, kullanıcı getirdi)
+const lesson16Words = [
+  Word(
+    en: 'shirt',
+    tr: 'tişört',
+    phonetic: '/ʃɜːrt/',
+    say: 'şırt',
+    example: 'The shirt is red.',
+    exampleTr: 'Tişört kırmızı.',
+    emoji: '👕',
+  ),
+  Word(
+    en: 'pants',
+    tr: 'pantolon',
+    phonetic: '/pænts/',
+    say: 'pents',
+    example: 'The pants are blue.',
+    exampleTr: 'Pantolon mavi.',
+    emoji: '👖',
+  ),
+  Word(
+    en: 'dress',
+    tr: 'elbise',
+    phonetic: '/dres/',
+    say: 'dres',
+    example: 'The dress is yellow.',
+    exampleTr: 'Elbise sarı.',
+    emoji: '👗',
+  ),
+  Word(
+    en: 'skirt',
+    tr: 'etek',
+    phonetic: '/skɜːrt/',
+    say: 'skırt',
+    example: 'The skirt is pink.',
+    exampleTr: 'Etek pembe.',
+    emoji: '🩱',
+  ),
+  Word(
+    en: 'shoes',
+    tr: 'ayakkabı',
+    phonetic: '/ʃuːz/',
+    say: 'şuuz',
+    example: 'The shoes are new.',
+    exampleTr: 'Ayakkabılar yeni.',
+    emoji: '👟',
+  ),
+  Word(
+    en: 'socks',
+    tr: 'çorap',
+    phonetic: '/sɑːks/',
+    say: 'saks',
+    example: 'The socks are colorful.',
+    exampleTr: 'Çoraplar renkli.',
+    emoji: '🧦',
+  ),
+  Word(
+    en: 'hat',
+    tr: 'şapka',
+    phonetic: '/hæt/',
+    say: 'het',
+    example: 'The hat is green.',
+    exampleTr: 'Şapka yeşil.',
+    emoji: '🧢',
+  ),
+  Word(
+    en: 'coat',
+    tr: 'mont',
+    phonetic: '/koʊt/',
+    say: 'kot',
+    example: 'The coat is orange.',
+    exampleTr: 'Mont turuncu.',
+    emoji: '🧥',
+  ),
+  Word(
+    en: 'gloves',
+    tr: 'eldiven',
+    phonetic: '/ɡlʌvz/',
+    say: 'glavz',
+    example: 'The gloves are warm.',
+    exampleTr: 'Eldivenler sıcak.',
+    emoji: '🧤',
+  ),
+  Word(
+    en: 'scarf',
+    tr: 'atkı',
+    phonetic: '/skɑːrf/',
+    say: 'skarf',
+    example: 'The scarf is long.',
+    exampleTr: 'Atkı uzun.',
+    emoji: '🧣',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words, lesson15Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words, lesson15Words, lesson16Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev', 'Yiyecekler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev', 'Yiyecekler', 'Giysiler'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
