@@ -320,7 +320,21 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 9 (Vücut) eklendi** (`lesson_data.dart`, `assets/words/`): `lesson9Words` (head, eye, ear, nose, mouth, hand, arm, leg, foot, hair; okunuşlar Amerikan, her örnek cümlede kelime tam bir kez), `lessonsContent` ve `lessonTitles` listelerine eklendi. Harita kartı (Ünite 2, 3. kart) zaten vardı, içerik gelince açılır. Görseller `head.png` ... `hair.png`: aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor; tek Gemini sayfasından kesildi, kolların arasındaki beyaz boşluklar silindi, 420 px yükseklik, üstten hizalı, saydam PNG. `head` (iki el yanaklarda) ve `hair` (el saç tutamında) görselleri benzedikleri için yeniden üretildi. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 9 sonrası "Tekrar dersi yapalım mı?" diye sor.
 
-- **Harita boyutu küçültüldü** (`lesson_map_screen.dart`, kullanıcı istedi: ekran görüntüsünde çok büyüktü): Üst başlık (ünite seçici + kristal sayacı) AYNI kaldı. Ders düğümleri, yıldızlar, ad etiketleri, \"+5\" rozetleri, hazine sandığı ve ejderha tek çarpanla (`_mapK = 0.78`, dosyanın başında) küçültüldü; ayarlamak için sadece bu sayı değişir (1 = eski boyut). Ders aralığı en az 96 yerine 68 (`clamp(68, 120)`), alt boşluk 92 yerine 74: 6 ders + hazine kaydırmadan ekrana sığar. Süs emojileri ve yol çizgisi aynı. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi elle kontrol edildi), APK ile test edilmeli. Hâlâ büyük/küçük gelirse `_mapK` ayarlanır.
+- **Harita boyutu küçültüldü** (`lesson_map_screen.dart`, kullanıcı istedi: ekran görüntüsünde çok büyüktü): Üst başlık (ünite seçici + kristal sayacı) AYNI kaldı. Ders düğümleri, yıldızlar, ad etiketleri, "+5" rozetleri, hazine sandığı ve ejderha tek çarpanla (`_mapK = 0.78`, dosyanın başında) küçültüldü; ayarlamak için sadece bu sayı değişir (1 = eski boyut). Ders aralığı en az 96 yerine 68 (`clamp(68, 120)`), alt boşluk 92 yerine 74: 6 ders + hazine kaydırmadan ekrana sığar. Süs emojileri ve yol çizgisi aynı. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi elle kontrol edildi), APK ile test edilmeli. Hâlâ büyük/küçük gelirse `_mapK` ayarlanır.
+
+## 15. MÜFREDAT PLANI (KESİN KURAL, kullanıcı istedi: müfredata göre gidilir, ders başına onay beklenmez)
+
+Amaç: önce öğret, sonra sor. Cümle derslerinden önce kalıbı oluşturan küçük kelimeler öğretilir. Bir kalıp ilk kez geçiyorsa dersin başında ÖĞRETİCİ KART gösterilir: kalıp, Türkçesi, 2 örnek cümle (mevcut kelime görselleriyle), "Dinle" butonu. Kartlardan sonra sorular gelir. Yeni kart tipi gerekirse `lesson_screen.dart` içinde ayrı widget olarak eklenir (animasyon yok, ek paket yok).
+
+Soyut kelimelerin (a, the, is...) kendi görseli yoktur. Bunlar örnek cümle resmiyle öğretilir (mevcut `assets/words/` görselleri). Bölüm 8'in "her kelimenin kendi görseli" kuralına bu derslerde İSTİSNA kullanıcı onayıyla yapıldı.
+
+Her ünite 6 ders. Sıra:
+- **Ünite 1 (bitti):** Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar
+- **Ünite 2:** Aile, Araçlar, Vücut, **Küçük Kelimeler** (a, the, is, have, like, see, this, that, and, want), **Cümle Kurma 1** (I have / I like / I see / The ___ is ___, kalıp başına öğretici kart), Günlük İfadeler
+- **Ünite 3:** Ev, Yiyecekler, Giysiler, **Cümle Kurma 2** (This is my ___ / I eat ___ / I wear ___), Okul, Alışveriş
+- **Ünite 4:** Günler, Mevsimler ve Hava, Eylemler (run, jump, eat, drink, sleep, read, write, walk, sing, play), **Cümle Kurma 3** (I can ___ / I am ___ / It is ___), Meslekler, Duygular
+- Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
+- Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
 ## 7. Durum yönetimi kuralı
 
@@ -373,9 +387,9 @@ Durum (tamamlanınca [x] yap):
 7. [x] Aile (10 kelime: mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl). Ünite 2'nin 1. dersi. Kullanıcı test etti. (Cümle Kurma 1 silindi, cümle dersleri Ünite 2'de Cümle Kurma kartında planlı, Bölüm 13.)
 8. [x] Araçlar (10 kelime: car, bus, train, plane, boat, bicycle, truck, helicopter, motorcycle, taxi). Görseller çocuksuz araç çizimi (Renkler/Sayılar gibi, Bölüm 8 istisnası), tek Gemini sayfasından kesildi. Kod eklendi, Ünite 2'nin 1. dersi (genel ders no 8). Kullanıcı test etti.
 9. [~] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı testi bekleniyor.
-10. [ ] Cümle Kurma (Ünite 2, 10. ders; cümle listesi kullanıcıya gösterilip onaylanınca, Bölüm 13)
-11. [ ] Günlük İfadeler
-12. [ ] Alışveriş
+10. [ ] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, is, have, like, see, this, that, and, want
+11. [ ] Cümle Kurma 1 (öğretici kartlı, Bölüm 15): I have / I like / I see / The ___ is ___
+12. [ ] Günlük İfadeler
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
