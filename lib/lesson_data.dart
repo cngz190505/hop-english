@@ -896,10 +896,10 @@ const lesson10Words = [
     tr: 'sevmek',
     phonetic: '/laɪk/',
     say: 'layk',
-    example: 'I like bananas.',
-    exampleTr: 'Muzları severim.',
+    example: 'I like apples.',
+    exampleTr: 'Elmaları severim.',
     emoji: '❤️',
-    image: 'banana',
+    image: 'apple',
     note: "I like = severim. I like apples = Elmaları severim.",
     breakdown: ['I=ben|like=severim|apples=elmalar'],
   ),
@@ -1342,10 +1342,10 @@ const lesson13Words = [
 ];
 
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson10Words, lesson11Words, lesson12Words, lesson13Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson10Words, lesson12Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Küçük Kelimeler', 'Cümle Kurma 1', 'Günlük İfadeler', 'Günlük İfade Cümleleri'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Küçük Kelimeler', 'Günlük İfadeler'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
