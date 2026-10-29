@@ -29,7 +29,7 @@ const _lessons = [
   _LessonInfo('Hayvanlar', 0.36, 0.50, Color(0xFFFF9600), Color(0xFFE08400)),
   _LessonInfo('Renkler', 0.64, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
   _LessonInfo('Sayılar', 0.36, 0.50, Color(0xFF14B8A6), Color(0xFF0F9488)),
-  // ÜNİTE 2 (ders 7-12). fy artık kullanılmıyor (kartlar ekrana eşit yayılır), fx sağ/sol dönüşümlü.
+  // ÜNİTE 2 (ders 7-13). fy artık kullanılmıyor (kartlar ekrana eşit yayılır), fx sağ/sol dönüşümlü.
   // İçerikleri henüz yok: kilitli görünür. İçerik gelince lessonsContent/lessonTitles'a eklenir.
   _LessonInfo('Aile', 0.64, 0.50, Color(0xFFFFC800), Color(0xFFE0A800)),
   _LessonInfo('Araçlar', 0.36, 0.50, Color(0xFFEF5350), Color(0xFFC62828)),
@@ -37,6 +37,7 @@ const _lessons = [
   _LessonInfo('Küçük Kelimeler', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
   _LessonInfo('Cümle Kurma', 0.64, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
   _LessonInfo('Günlük İfadeler', 0.36, 0.50, Color(0xFFFF6FA8), Color(0xFFE04F89)),
+  _LessonInfo('İfade Cümleleri', 0.64, 0.50, Color(0xFF14B8A6), Color(0xFF0F9488)),
 ];
 
 /// Ünite: adı ve _lessons içindeki ders aralığı (arka plan kodla çizilir, resim yok).
@@ -49,7 +50,7 @@ class _Unit {
 
 const _units = [
   _Unit('Ünite 1', 0, 6),
-  _Unit('Ünite 2', 6, 6),
+  _Unit('Ünite 2', 6, 7), // 7 ders: Günlük İfadeler + cümleleri (kullanıcı istedi)
 ];
 
 /// Hazine sandığı: yatay yeri (genişliğe oran), görsel boyu ve yarım genişliği (ejderha yeri için).
