@@ -318,6 +318,10 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ejderha demodaki boyut ve hareketle eşitlendi** (`lesson_map_screen.dart`): Görsel artık `mascot_main` (bayraklı, demodaki ile aynı), şeffaf kenar boşlukları kırpılarak 74x79 gösterilir (eski `mascot_wave` boş kenarlı olduğu için minik kalıyordu). Düğümün ÜSTÜNDE durur (ayakları düğüm merkezinin 30 px üstünde), yanında değil. Beklerken demodaki "idle" gibi nefes alır (`_idle`, 1 sn, 5 px yukarı + boy %4); bu tek sürekli animasyondur, kullanıcı özellikle istedi, sadece ejderhayı yeniler, sekme kapalıyken ya da üstte ders ekranı varken durur (`didPushNext`, `didPopNext`, `widget.active`). Yürürken 0,3 sn'de bir zıplar (14 px yükselir, 8 derece yatar), segment başına 1300 ms. Ayağının altında yumuşak gölge var. `_mascotSpot`/`_slotHalfW` kaldırıldı, yerine `_dragonPos`.
 
+- **Ders 9 (Vücut) eklendi** (`lesson_data.dart`, `assets/words/`): `lesson9Words` (head, eye, ear, nose, mouth, hand, arm, leg, foot, hair; okunuşlar Amerikan, her örnek cümlede kelime tam bir kez), `lessonsContent` ve `lessonTitles` listelerine eklendi. Harita kartı (Ünite 2, 3. kart) zaten vardı, içerik gelince açılır. Görseller `head.png` ... `hair.png`: aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor; tek Gemini sayfasından kesildi, kolların arasındaki beyaz boşluklar silindi, 420 px yükseklik, üstten hizalı, saydam PNG. `head` (iki el yanaklarda) ve `hair` (el saç tutamında) görselleri benzedikleri için yeniden üretildi. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 9 sonrası "Tekrar dersi yapalım mı?" diye sor.
+
+- **Harita boyutu küçültüldü** (`lesson_map_screen.dart`, kullanıcı istedi: ekran görüntüsünde çok büyüktü): Üst başlık (ünite seçici + kristal sayacı) AYNI kaldı. Ders düğümleri, yıldızlar, ad etiketleri, \"+5\" rozetleri, hazine sandığı ve ejderha tek çarpanla (`_mapK = 0.78`, dosyanın başında) küçültüldü; ayarlamak için sadece bu sayı değişir (1 = eski boyut). Ders aralığı en az 96 yerine 68 (`clamp(68, 120)`), alt boşluk 92 yerine 74: 6 ders + hazine kaydırmadan ekrana sığar. Süs emojileri ve yol çizgisi aynı. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi elle kontrol edildi), APK ile test edilmeli. Hâlâ büyük/küçük gelirse `_mapK` ayarlanır.
+
 ## 7. Durum yönetimi kuralı
 
 - Puan, elmas, seri, ilerleme gibi paylaşılan veri SADECE `AppState` içinde tutulur.
@@ -364,23 +368,23 @@ Durum (tamamlanınca [x] yap):
 2. [x] Kendini Tanıtma (10 kelime: name, I, you, my, age, from, nice to meet you, friend, student, fine). Kullanıcı test etti, onayladı.
 3. [x] Meyveler (10 kelime: apple, banana, orange, grapes, strawberry, watermelon, lemon, pear, cherry, peach). Kullanıcı devam dedi, onaylı sayıldı.
 4. [x] Hayvanlar (10 kelime: cat, dog, bird, fish, rabbit, horse, cow, duck, lion, elephant). Kullanıcı test etti, onayladı.
-5. [~] Renkler (10 kelime: red, blue, green, yellow, black, white, pink, purple, brown, gray). Görseller çocuksuz nesne: kalp, balon, yaprak, güneş, şapka, bulut, lolipop, lavanta, çikolata, taş. Kod eklendi, kullanıcı testi bekleniyor.
-6. [~] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kod eklendi, kullanıcı testi bekleniyor.
-7. [~] Cümle Kurma 1 (kod eklendi, kullanıcı testi bekleniyor; yeni kelime YOK; Ders 3-6 kelimeleriyle "I have ___", "I like ___", "The ___ is ___" kalıpları, Bölüm 13)
-8. [~] Araçlar (10 kelime: car, bus, train, plane, boat, bicycle, truck, helicopter, motorcycle, taxi). Görseller çocuksuz araç çizimi (Renkler/Sayılar gibi, Bölüm 8 istisnası), tek Gemini sayfasından kesildi. Kod eklendi, Ünite 2'nin 1. dersi (genel ders no 8). Kullanıcı testi bekleniyor.
-9. [~] Aile (10 kelime: mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl; görseller hazır, kod 7. derste, kullanıcı testi bekleniyor)
-10. [ ] Vücut
-11. [ ] Cümle Kurma 2 (Ders 7-10 kelimeleriyle, Bölüm 13)
-12. [ ] Günlük İfadeler
-13. [ ] Alışveriş
+5. [x] Renkler (10 kelime: red, blue, green, yellow, black, white, pink, purple, brown, gray). Görseller çocuksuz nesne: kalp, balon, yaprak, güneş, şapka, bulut, lolipop, lavanta, çikolata, taş. Kullanıcı test etti.
+6. [x] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kullanıcı test etti.
+7. [x] Aile (10 kelime: mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl). Ünite 2'nin 1. dersi. Kullanıcı test etti. (Cümle Kurma 1 silindi, cümle dersleri Ünite 2'de Cümle Kurma kartında planlı, Bölüm 13.)
+8. [x] Araçlar (10 kelime: car, bus, train, plane, boat, bicycle, truck, helicopter, motorcycle, taxi). Görseller çocuksuz araç çizimi (Renkler/Sayılar gibi, Bölüm 8 istisnası), tek Gemini sayfasından kesildi. Kod eklendi, Ünite 2'nin 1. dersi (genel ders no 8). Kullanıcı test etti.
+9. [~] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı testi bekleniyor.
+10. [ ] Cümle Kurma (Ünite 2, 10. ders; cümle listesi kullanıcıya gösterilip onaylanınca, Bölüm 13)
+11. [ ] Günlük İfadeler
+12. [ ] Alışveriş
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 4: kelimeler [x] görseller [x] kod [x] test [x]
-Ders 5: kelimeler [x] görseller [x] kod [x] test [ ]
-Ders 6: kelimeler [x] görseller [x] kod [x] test [ ]
-Ders 7 (Cümle Kurma 1): cümleler [x] görseller [x] (mevcut) kod [x] test [ ]
-Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 5: kelimeler [x] görseller [x] kod [x] test [x]
+Ders 6: kelimeler [x] görseller [x] kod [x] test [x]
+Ders 7 (Aile): kelimeler [x] görseller [x] kod [x] test [x]
+Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [x]
+Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
