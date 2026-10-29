@@ -1623,11 +1623,105 @@ const lesson16Words = [
   ),
 ];
 
+/// 17. ders: Hava ve Doğa (10 kelime, görseller çocuksuz hava/doğa çizimi, kullanıcı getirdi)
+const lesson17Words = [
+  Word(
+    en: 'sun',
+    tr: 'güneş',
+    phonetic: '/sʌn/',
+    say: 'san',
+    example: 'The sun is hot.',
+    exampleTr: 'Güneş sıcak.',
+    emoji: '☀️',
+  ),
+  Word(
+    en: 'cloud',
+    tr: 'bulut',
+    phonetic: '/klaʊd/',
+    say: 'klaud',
+    example: 'The cloud is white.',
+    exampleTr: 'Bulut beyaz.',
+    emoji: '☁️',
+  ),
+  Word(
+    en: 'rain',
+    tr: 'yağmur',
+    phonetic: '/reɪn/',
+    say: 'reyn',
+    example: 'The rain is cold.',
+    exampleTr: 'Yağmur soğuk.',
+    emoji: '🌧️',
+  ),
+  Word(
+    en: 'snow',
+    tr: 'kar',
+    phonetic: '/snoʊ/',
+    say: 'sno',
+    example: 'The snow is soft.',
+    exampleTr: 'Kar yumuşak.',
+    emoji: '❄️',
+  ),
+  Word(
+    en: 'wind',
+    tr: 'rüzgar',
+    phonetic: '/wɪnd/',
+    say: 'wind',
+    example: 'The wind is strong.',
+    exampleTr: 'Rüzgar güçlü.',
+    emoji: '💨',
+  ),
+  Word(
+    en: 'tree',
+    tr: 'ağaç',
+    phonetic: '/triː/',
+    say: 'trii',
+    example: 'The tree is tall.',
+    exampleTr: 'Ağaç uzun.',
+    emoji: '🌳',
+  ),
+  Word(
+    en: 'storm',
+    tr: 'fırtına',
+    phonetic: '/stɔːrm/',
+    say: 'storm',
+    example: 'The storm is loud.',
+    exampleTr: 'Fırtına gürültülü.',
+    emoji: '⛈️',
+  ),
+  Word(
+    en: 'moon',
+    tr: 'ay',
+    phonetic: '/muːn/',
+    say: 'muun',
+    example: 'The moon is yellow.',
+    exampleTr: 'Ay sarı.',
+    emoji: '🌙',
+  ),
+  Word(
+    en: 'star',
+    tr: 'yıldız',
+    phonetic: '/stɑːr/',
+    say: 'star',
+    example: 'The star is bright.',
+    exampleTr: 'Yıldız parlak.',
+    emoji: '⭐',
+  ),
+  Word(
+    en: 'umbrella',
+    tr: 'şemsiye',
+    phonetic: '/ʌmˈbrelə/',
+    say: 'ambrela',
+    example: 'The umbrella is red.',
+    exampleTr: 'Şemsiye kırmızı.',
+    emoji: '☂️',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words, lesson15Words, lesson16Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words, lesson12Words, lesson14Words, lesson15Words, lesson16Words, lesson17Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev', 'Yiyecekler', 'Giysiler'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut', 'Günlük İfadeler', 'Ev', 'Yiyecekler', 'Giysiler', 'Hava ve Doğa'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {

@@ -39,6 +39,7 @@ const _lessons = [
   _LessonInfo('Yiyecekler', 0.36, 0.50, Color(0xFF58CC02), Color(0xFF46A302)),
   // ÜNİTE 3 (ders 13-)
   _LessonInfo('Giysiler', 0.64, 0.50, Color(0xFF8B5CF6), Color(0xFF6D3FD0)),
+  _LessonInfo('Hava ve Doğa', 0.36, 0.50, Color(0xFF1CB0F6), Color(0xFF1288C9)),
 ];
 
 /// Ünite: adı ve _lessons içindeki ders aralığı (arka plan kodla çizilir, resim yok).
@@ -52,7 +53,7 @@ class _Unit {
 const _units = [
   _Unit('Ünite 1', 0, 6),
   _Unit('Ünite 2', 6, 6), // 6 ders: cümle dersleri ve Küçük Kelimeler kaldırıldı (kullanıcı istedi), Ev ve Yiyecekler eklendi
-  _Unit('Ünite 3', 12, 1), // Giysiler ile başladı, yeni ders gelince count artar (en çok 6)
+  _Unit('Ünite 3', 12, 2), // Giysiler, Hava ve Doğa; yeni ders gelince count artar (en çok 6)
 ];
 
 /// Hazine sandığı: yatay yeri (genişliğe oran), görsel boyu ve yarım genişliği (ejderha yeri için).
