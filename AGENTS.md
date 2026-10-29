@@ -326,6 +326,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 11 (Cümle Kurma 1) eklendi** (`lesson_data.dart`, kullanıcı "sen yap" dedi): `lesson11Words`, 10 cümle, yeni kelime ve yeni görsel yok (Ders 1-10, mevcut görseller). Kalıplar: I have (3 cümle), I like (2), I see (2), The ___ is ___ (3). Her kalıbın İLK cümlesi öğretici kart gibi çalışır: `note` = "Yeni kalıp: ..." açıklaması, `breakdown` = 2 örnek cümle parça parça (Türkçeleriyle, dokununca okunur); diğer cümlelerde kısa "Aynı kalıp" notu + kendi cümlesinin parçaları. Yeni kod yok: Ders 10'un `note`/`breakdown` kartı ve cümle quizi (`_buildSentenceQuiz`: 10 tanıma + 10 cümle oluşturma = 20 soru) kullanılır; yanlış cevapta `note` gösterilir. Cümleler Kelime Listem, zor listesi ve günün kelimesine girmez. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 10 ve 11 sonrası "Tekrar dersi yapalım mı?" diye sor.
 
+- **Ders 12 (Günlük İfadeler) ve Ders 13 (Günlük İfadeler Cümleleri) eklendi** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG, kullanıcı görselleri gönderdi): `lesson12Words` (good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday; örnek cümleler sadece Ders 1-11 kelimeleriyle, ifade cümlede tam bir kez). Görseller Gemini'nin 5x2 sayfasından kesildi: etiket yazıları, yer gölgesi, arka plan ve kol/bacak arası beyaz boşluklar silindi, hepsi aynı ölçekte, ayaklar aynı çizgide, 420 px yükseklik, saydam PNG: `goodmorning, goodnight, howareyou, imfine, sorry, excuseme, welcome, seeyou, goodluck, happybirthday`. `I'm fine` kelimesinin görseli `image: 'imfine'` ile verildi (kesme işareti dosya adında olmasın diye). `lesson13Words`: 10 cümle (yeni kelime yok), Ders 12 görselleri `image` ile kullanılır, kalıp açıklaması + 2 örnek `note`/`breakdown` ile (Ders 10-11'deki kart). Kalıplar: Good morning/night/Happy birthday/Welcome/Good luck + kişi, How are you? / I'm fine, Excuse me / Sorry, Goodbye! See you. Haritada Ünite 2 artık 7 ders (`_Unit('Ünite 2', 6, 7)`, 13. kart "İfade Cümleleri"); 7 ders + hazine ekrana sığmazsa kaydırma açılır, sığdırmak için `_mapK` küçültülebilir. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 11-13 sonrası "Tekrar dersi yapalım mı?" diye sor.
+
 ## 15. MÜFREDAT PLANI (KESİN KURAL, kullanıcı istedi: müfredata göre gidilir, ders başına onay beklenmez)
 
 Amaç: önce öğret, sonra sor. Cümle derslerinden önce kalıbı oluşturan küçük kelimeler öğretilir. Bir kalıp ilk kez geçiyorsa dersin başında ÖĞRETİCİ KART gösterilir: kalıp, Türkçesi, 2 örnek cümle (mevcut kelime görselleriyle), "Dinle" butonu. Kartlardan sonra sorular gelir. Yeni kart tipi gerekirse `lesson_screen.dart` içinde ayrı widget olarak eklenir (animasyon yok, ek paket yok).
@@ -394,8 +396,8 @@ Durum (tamamlanınca [x] yap):
 9. [x] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı test etti, onayladı.
 10. [x] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, have, like, see, want, is, this, that, and. Kod eklendi, kullanıcı test etti.
 11. [~] Cümle Kurma 1 (öğretici kartlı, Bölüm 15): I have / I like / I see / The ___ is ___. 10 cümle, yeni kelime yok. Kod eklendi, kullanıcı testi bekleniyor.
-12. [ ] Günlük İfadeler (10 ifade: good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday). Görseller kullanıcıdan bekleniyor (Gemini prompt'u verildi, 5x2 sayfa).
-13. [ ] Günlük İfadeler Cümleleri (öğretici kartlı, Ders 12'den hemen sonra, yeni kelime yok, kısa konuşmalar)
+12. [~] Günlük İfadeler (10 ifade: good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday). Görseller geldi, kod eklendi, kullanıcı testi bekleniyor.
+13. [~] Günlük İfadeler Cümleleri (öğretici kartlı, Ders 12'den hemen sonra, yeni kelime yok, 10 cümle). Kod eklendi, kullanıcı testi bekleniyor.
 
 Ders 2: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 3: kelimeler [x] görseller [x] kod [x] test [x]
@@ -407,8 +409,8 @@ Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 10 (Küçük Kelimeler): kelimeler [x] görseller [x] (mevcut örnek görselleri) kod [x] test [x]
 Ders 11 (Cümle Kurma 1): cümleler [x] görseller [x] (mevcut) kod [x] test [ ]
-Ders 12 (Günlük İfadeler): kelimeler [x] görseller [ ] kod [ ] test [ ]
-Ders 13 (Günlük İfadeler Cümleleri): cümleler [ ] görseller [x] (mevcut) kod [ ] test [ ]
+Ders 12 (Günlük İfadeler): kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 13 (Günlük İfadeler Cümleleri): cümleler [x] görseller [x] (Ders 12 görselleri) kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
