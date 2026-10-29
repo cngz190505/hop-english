@@ -54,6 +54,8 @@ const _units = [
 
 /// Hazine sandığı: yatay yeri (genişliğe oran), görsel boyu ve yarım genişliği (ejderha yeri için).
 const double _chestFx = 0.5;
+/// Haritadaki düğüm, ejderha ve hazine boyutu çarpanı (1 = eski büyük hal). Başlık değişmez.
+const double _mapK = 0.78;
 const double _chestImg = 78;
 const double _chestHalfW = 44;
 
@@ -348,10 +350,13 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
   static const double _dragonW = 74;
   static const double _dragonH = 79;
 
-  Offset _dragonPos(_Unit u, int k, double w, double y) => Offset(_slotCx(u, k, w) - _dragonW / 2, y - 30 - _dragonH);
+  Offset _dragonPos(_Unit u, int k, double w, double y) => Offset(_slotCx(u, k, w) - _dragonW / 2, y - 30 * _mapK - _dragonH);
 
   /// Maskot görseli (mascot_main, bayraklı): kenarlardaki boş şeffaflık kırpılır, genişlik 74 olur; ayağın altında gölge.
-  Widget _dragonSprite() => SizedBox(
+  Widget _dragonSprite() => Transform.scale(
+      scale: _mapK,
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
         width: _dragonW,
         height: _dragonH,
         child: Stack(
@@ -385,6 +390,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
             ),
           ],
         ),
+      ),
       );
 
   /// Duran ejderha: yukarı-aşağı hafif nefes alır (demodaki idle: 5 px yukarı, boy %4 uzar).
@@ -434,7 +440,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
         final hopT = math.sin(math.pi * ((ms / 300) % 1.0));
         return Positioned(
           left: road.dx - _dragonW / 2,
-          top: road.dy - 30 - _dragonH,
+          top: road.dy - 30 * _mapK - _dragonH,
           child: IgnorePointer(
             child: Transform.translate(
               offset: Offset(0, -14 * hopT),
@@ -467,9 +473,9 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
         // Harita ekrana SIĞAR: ders aralığı boş yüksekliğe göre hesaplanır (kaydırma yok).
         // Ekran çok kısaysa aralık en az 96 olur ve harita kaydırılabilir kalır.
         final headerH = top + _MapHeader.h;
-        final topPad = headerH + 14 + _chestImg / 2; // başlığın altında hazine
-        const bottomPad = 92.0; // dersin yarı boyu + ad etiketi + boşluk
-        final step = ((h - topPad - bottomPad) / n).clamp(96.0, 140.0).toDouble();
+        final topPad = headerH + 14 + _chestImg * _mapK / 2; // başlığın altında hazine
+        const bottomPad = 74.0; // dersin yarı boyu + ad etiketi + boşluk (küçültülmüş boyutla)
+        final step = ((h - topPad - bottomPad) / n).clamp(68.0, 120.0).toDouble();
         final fullH = math.max(h, topPad + n * step + bottomPad);
         final fits = fullH <= h + 0.5;
         final y0 = fullH - bottomPad; // ilk dersin (en alttaki) ortası
@@ -600,12 +606,16 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
     const boxW = _chestHalfW * 2 + 30;
     return Positioned(
       left: _chestFx * w - boxW / 2,
-      top: y - _chestImg / 2,
+      top: y - _chestImg * _mapK / 2,
       width: boxW,
-      child: _ChestNode(
-        status: status,
-        imageKey: _chestKey,
-        onTap: () => _openChest(_unit),
+      child: Transform.scale(
+        scale: _mapK,
+        alignment: Alignment.topCenter,
+        child: _ChestNode(
+          status: status,
+          imageKey: _chestKey,
+          onTap: () => _openChest(_unit),
+        ),
       ),
     );
   }
@@ -620,7 +630,9 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
         top: y - _LessonNode.d / 2,
         width: _LessonNode.d,
         height: _LessonNode.d,
-        child: _LessonNode(
+        child: Transform.scale(
+          scale: _mapK,
+          child: _LessonNode(
           number: i + 1,
           info: l,
           status: status,
@@ -643,6 +655,7 @@ class _LessonMapTabState extends State<LessonMapTab> with TickerProviderStateMix
                         );
                     }
                   : null,
+        ),
         ),
       ),
     ];
