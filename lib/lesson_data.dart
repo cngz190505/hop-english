@@ -864,8 +864,8 @@ const lesson10Words = [
     exampleTr: 'bir kedi',
     emoji: '1️⃣',
     image: 'cat',
-    note: 'Tek bir şeyin önüne gelir. a cat = bir kedi.',
-    breakdown: ['a=bir|cat=kedi', 'a=bir|duck=ördek'],
+    note: "Bir tane kedi varsa a cat dersin. a cat = bir kedi.",
+    breakdown: ['a=bir|cat=kedi'],
   ),
   Word(
     en: 'the',
@@ -876,8 +876,8 @@ const lesson10Words = [
     exampleTr: 'o köpek',
     emoji: '👉',
     image: 'dog',
-    note: 'Bildiğimiz, belli şeyin önüne gelir. a cat = herhangi bir kedi, the cat = o kedi. Türkçede tam karşılığı yoktur.',
-    breakdown: ['the=o|dog=köpek', 'the=o|bird=kuş'],
+    note: "Hangi kedi olduğunu biliyorsan the cat dersin. the cat = o kedi.",
+    breakdown: ['the=o|dog=köpek'],
   ),
   Word(
     en: 'have',
@@ -888,8 +888,8 @@ const lesson10Words = [
     exampleTr: 'Bir ördeğim var.',
     emoji: '🤲',
     image: 'duck',
-    note: 'Sahip olmak demek. I have = bende var.',
-    breakdown: ['I=ben|have=sahibim|a duck=bir ördek', 'I=ben|have=sahibim|two cats=iki kedi'],
+    note: "I have = bende var. I have a duck = Bir ördeğim var.",
+    breakdown: ['I=ben|have=sahibim|a duck=bir ördek'],
   ),
   Word(
     en: 'like',
@@ -900,8 +900,8 @@ const lesson10Words = [
     exampleTr: 'Muzları severim.',
     emoji: '❤️',
     image: 'banana',
-    note: 'Sevmek, hoşlanmak demek. I like = severim.',
-    breakdown: ['I=ben|like=severim|bananas=muzlar', 'I=ben|like=severim|red cherries=kırmızı kirazlar'],
+    note: "I like = severim. I like bananas = Muzları severim.",
+    breakdown: ['I=ben|like=severim|bananas=muzlar'],
   ),
   Word(
     en: 'see',
@@ -912,8 +912,8 @@ const lesson10Words = [
     exampleTr: 'Bir kuş görüyorum.',
     emoji: '👀',
     image: 'bird',
-    note: 'Görmek demek. I see = görüyorum.',
-    breakdown: ['I=ben|see=görüyorum|a bird=bir kuş', 'I=ben|see=görüyorum|three fish=üç balık'],
+    note: "I see = görüyorum. I see a bird = Bir kuş görüyorum.",
+    breakdown: ['I=ben|see=görüyorum|a bird=bir kuş'],
   ),
   Word(
     en: 'want',
@@ -924,8 +924,8 @@ const lesson10Words = [
     exampleTr: 'Bir armut istiyorum.',
     emoji: '🙋',
     image: 'pear',
-    note: 'İstemek demek. I want = istiyorum.',
-    breakdown: ['I=ben|want=istiyorum|a pear=bir armut', 'I=ben|want=istiyorum|two apples=iki elma'],
+    note: "I want = istiyorum. I want a pear = Bir armut istiyorum.",
+    breakdown: ['I=ben|want=istiyorum|a pear=bir armut'],
   ),
   Word(
     en: 'is',
@@ -936,8 +936,8 @@ const lesson10Words = [
     exampleTr: 'Elma kırmızıdır.',
     emoji: '🟰',
     image: 'apple',
-    note: 'Bir şeyi anlatır, Türkçedeki -dir, -dır gibidir. The apple is red = Elma kırmızıdır.',
-    breakdown: ['The apple=elma|is=-dir|red=kırmızı', 'The lion=aslan|is=-dir|yellow=sarı'],
+    note: "is = "-dır" demek. The apple is red = Elma kırmızıdır.",
+    breakdown: ['The apple=elma|is=-dir|red=kırmızı'],
   ),
   Word(
     en: 'this',
@@ -948,8 +948,8 @@ const lesson10Words = [
     exampleTr: 'Bu bir araba.',
     emoji: '👇',
     image: 'car',
-    note: 'Yakındaki şeyi gösterir. this = bu.',
-    breakdown: ['This=bu|is=-dir|a car=bir araba', 'This=bu|is=-dir|my eye=benim gözüm'],
+    note: "Yakındaki şey için this dersin. This is a car = Bu bir araba.",
+    breakdown: ['This=bu|is=-dir|a car=bir araba'],
   ),
   Word(
     en: 'that',
@@ -960,8 +960,8 @@ const lesson10Words = [
     exampleTr: 'Şu bir otobüs.',
     emoji: '👉',
     image: 'bus',
-    note: 'Uzaktaki şeyi gösterir. that = şu, o.',
-    breakdown: ['That=şu|is=-dir|a bus=bir otobüs', 'That=şu|is=-dir|a plane=bir uçak'],
+    note: "Uzaktaki şey için that dersin. That is a bus = Şu bir otobüs.",
+    breakdown: ['That=şu|is=-dir|a bus=bir otobüs'],
   ),
   Word(
     en: 'and',
@@ -972,13 +972,13 @@ const lesson10Words = [
     exampleTr: 'Anneyi ve babayı görüyorum.',
     emoji: '➕',
     image: 'family',
-    note: 'İki şeyi birbirine bağlar. and = ve.',
-    breakdown: ['I see=ben görüyorum|mother=anne|and=ve|father=baba', 'I have=bende var|a cat=bir kedi|and=ve|a dog=bir köpek'],
+    note: "and = ve. mother and father = anne ve baba.",
+    breakdown: ['I see=ben görüyorum|mother=anne|and=ve|father=baba'],
   ),
 ];
 
 /// 11. ders: Cümle Kurma 1 (Bölüm 13, 15). Yeni kelime YOK: sadece Ders 1-10'da öğrenilenler.
-/// Her kalıbın ilk cümlesi "Yeni kalıp" açıklaması + 2 örnek taşır (`note`, `breakdown`).
+/// Her kalıbın ilk cümlesi kısa açıklama + 1 örnek taşır (`note`, `breakdown`).
 const lesson11Words = [
   Word(
     en: 'I have a cat.',
@@ -990,8 +990,8 @@ const lesson11Words = [
     emoji: '🐱',
     blank: 'cat',
     image: 'cat',
-    note: 'Yeni kalıp: I have ___ = Bende ___ var. Sahip olduğun şeyi söylersin.',
-    breakdown: ['I=ben|have=sahibim|a cat=bir kedi', 'I=ben|have=sahibim|a dog=bir köpek'],
+    note: "I have = bende var. Sonuna şeyi ekle: I have a cat.",
+    breakdown: ['I=ben|have=sahibim|a cat=bir kedi'],
   ),
   Word(
     en: 'I have two ducks.',
@@ -1003,7 +1003,7 @@ const lesson11Words = [
     emoji: '🦆',
     blank: 'ducks',
     image: 'duck',
-    note: 'Aynı kalıp: I have ___ = Bende ___ var.',
+    note: "I have = bende var.",
     breakdown: ['I=ben|have=sahibim|two ducks=iki ördek'],
   ),
   Word(
@@ -1016,7 +1016,7 @@ const lesson11Words = [
     emoji: '🍎',
     blank: 'apple',
     image: 'apple',
-    note: 'Aynı kalıp: I have ___ = Bende ___ var.',
+    note: "I have = bende var.",
     breakdown: ['I=ben|have=sahibim|a red apple=kırmızı bir elma'],
   ),
   Word(
@@ -1029,8 +1029,8 @@ const lesson11Words = [
     emoji: '🍌',
     blank: 'bananas',
     image: 'banana',
-    note: 'Yeni kalıp: I like ___ = ___ severim. Sevdiğin şeyi söylersin.',
-    breakdown: ['I=ben|like=severim|bananas=muzlar', 'I=ben|like=severim|cherries=kirazlar'],
+    note: "I like = severim. Sonuna sevdiğini ekle: I like bananas.",
+    breakdown: ['I=ben|like=severim|bananas=muzlar'],
   ),
   Word(
     en: 'I like my family.',
@@ -1042,7 +1042,7 @@ const lesson11Words = [
     emoji: '👨‍👩‍👧',
     blank: 'family',
     image: 'family',
-    note: 'Aynı kalıp: I like ___ = ___ severim.',
+    note: "I like = severim.",
     breakdown: ['I=ben|like=severim|my family=ailem'],
   ),
   Word(
@@ -1055,8 +1055,8 @@ const lesson11Words = [
     emoji: '🐦',
     blank: 'bird',
     image: 'bird',
-    note: 'Yeni kalıp: I see ___ = ___ görüyorum. Gördüğün şeyi söylersin.',
-    breakdown: ['I=ben|see=görüyorum|a bird=bir kuş', 'I=ben|see=görüyorum|a fish=bir balık'],
+    note: "I see = görüyorum. Sonuna gördüğünü ekle: I see a bird.",
+    breakdown: ['I=ben|see=görüyorum|a bird=bir kuş'],
   ),
   Word(
     en: 'I see three fish.',
@@ -1068,7 +1068,7 @@ const lesson11Words = [
     emoji: '🐟',
     blank: 'three',
     image: 'fish',
-    note: 'Aynı kalıp: I see ___ = ___ görüyorum.',
+    note: "I see = görüyorum.",
     breakdown: ['I=ben|see=görüyorum|three fish=üç balık'],
   ),
   Word(
@@ -1081,8 +1081,8 @@ const lesson11Words = [
     emoji: '🦁',
     blank: 'yellow',
     image: 'lion',
-    note: 'Yeni kalıp: The ___ is ___ = ___ ...dır. Bir şeyin nasıl olduğunu söylersin.',
-    breakdown: ['The lion=aslan|is=-dır|yellow=sarı', 'The apple=elma|is=-dır|red=kırmızı'],
+    note: "is = "-dır" demek. The lion is yellow = Aslan sarıdır.",
+    breakdown: ['The lion=aslan|is=-dır|yellow=sarı'],
   ),
   Word(
     en: 'The car is blue.',
@@ -1094,7 +1094,7 @@ const lesson11Words = [
     emoji: '🚗',
     blank: 'blue',
     image: 'car',
-    note: 'Aynı kalıp: The ___ is ___ = ___ ...dır.',
+    note: "is = "-dır" demek.",
     breakdown: ['The car=araba|is=-dır|blue=mavi'],
   ),
   Word(
@@ -1107,7 +1107,7 @@ const lesson11Words = [
     emoji: '🐴',
     blank: 'brown',
     image: 'horse',
-    note: 'Aynı kalıp: The ___ is ___ = ___ ...dır.',
+    note: "is = "-dır" demek.",
     breakdown: ['The horse=at|is=-dır|brown=kahverengi'],
   ),
 ];
@@ -1219,8 +1219,8 @@ const lesson13Words = [
     emoji: '🌅',
     blank: 'morning',
     image: 'goodmorning',
-    note: 'Yeni kalıp: Good morning, ___ = Günaydın, ___. Selamladığın kişiyi sona eklersin.',
-    breakdown: ['Good morning=günaydın|friend=arkadaş', 'Good night=iyi geceler|mother=anne'],
+    note: "Good morning = Günaydın. Sonuna ismi ekle: Good morning, Ali.",
+    breakdown: ['Good morning=günaydın|friend=arkadaş'],
   ),
   Word(
     en: 'Good night, grandmother.',
@@ -1232,7 +1232,7 @@ const lesson13Words = [
     emoji: '🌙',
     blank: 'night',
     image: 'goodnight',
-    note: 'Aynı kalıp: Good night, ___ = İyi geceler, ___.',
+    note: "Good night = İyi geceler.",
     breakdown: ['Good night=iyi geceler|grandmother=büyükanne'],
   ),
   Word(
@@ -1245,7 +1245,7 @@ const lesson13Words = [
     emoji: '🎂',
     blank: 'birthday',
     image: 'happybirthday',
-    note: 'Aynı kalıp: Happy birthday, ___ = Doğum günün kutlu olsun, ___.',
+    note: "Happy birthday = Doğum günün kutlu olsun.",
     breakdown: ['Happy birthday=doğum günün kutlu olsun|mother=anne'],
   ),
   Word(
@@ -1258,7 +1258,7 @@ const lesson13Words = [
     emoji: '🤗',
     blank: 'father',
     image: 'welcome',
-    note: 'Aynı kalıp: Welcome, ___ = Hoş geldin, ___.',
+    note: "Welcome = Hoş geldin.",
     breakdown: ['Welcome=hoş geldin|father=baba'],
   ),
   Word(
@@ -1271,7 +1271,7 @@ const lesson13Words = [
     emoji: '🍀',
     blank: 'luck',
     image: 'goodluck',
-    note: 'Aynı kalıp: Good luck, ___ = İyi şanslar, ___.',
+    note: "Good luck = İyi şanslar.",
     breakdown: ['Good luck=iyi şanslar|sister=kız kardeş'],
   ),
   Word(
@@ -1284,8 +1284,8 @@ const lesson13Words = [
     emoji: '❓',
     blank: 'mother',
     image: 'howareyou',
-    note: "Yeni kalıp: How are you? = Nasılsın? Cevabı: I\'m fine = İyiyim.",
-    breakdown: ['How are you=nasılsın|father=baba', "I'm fine=iyiyim|thank you=teşekkürler"],
+    note: "How are you? = Nasılsın? Cevap: I'm fine = İyiyim.",
+    breakdown: ['How are you=nasılsın|father=baba'],
   ),
   Word(
     en: "I'm fine, thank you.",
@@ -1297,7 +1297,7 @@ const lesson13Words = [
     emoji: '👍',
     blank: 'fine',
     image: 'imfine',
-    note: "Aynı kalıp: I\'m fine = İyiyim. Teşekkür etmek için thank you eklenir.",
+    note: "I'm fine = İyiyim. Teşekkür için thank you ekle.",
     breakdown: ["I'm fine=iyiyim|thank you=teşekkür ederim"],
   ),
   Word(
@@ -1310,8 +1310,8 @@ const lesson13Words = [
     emoji: '🙋',
     blank: 'please',
     image: 'excuseme',
-    note: 'Yeni kalıp: Excuse me = Affedersiniz. Birinden bir şey isterken please (lütfen) eklenir.',
-    breakdown: ['Excuse me=affedersiniz|please=lütfen', 'Sorry=özür dilerim|mother=anne'],
+    note: "Excuse me = Affedersiniz. Rica ederken please (lütfen) ekle.",
+    breakdown: ['Excuse me=affedersiniz|please=lütfen'],
   ),
   Word(
     en: 'Sorry, brother.',
@@ -1323,7 +1323,7 @@ const lesson13Words = [
     emoji: '🙏',
     blank: 'brother',
     image: 'sorry',
-    note: 'Aynı kalıp: Sorry, ___ = Özür dilerim, ___.',
+    note: "Sorry = Özür dilerim.",
     breakdown: ['Sorry=özür dilerim|brother=erkek kardeş'],
   ),
   Word(
@@ -1336,8 +1336,8 @@ const lesson13Words = [
     emoji: '👋',
     blank: 'friend',
     image: 'seeyou',
-    note: 'Yeni kalıp: See you = Görüşürüz. Ayrılırken Goodbye ile birlikte söylenir.',
-    breakdown: ['Goodbye=hoşça kal|See you=görüşürüz', 'See you=görüşürüz|friend=arkadaş'],
+    note: "See you = Görüşürüz.",
+    breakdown: ['Goodbye=hoşça kal|See you=görüşürüz'],
   ),
 ];
 
