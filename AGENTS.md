@@ -322,6 +322,8 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Harita boyutu küçültüldü** (`lesson_map_screen.dart`, kullanıcı istedi: ekran görüntüsünde çok büyüktü): Üst başlık (ünite seçici + kristal sayacı) AYNI kaldı. Ders düğümleri, yıldızlar, ad etiketleri, "+5" rozetleri, hazine sandığı ve ejderha tek çarpanla (`_mapK = 0.78`, dosyanın başında) küçültüldü; ayarlamak için sadece bu sayı değişir (1 = eski boyut). Ders aralığı en az 96 yerine 68 (`clamp(68, 120)`), alt boşluk 92 yerine 74: 6 ders + hazine kaydırmadan ekrana sığar. Süs emojileri ve yol çizgisi aynı. Derlenip denenmedi (Dart derleyicisi yok, parantez dengesi elle kontrol edildi), APK ile test edilmeli. Hâlâ büyük/küçük gelirse `_mapK` ayarlanır.
 
+- **Ders 10 (Küçük Kelimeler) eklendi** (`lesson_data.dart`, `lesson_screen.dart`, `lesson_map_screen.dart`, kullanıcı istedi: her şey öğretici olsun, sadece o ana kadar öğrenilen kelimelerle gidilsin): `lesson10Words` (a, the, have, like, see, want, is, this, that, and; sıra bağımlılığa göre: önce "I" ile kurulan fiiller, `is` ve gösterme sözcükleri sonra). `Word`a `note` alanı (Türkçe açıklama) ve `isAbstract` eklendi: ders kartında kelimenin Türkçesinin altında sarı açıklama kutusu çıkar (ne işe yarar, örnek). Ders kartında soyut kelime artık ÖĞRETİCİ: Türkçe açıklama kutusu + 2 örnek cümle parça parça (`Word.breakdown`, `_Breakdown`: üstte İngilizce kutular, altında Türkçesi, öğretilen kelime sarı, dokununca cümle okunur). Quizde yanlış cevapta `note` açıklaması gösterilir (`quiz_screen.dart`). Soyut kelimelerin kendi görseli yok: örnek cümlenin görseli `image` ile gösterilir (a=cat, the=dog, have=duck, like=banana, see=bird, want=pear, is=apple, this=car, that=bus, and=family; Bölüm 15 istisnası). Quizde soyut kelimeler "Doğru görseli seç"e girmez ve başka kelimenin görsel şıkkı olmaz (görsel çakışması olmasın), yerine Doğru cevabı seç gelir. Örnek cümleler sadece Ders 1-9 kelimeleriyle kurulu, her hedef kelime cümlede tam bir kez geçer (kontrol edildi). Okunuşlar Amerikan: a=ey, the=dı, want=wont. Ünite 2 haritasında 4. kart "Küçük Kelimeler", 5. "Cümle Kurma", 6. "Günlük İfadeler" oldu (Alışveriş Ünite 3'e kaldı). Derlenip denenmedi (Dart derleyicisi yok), APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 9 ve 10 sonrası "Tekrar dersi yapalım mı?" diye sor.
+
 ## 15. MÜFREDAT PLANI (KESİN KURAL, kullanıcı istedi: müfredata göre gidilir, ders başına onay beklenmez)
 
 Amaç: önce öğret, sonra sor. Cümle derslerinden önce kalıbı oluşturan küçük kelimeler öğretilir. Bir kalıp ilk kez geçiyorsa dersin başında ÖĞRETİCİ KART gösterilir: kalıp, Türkçesi, 2 örnek cümle (mevcut kelime görselleriyle), "Dinle" butonu. Kartlardan sonra sorular gelir. Yeni kart tipi gerekirse `lesson_screen.dart` içinde ayrı widget olarak eklenir (animasyon yok, ek paket yok).
@@ -386,8 +388,8 @@ Durum (tamamlanınca [x] yap):
 6. [x] Sayılar (1-10: one, two, three, four, five, six, seven, eight, nine, ten; kullanıcıyla konuşularak Renkler'den sonra eklendi). Görsel: büyük mavi rakam + altında o sayıda sarı yıldız, çocuksuz, saydam PNG (one.png ... ten.png). Kullanıcı test etti.
 7. [x] Aile (10 kelime: mother, father, sister, brother, baby, grandmother, grandfather, family, boy, girl). Ünite 2'nin 1. dersi. Kullanıcı test etti. (Cümle Kurma 1 silindi, cümle dersleri Ünite 2'de Cümle Kurma kartında planlı, Bölüm 13.)
 8. [x] Araçlar (10 kelime: car, bus, train, plane, boat, bicycle, truck, helicopter, motorcycle, taxi). Görseller çocuksuz araç çizimi (Renkler/Sayılar gibi, Bölüm 8 istisnası), tek Gemini sayfasından kesildi. Kod eklendi, Ünite 2'nin 1. dersi (genel ders no 8). Kullanıcı test etti.
-9. [~] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı testi bekleniyor.
-10. [ ] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, is, have, like, see, this, that, and, want
+9. [x] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı test etti, onayladı.
+10. [~] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, have, like, see, want, is, this, that, and. Kod eklendi, kullanıcı testi bekleniyor.
 11. [ ] Cümle Kurma 1 (öğretici kartlı, Bölüm 15): I have / I like / I see / The ___ is ___
 12. [ ] Günlük İfadeler
 
@@ -398,7 +400,8 @@ Ders 5: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 6: kelimeler [x] görseller [x] kod [x] test [x]
 Ders 7 (Aile): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [x]
-Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [ ]
+Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [x]
+Ders 10 (Küçük Kelimeler): kelimeler [x] görseller [x] (mevcut örnek görselleri) kod [x] test [ ]
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
