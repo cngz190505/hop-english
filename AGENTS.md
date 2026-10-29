@@ -329,24 +329,23 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 - **Ders 12 (Günlük İfadeler) ve Ders 13 (Günlük İfadeler Cümleleri) eklendi** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG, kullanıcı görselleri gönderdi): `lesson12Words` (good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday; örnek cümleler sadece Ders 1-11 kelimeleriyle, ifade cümlede tam bir kez). Görseller Gemini'nin 5x2 sayfasından kesildi: etiket yazıları, yer gölgesi, arka plan ve kol/bacak arası beyaz boşluklar silindi, hepsi aynı ölçekte, ayaklar aynı çizgide, 420 px yükseklik, saydam PNG: `goodmorning, goodnight, howareyou, imfine, sorry, excuseme, welcome, seeyou, goodluck, happybirthday`. `I'm fine` kelimesinin görseli `image: 'imfine'` ile verildi (kesme işareti dosya adında olmasın diye). `lesson13Words`: 10 cümle (yeni kelime yok), Ders 12 görselleri `image` ile kullanılır, kalıp açıklaması + 2 örnek `note`/`breakdown` ile (Ders 10-11'deki kart). Kalıplar: Good morning/night/Happy birthday/Welcome/Good luck + kişi, How are you? / I'm fine, Excuse me / Sorry, Goodbye! See you. Haritada Ünite 2 artık 7 ders (`_Unit('Ünite 2', 6, 7)`, 13. kart "İfade Cümleleri"); 7 ders + hazine ekrana sığmazsa kaydırma açılır, sığdırmak için `_mapK` küçültülebilir. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 11-13 sonrası "Tekrar dersi yapalım mı?" diye sor.
 
 
-- **Ders notları sadeleştirildi (kullanıcı istedi)** (`lesson_data.dart`): Notlar günlük konuşma gibi, kısa cümle, terim ve boşluklu formül yok (\"Yeni kalıp: I have ___ = Bende ___ var\" gibi yazılar kalktı). Her not bir örnekle biter. `breakdown` artık kelime başına SADECE 1 örnek (ilgisiz ikinci kart, örn. Good night / mother, kaldırıldı). Yeni ders yazarken aynı kural: kısa not, tek örnek. Derlenip denenmedi.
+- **Ders notları sadeleştirildi (kullanıcı istedi)** (`lesson_data.dart`): Notlar günlük konuşma gibi, kısa cümle, terim ve boşluklu formül yok ("Yeni kalıp: I have ___ = Bende ___ var" gibi yazılar kalktı). Her not bir örnekle biter. `breakdown` artık kelime başına SADECE 1 örnek (ilgisiz ikinci kart, örn. Good night / mother, kaldırıldı). Yeni ders yazarken aynı kural: kısa not, tek örnek. Derlenip denenmedi.
 
 ## 15. MÜFREDAT PLANI (KESİN KURAL, kullanıcı istedi: müfredata göre gidilir, ders başına onay beklenmez)
 
-Amaç: önce öğret, sonra sor. Cümle derslerinden önce kalıbı oluşturan küçük kelimeler öğretilir. Bir kalıp ilk kez geçiyorsa dersin başında ÖĞRETİCİ KART gösterilir: kalıp, Türkçesi, 2 örnek cümle (mevcut kelime görselleriyle), "Dinle" butonu. Kartlardan sonra sorular gelir. Yeni kart tipi gerekirse `lesson_screen.dart` içinde ayrı widget olarak eklenir (animasyon yok, ek paket yok).
+Amaç: önce kelime öğret, sonra sor. Cümle dersleri şu an YOK (Bölüm 13).
 
-Soyut kelimelerin (a, the, is...) kendi görseli yoktur. Bunlar örnek cümle resmiyle öğretilir (mevcut `assets/words/` görselleri). Bölüm 8'in "her kelimenin kendi görseli" kuralına bu derslerde İSTİSNA kullanıcı onayıyla yapıldı.
+Soyut kelimelerin (a, the, is...) kendi görseli yoktur ve çocuğa kolay anlatılamıyor. Bu yüzden soyut kelime dersi (Küçük Kelimeler) KALDIRILDI. Sadece resimli kelime dersleri eklenir: her kelimenin kendi resmi ve Türkçe anlamı olur.
 
-Her ünite 6 ders. Sıra:
+Ünite 1 = 6 ders. Ünite 2 = 4 ders. Sıra:
 - **Ünite 1 (bitti):** Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar
-- **Ünite 2 (7 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, **Küçük Kelimeler** (a, the, is, have, like, see, this, that, and, want), **Cümle Kurma 1** (I have / I like / I see / The ___ is ___, kalıp başına öğretici kart), Günlük İfadeler, **Günlük İfadeler Cümleleri** (Ders 13, Günlük İfadeler biter bitmez gelir)
-- **Ünite 3:** Ev, Ev Cümleleri, Yiyecekler, Yiyecekler Cümleleri, Giysiler, Giysiler Cümleleri
-- **Ünite 4:** Günler, Günler Cümleleri, Mevsimler ve Hava, Mevsimler Cümleleri, Eylemler, Eylemler Cümleleri
-- **YENİ KURAL (kullanıcı istedi): Günlük İfadeler'den (Ders 12) itibaren her konu dersinin HEMEN ARDINDAN o konunun kelimeleriyle kurulu cümle dersi gelir** (yeni kelime yok, kalıp öğretici kartıyla, Bölüm 13). Ünite 3 ve sonrası: ünite başına 6 ders (3 konu + 3 cümle). Ünite 2 istisna olarak 7 ders (Günlük İfadeler + cümleleri eklendi, `_units` aralığı (6,7) olur). Ünite 1 ve Ders 7-11 olduğu gibi kalır (Cümle Kurma 1 duruyor, geriye dönük cümle dersi eklenmez). Bölüm 13'teki "her 2-3 derste bir" sıklığı bu kuralla DEĞİŞTİ.
+- **Ünite 2 (4 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, Günlük İfadeler. Küçük Kelimeler KALDIRILDI.
+- **Sonraki üniteler (plan, sadece kelime dersleri):** Ev, Yiyecekler, Giysiler, Günler, Mevsimler ve Hava, Eylemler. Cümle dersi YOK.
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
-- **Cümle dersleri KALDIRILDI (kullanıcı istedi)** (`lesson_data.dart`, `lesson_map_screen.dart`): Çocuğa cümle kalıbını kolay anlatamıyoruz, önce kelime öğretilecek. `lesson11Words` (Cümle Kurma 1) ve `lesson13Words` (Günlük İfade Cümleleri) `lessonsContent` ve `lessonTitles` listelerinden çıkarıldı, haritadan kartları silindi. Ünite 2 artık 5 ders (`_Unit('Ünite 2', 6, 5)`: Aile, Araçlar, Vücut, Küçük Kelimeler, Günlük İfadeler). Ders verileri dosyada duruyor (geri açmak için listeye eklemek yeter). Bu, Bölüm 13 ve 15'teki \"her konudan sonra cümle dersi gelir\" kuralını GEÇERSİZ kılar: kullanıcı tekrar istemedikçe cümle dersi ekleme. Derlenip denenmedi.
+- **Küçük Kelimeler dersi de KALDIRILDI (kullanıcı istedi):** `lesson10Words` listeden ve haritadan çıktı (veri dosyada duruyor). Eski sisteme dönüldü: sadece resimli kelime dersleri, resim + Türkçe anlam. Ünite 2 = 4 ders (`_Unit('Ünite 2', 6, 4)`). Soyut kelime (a, the, want...) ve cümle dersi ekleme.
+- **Cümle dersleri KALDIRILDI (kullanıcı istedi)** (`lesson_data.dart`, `lesson_map_screen.dart`): Çocuğa cümle kalıbını kolay anlatamıyoruz, önce kelime öğretilecek. `lesson11Words` (Cümle Kurma 1) ve `lesson13Words` (Günlük İfade Cümleleri) `lessonsContent` ve `lessonTitles` listelerinden çıkarıldı, haritadan kartları silindi. Ünite 2 artık 5 ders (`_Unit('Ünite 2', 6, 5)`: Aile, Araçlar, Vücut, Küçük Kelimeler, Günlük İfadeler). Ders verileri dosyada duruyor (geri açmak için listeye eklemek yeter). Bu, Bölüm 13 ve 15'teki "her konudan sonra cümle dersi gelir" kuralını GEÇERSİZ kılar: kullanıcı tekrar istemedikçe cümle dersi ekleme. Derlenip denenmedi.
 
 ## 16. ANLATIM DİLİ KURALI (KESİN KURAL, kullanıcı istedi)
 
@@ -400,7 +399,7 @@ Kurallar:
 - 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 - Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
 - Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
-- Ders haritası şu an 7 ders gösteriyor (Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar, Cümle Kurma 1).
+- Ders haritası şu an 10 ders gösteriyor (Ünite 1: 6 ders, Ünite 2: Aile, Araçlar, Vücut, Günlük İfadeler).
   Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
 
 Her ders için 4 adım:
@@ -421,7 +420,7 @@ Durum (tamamlanınca [x] yap):
 8. [x] Araçlar (10 kelime: car, bus, train, plane, boat, bicycle, truck, helicopter, motorcycle, taxi). Görseller çocuksuz araç çizimi (Renkler/Sayılar gibi, Bölüm 8 istisnası), tek Gemini sayfasından kesildi. Kod eklendi, Ünite 2'nin 1. dersi (genel ders no 8). Kullanıcı test etti.
 9. [x] Vücut (10 kelime: head, eye, ear, nose, mouth, hand, arm, leg, foot, hair). Görseller aynı çocuk karakteri, ilgili uzvu parmakla gösteriyor (Gemini tek sayfa 5x2, kesildi, saydam PNG 420 px yükseklik, üstten hizalı). Kod eklendi, kullanıcı test etti, onayladı.
 10. [x] Küçük Kelimeler (öğretici ders, Bölüm 15): a, the, have, like, see, want, is, this, that, and. Kod eklendi, kullanıcı test etti.
-11. [~] Cümle Kurma 1 (öğretici kartlı, Bölüm 15): I have / I like / I see / The ___ is ___. 10 cümle, yeni kelime yok. Kod eklendi, kullanıcı testi bekleniyor.
+11. [-] Cümle Kurma 1: KALDIRILDI (kullanıcı istedi, Bölüm 13).
 12. [~] Günlük İfadeler (10 ifade: good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday). Görseller geldi, kod eklendi, kullanıcı testi bekleniyor.
 13. [~] Günlük İfadeler Cümleleri (öğretici kartlı, Ders 12'den hemen sonra, yeni kelime yok, 10 cümle). Kod eklendi, kullanıcı testi bekleniyor.
 
@@ -434,9 +433,9 @@ Ders 7 (Aile): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 8 (Araçlar): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 9 (Vücut): kelimeler [x] görseller [x] kod [x] test [x]
 Ders 10 (Küçük Kelimeler): kelimeler [x] görseller [x] (mevcut örnek görselleri) kod [x] test [x]
-Ders 11 (Cümle Kurma 1): cümleler [x] görseller [x] (mevcut) kod [x] test [ ]
+Ders 11 (Cümle Kurma 1): KALDIRILDI
 Ders 12 (Günlük İfadeler): kelimeler [x] görseller [x] kod [x] test [ ]
-Ders 13 (Günlük İfadeler Cümleleri): cümleler [x] görseller [x] (Ders 12 görselleri) kod [x] test [ ]
+Ders 13 (Günlük İfadeler Cümleleri): KALDIRILDI
 
 
 ## 10. Soru tipleri ve ders akışı (KESİN KURAL)
@@ -459,7 +458,7 @@ Proje sahibinin kesin isteği. İzin almadan çıkarma, esnetme, değiştirme. A
   tüm renk/buton `theme.dart`'tan gelir.
 - Kelime hakimiyeti: her kelimenin 3 yıldızı var, 3 yıldız = "Öğrenildi". Ders sonunda özet kartı çıkar.
   Ana sayfada "Günün kelimesi" kartı durur. Bunlar kalkmaz.
-- Sıradaki işler (sırayla): cümle kurma dersleri (Bölüm 13), rozetler, yavaş okuma butonu (yavaş okuma yapıldı). Bildirim hatırlatması ve konuşma (mikrofon)
+- Sıradaki işler (sırayla): rozetler, yavaş okuma butonu (yavaş okuma yapıldı). Bildirim hatırlatması ve konuşma (mikrofon)
   paket gerektirir, önce kullanıcıya sor.
 
 - **Ders uzunluğu kararı**: Kullanıcı 22 soruluk dersi olduğu gibi bıraktı. Telefonda test edilip çocuk için çok uzun
@@ -513,17 +512,10 @@ Proje sahibinin kesin isteği. İzin almadan değiştirme.
 
 ## 13. Cümle kurma dersleri (KESİN KURAL, kullanıcı istedi)
 
-Amaç: kelime öğrenen çocuk kelimeyi cümlede kullanmayı da öğrensin. Sadece kelime veren uygulama olmayacağız.
+**DURDURULDU (kullanıcı istedi): cümle kurma dersi YOK.** Çocuğa cümle kalıbını kolay anlatamıyoruz, önce kelime öğretilir. Kullanıcı tekrar istemedikçe cümle dersi ekleme, planlama veya önerme.
 
-- **Sıklık (Günlük İfadeler'den itibaren DEĞİŞTİ, Bölüm 15): her konu dersinden hemen sonra o konunun cümle dersi gelir. Eski kural:** Her 2-3 kelime dersinden sonra 1 cümle kurma dersi konur (müfredat sırası Bölüm 9'da). İlki Ders 6 (Sayılar) sonrası: "Cümle Kurma 1".
-- **Yeni kelime YOK.** Sadece önceki derslerde öğrenilmiş kelimeler kullanılır. Bu yüzden yeni kelime görseli gerekmez, mevcut `assets/words/` görselleri kullanılır (Bölüm 8 bozulmaz). "1 ders = 10 kelime" kuralı bu dersler için geçerli değildir.
-- **Kalıplar:** "I have ___", "I like ___", "I see ___", "The ___ is ___" (örn. "The cat is black.", "I have two cats."). Kalıp başına kısa, kolay cümleler, çok uzun cümle yok (en çok 5-6 kelime).
-- **Soru tipi:** Önce mevcut yapılar kullanılır: cümle tamamlama (`QType.sentence`) ve parça dizme (`scrambleTiles`, kelime parçalarıyla cümle kurma). Yeni soru tipi gerekirse önce kullanıcıya sor ve Bölüm 10'a ekle.
-- **Kurallar aynen geçerli:** animasyon yok, ek paket yok, `setState` küçük, renk/buton `theme.dart`'tan (Bölüm 1, 2).
-- **Uygulama (yapıldı, Ders 7):** `Word.blank` dolu = cümle dersi, `Word.image` = görsel adı, `buildQuiz` cümle dersini `_buildSentenceQuiz`'e yönlendirir. Yeni cümle dersi eklerken sadece `lessonNWords` listesi + `lessonsContent` + `lessonTitles` + harita kartı gerekir.
-- **İçerik:** Cümleler `lesson_data.dart`'a yeni bir ders olarak eklenir (`lessonsContent` ve `lessonTitles` aynı sırada), ders haritasında kendi kartı olur (`_lessons` elle güncellenir; `_lessonsCount` kaldırıldı, ünite aralıkları `_units`'te, Bölüm 6.1 kontrol notu).
-- **Başlamadan önce:** Claude cümle listesini ve soru akışını kullanıcıya gösterir, onay alır, sonra koda ekler. Onaysız kod yazma.
-- Ders sayısı arttıkça kullanıcıya "Tekrar dersi yapalım mı?" hatırlatması da yapılır (Bölüm 11-C9).
+- `lesson11Words` ve `lesson13Words` dosyada duruyor ama `lessonsContent`, `lessonTitles` ve haritada YOK. Geri açmak için üçüne de eklenir.
+- Teknik not (geri açılırsa): `Word.blank` dolu = cümle dersi, `buildQuiz` bunu `_buildSentenceQuiz`'e yönlendirir. Soru tipleri `QType.sentence` ve `scrambleTiles`.
 
 
 - **7. ders (Cümle Kurma 1) silindi** (`lesson_data.dart`, `lesson_map_screen.dart`): Kullanıcı önce kelime öğretmek istedi; cümle kurma, kalıplar iyi planlanınca sonra eklenecek. Harita 6 ders (`_lessonsCount = 6`). Cümle dersi altyapısı (`isSentence`, `blank`, `_buildSentenceQuiz`) kodda duruyor, zararsız.
