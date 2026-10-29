@@ -749,11 +749,105 @@ const lesson8Words = [
   ),
 ];
 
+/// 9. ders: Vücut (10 kelime, görseller aynı çocuk karakteri, parmakla gösteriyor)
+const lesson9Words = [
+  Word(
+    en: 'head',
+    tr: 'baş',
+    phonetic: '/hed/',
+    say: 'hed',
+    example: 'Touch your head.',
+    exampleTr: 'Başına dokun.',
+    emoji: '🙂',
+  ),
+  Word(
+    en: 'eye',
+    tr: 'göz',
+    phonetic: '/aɪ/',
+    say: 'ay',
+    example: 'This is my eye.',
+    exampleTr: 'Bu benim gözüm.',
+    emoji: '👁️',
+  ),
+  Word(
+    en: 'ear',
+    tr: 'kulak',
+    phonetic: '/ɪr/',
+    say: 'ir',
+    example: 'Touch your ear.',
+    exampleTr: 'Kulağına dokun.',
+    emoji: '👂',
+  ),
+  Word(
+    en: 'nose',
+    tr: 'burun',
+    phonetic: '/noʊz/',
+    say: 'nouz',
+    example: 'My nose is small.',
+    exampleTr: 'Burnum küçük.',
+    emoji: '👃',
+  ),
+  Word(
+    en: 'mouth',
+    tr: 'ağız',
+    phonetic: '/maʊθ/',
+    say: 'mauth',
+    example: 'Open your mouth.',
+    exampleTr: 'Ağzını aç.',
+    emoji: '👄',
+  ),
+  Word(
+    en: 'hand',
+    tr: 'el',
+    phonetic: '/hænd/',
+    say: 'hend',
+    example: 'Wave your hand.',
+    exampleTr: 'Elini salla.',
+    emoji: '✋',
+  ),
+  Word(
+    en: 'arm',
+    tr: 'kol',
+    phonetic: '/ɑːrm/',
+    say: 'arm',
+    example: 'Raise your arm.',
+    exampleTr: 'Kolunu kaldır.',
+    emoji: '💪',
+  ),
+  Word(
+    en: 'leg',
+    tr: 'bacak',
+    phonetic: '/leɡ/',
+    say: 'leg',
+    example: 'My leg is long.',
+    exampleTr: 'Bacağım uzun.',
+    emoji: '🦵',
+  ),
+  Word(
+    en: 'foot',
+    tr: 'ayak',
+    phonetic: '/fʊt/',
+    say: 'fut',
+    example: 'Lift your foot.',
+    exampleTr: 'Ayağını kaldır.',
+    emoji: '🦶',
+  ),
+  Word(
+    en: 'hair',
+    tr: 'saç',
+    phonetic: '/her/',
+    say: 'her',
+    example: 'My hair is brown.',
+    exampleTr: 'Saçım kahverengi.',
+    emoji: '💇',
+  ),
+];
+
 /// Tüm derslerin içeriği (sıra = ders numarası). Yeni ders eklenince buraya ekle.
-const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words];
+const lessonsContent = [lesson1Words, lesson2Words, lesson3Words, lesson4Words, lesson5Words, lesson6Words, lesson7Words, lesson8Words, lesson9Words];
 
 /// Ders adları (lessonsContent ile aynı sırada, ana sayfa kartında görünür).
-const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar'];
+const lessonTitles = ['Selamlaşma', 'Kendini Tanıtma', 'Meyveler', 'Hayvanlar', 'Renkler', 'Sayılar', 'Aile', 'Araçlar', 'Vücut'];
 
 /// Cümle derslerindeki cümleler. Kelime listesine, zor listesine ve hakimiyet yıldızlarına girmez.
 final Set<String> sentenceKeys = {
