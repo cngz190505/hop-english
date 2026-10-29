@@ -328,6 +328,9 @@ Her değişiklikten sonra buraya yazılır ve güncel AGENTS.md kullanıcıya do
 
 - **Ders 12 (Günlük İfadeler) ve Ders 13 (Günlük İfadeler Cümleleri) eklendi** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG, kullanıcı görselleri gönderdi): `lesson12Words` (good morning, good night, how are you, I'm fine, sorry, excuse me, welcome, see you, good luck, happy birthday; örnek cümleler sadece Ders 1-11 kelimeleriyle, ifade cümlede tam bir kez). Görseller Gemini'nin 5x2 sayfasından kesildi: etiket yazıları, yer gölgesi, arka plan ve kol/bacak arası beyaz boşluklar silindi, hepsi aynı ölçekte, ayaklar aynı çizgide, 420 px yükseklik, saydam PNG: `goodmorning, goodnight, howareyou, imfine, sorry, excuseme, welcome, seeyou, goodluck, happybirthday`. `I'm fine` kelimesinin görseli `image: 'imfine'` ile verildi (kesme işareti dosya adında olmasın diye). `lesson13Words`: 10 cümle (yeni kelime yok), Ders 12 görselleri `image` ile kullanılır, kalıp açıklaması + 2 örnek `note`/`breakdown` ile (Ders 10-11'deki kart). Kalıplar: Good morning/night/Happy birthday/Welcome/Good luck + kişi, How are you? / I'm fine, Excuse me / Sorry, Goodbye! See you. Haritada Ünite 2 artık 7 ders (`_Unit('Ünite 2', 6, 7)`, 13. kart "İfade Cümleleri"); 7 ders + hazine ekrana sığmazsa kaydırma açılır, sığdırmak için `_mapK` küçültülebilir. Derlenip denenmedi, APK ile test edilmeli. Tekrar dersi hatırlatması: Ders 11-13 sonrası "Tekrar dersi yapalım mı?" diye sor.
 
+
+- **Ders notları sadeleştirildi (kullanıcı istedi)** (`lesson_data.dart`): Notlar günlük konuşma gibi, kısa cümle, terim ve boşluklu formül yok (\"Yeni kalıp: I have ___ = Bende ___ var\" gibi yazılar kalktı). Her not bir örnekle biter. `breakdown` artık kelime başına SADECE 1 örnek (ilgisiz ikinci kart, örn. Good night / mother, kaldırıldı). Yeni ders yazarken aynı kural: kısa not, tek örnek. Derlenip denenmedi.
+
 ## 15. MÜFREDAT PLANI (KESİN KURAL, kullanıcı istedi: müfredata göre gidilir, ders başına onay beklenmez)
 
 Amaç: önce öğret, sonra sor. Cümle derslerinden önce kalıbı oluşturan küçük kelimeler öğretilir. Bir kalıp ilk kez geçiyorsa dersin başında ÖĞRETİCİ KART gösterilir: kalıp, Türkçesi, 2 örnek cümle (mevcut kelime görselleriyle), "Dinle" butonu. Kartlardan sonra sorular gelir. Yeni kart tipi gerekirse `lesson_screen.dart` içinde ayrı widget olarak eklenir (animasyon yok, ek paket yok).
@@ -342,6 +345,27 @@ Her ünite 6 ders. Sıra:
 - **YENİ KURAL (kullanıcı istedi): Günlük İfadeler'den (Ders 12) itibaren her konu dersinin HEMEN ARDINDAN o konunun kelimeleriyle kurulu cümle dersi gelir** (yeni kelime yok, kalıp öğretici kartıyla, Bölüm 13). Ünite 3 ve sonrası: ünite başına 6 ders (3 konu + 3 cümle). Ünite 2 istisna olarak 7 ders (Günlük İfadeler + cümleleri eklendi, `_units` aralığı (6,7) olur). Ünite 1 ve Ders 7-11 olduğu gibi kalır (Cümle Kurma 1 duruyor, geriye dönük cümle dersi eklenmez). Bölüm 13'teki "her 2-3 derste bir" sıklığı bu kuralla DEĞİŞTİ.
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
+
+## 16. ANLATIM DİLİ KURALI (KESİN KURAL, kullanıcı istedi)
+
+Ders notları, açıklamalar ve ekran yazıları çocuğun anlayacağı kadar basit olur. Karışık ve zor anlatım yasak.
+
+- **Kısa cümle.** Bir cümle bir fikir. Uzun cümle yazma.
+- **Terim yok.** "Belirli", "kalıp", "ek", "çekim" gibi dil bilgisi kelimeleri kullanma. Günlük konuşma gibi yaz.
+- **Boşluklu formül yok.** "I have ___ = Bende ___ var" yazma. Örnekle anlat: "I have = bende var. I have a cat = Bir kedim var."
+- **Her açıklama bir örnekle biter.**
+- **Tek örnek.** Bir kelimede `breakdown` içinde SADECE 1 örnek olur. Örnek, dersin konusuyla ilgili olur (Good morning'e Good night / mother gibi ilgisiz kart ekleme).
+- **"Türkçede karşılığı yok" gibi çelişkili cümle yazma.** Ne zaman kullanılacağını söyle.
+- **Bir ekranda bir yeni şey öğretilir.** İkinci şey sonraki ekrana gider.
+- **Not en çok 2 kısa cümle.** Ya da hiç yazma.
+
+Örnekler:
+- Kötü: "Bildiğimiz, belli şeyin önüne gelir. Türkçede tam karşılığı yoktur."
+- İyi: "Hangi kedi olduğunu biliyorsan the cat dersin. the cat = o kedi."
+- Kötü: "Yeni kalıp: Good morning, ___ = Günaydın, ___."
+- İyi: "Good morning = Günaydın. Sonuna ismi ekle: Good morning, Ali."
+
+Yeni ders, yeni kelime veya yeni soru yazarken bu kural aynen uygulanır.
 
 ## 7. Durum yönetimi kuralı
 
