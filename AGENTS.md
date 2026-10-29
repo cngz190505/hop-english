@@ -340,11 +340,12 @@ Soyut kelimelerin (a, the, is...) kendi görseli yoktur ve çocuğa kolay anlat�
 Ünite 1 = 6 ders. Ünite 2 = 6 ders. Sıra:
 - **Ünite 1 (bitti):** Selamlaşma, Kendini Tanıtma, Meyveler, Hayvanlar, Renkler, Sayılar
 - **Ünite 2 (6 ders, kullanıcı istedi):** Aile, Araçlar, Vücut, Günlük İfadeler, Ev, **Yiyecekler**. Küçük Kelimeler KALDIRILDI.
-- **Ünite 3 (başladı):** Giysiler. Sonraki ders: Günler.
+- **Ünite 3 (başladı):** Giysiler, Hava ve Doğa. Sonraki ders: Eylemler. (Günler dersi ŞİMDİLİK YOK: gün adları resimle anlatılamıyor, yazı gerekir.)
 - **Sonraki dersler (plan, sadece kelime dersleri):** Günler, Mevsimler ve Hava, Eylemler. Cümle dersi YOK.
 - Her 2-3 dersten sonra Tekrar dersi hatırlatması (Bölüm 11-C9).
 - Yeni ders eklerken Bölüm 11 kontrol listesi aynen uygulanır; sadece "kullanıcı onayı bekle" adımı kalktı. Kullanıcı testi yine yapılır, sorun çıkarsa düzeltilir.
 
+- **Ders 17: Hava ve Doğa eklendi (kullanıcı istedi; plandaki Günler yerine, gün adları resimle anlatılamadığı için)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson17Words` (sun, cloud, rain, snow, wind, tree, storm, moon, star, umbrella), `_Unit('Ünite 3', 12, 2)`. Gökkuşağı çıkarıldı (kullanıcı istemedi), yerine tree. Beyaz çizgili resimlere (wind, snow taneleri) koyu mavi ince kontur eklendi (açık mavi zeminde silik kalmasın). Kelimeler [x] görseller [x] kod [x] test [ ].
 - **Ders 16: Giysiler eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson16Words` (shirt, pants, dress, skirt, shoes, socks, hat, coat, gloves, scarf), listelere ve haritaya eklendi. YENİ ÜNİTE 3 açıldı: `_Unit('Ünite 3', 12, 1)` (yeni ders gelince count artırılır, en çok 6), `_decor`'a 3. liste ve `_MapBgPainter`'a `lilac` (mor gökyüzü, tepeler) eklendi. Kelimeler [x] görseller [x] kod [x] test [ ].
 - **Ders 15: Yiyecekler eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson15Words` (bread, milk, egg, cheese, water, rice, soup, cake, pizza, cookie), listelere ve haritaya eklendi, Ünite 2 = `_Unit('Ünite 2', 6, 6)` (ünite doldu). Görseller tek fotoğraftan bölündü, arka plan silindi. Kelimeler [x] görseller [x] kod [x] test [ ].
 - **Ders 14: Ev eklendi (kullanıcı istedi, müfredat sırası)** (`lesson_data.dart`, `lesson_map_screen.dart`, `assets/words/` 10 yeni PNG): `lesson14Words` (house, door, window, bed, table, chair, kitchen, bathroom, garden, lamp), `lessonsContent` ve `lessonTitles` sonuna eklendi, harita kartı eklendi, Ünite 2 = `_Unit('Ünite 2', 6, 5)`. Görseller tek fotoğraftan 10 parçaya bölündü, arka plan silindi (saydam PNG). Kelimeler [x] görseller [x] kod [x] test [ ].
@@ -414,7 +415,7 @@ Kurallar:
 - 1 ders = 10 kelime. Her kelimenin görseli Bölüm 8'e göre hazır olmadan ders koda eklenmez.
 - Dersler aşağıdaki sırayla yapılır. Bir ders bitmeden (kullanıcı test edip onaylamadan) sıradakine geçilmez.
 - Kategori dersleri (somut kelimeler) önce, soyut konuşma dersleri sona. Soyut kelimelerin görseli zordur. (İstisna: Ders 2 Kendini Tanıtma kullanıcı isteğiyle öne alındı.)
-- Ders haritası şu an 13 ders gösteriyor (Ünite 1: 6 ders, Ünite 2: Aile, Araçlar, Vücut, Günlük İfadeler, Ev, Yiyecekler; Ünite 3: Giysiler).
+- Ders haritası şu an 14 ders gösteriyor (Ünite 1: 6 ders, Ünite 2: Aile, Araçlar, Vücut, Günlük İfadeler, Ev, Yiyecekler; Ünite 3: Giysiler, Hava ve Doğa).
   Ders sayısı/isimleri bu listeye göre `lesson_map_screen.dart` içinde güncellenecek (ilgili ders eklenirken).
 
 Her ders için 4 adım:
